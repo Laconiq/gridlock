@@ -1,0 +1,40 @@
+# Unity generated/binary
+Library/
+Temp/
+Obj/
+Build/
+Builds/
+Logs/
+UserSettings/
+
+# Large binary assets
+*.unity
+*.asset
+*.prefab
+*.mat
+*.controller
+*.anim
+*.fbx
+*.obj
+*.png
+*.jpg
+*.jpeg
+*.tga
+*.psd
+*.exr
+*.hdr
+*.wav
+*.mp3
+*.ogg
+*.ttf
+*.otf
+
+# IDE
+.idea/
+.vs/
+.vscode/
+*.csproj
+*.sln
+
+# OS
+.DS_Store
