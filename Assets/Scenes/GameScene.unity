@@ -363,6 +363,9 @@ MonoBehaviour:
   enemyPrefab: {fileID: 2552856530296388220, guid: f14ee77fe58bcea43abac29152e482df, type: 3}
   spawnPoint: {fileID: 1151864217}
   targetPosition: {x: 0, y: 0, z: -20}
+  testMode: 1
+  testEnemy: {fileID: 11400000, guid: cd57b41af6a3db14cae76432139233f8, type: 2}
+  testInterval: 5
 --- !u!1 &62654773
 GameObject:
   m_ObjectHideFlags: 0
@@ -1969,7 +1972,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: 3b418ddc7fb15114bbdbb00eb929d5a9, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -2068,7 +2071,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: 8e36eb62cd76c4649b7a5e0b7201c9f7, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -2196,7 +2199,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: 3b418ddc7fb15114bbdbb00eb929d5a9, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -2555,7 +2558,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AIWE.Towers.TowerExecutor
   ShowTopMostFoldoutHeaderGroup: 1
   moduleRegistry: {fileID: 11400000, guid: 22193429fd66e25468601df6db58c91d, type: 2}
-  projectilePrefab: {fileID: 8964244729186320260, guid: bc2dcf566f61fda4b8cf89fd16cf8c71, type: 3}
 --- !u!1 &714480044
 GameObject:
   m_ObjectHideFlags: 0
@@ -4611,7 +4613,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: 3b418ddc7fb15114bbdbb00eb929d5a9, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

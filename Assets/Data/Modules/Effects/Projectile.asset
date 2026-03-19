@@ -28,4 +28,4 @@ MonoBehaviour:
       data:
         damage: 15
         speed: 20
-        projectilePrefab: {fileID: 7362235884474108154, guid: bc2dcf566f61fda4b8cf89fd16cf8c71, type: 3}
+        projectilePrefab: {fileID: 8964244729186320260, guid: bc2dcf566f61fda4b8cf89fd16cf8c71, type: 3}

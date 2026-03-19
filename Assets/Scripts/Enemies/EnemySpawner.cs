@@ -11,6 +11,25 @@ namespace AIWE.Enemies
         [SerializeField] private Transform spawnPoint;
         [SerializeField] private Vector3 targetPosition = new(0, 0, -20);
 
+        [Header("Test Mode")]
+        [SerializeField] private bool testMode;
+        [SerializeField] private EnemyDefinition testEnemy;
+        [SerializeField] private float testInterval = 5f;
+
+        private float _testTimer;
+
+        private void Update()
+        {
+            if (!testMode || !IsServer || testEnemy == null) return;
+
+            _testTimer -= Time.deltaTime;
+            if (_testTimer <= 0f)
+            {
+                _testTimer = testInterval;
+                SpawnEnemy(testEnemy);
+            }
+        }
+
         public void SpawnWave(WaveDefinition wave)
         {
             if (!IsServer) return;
