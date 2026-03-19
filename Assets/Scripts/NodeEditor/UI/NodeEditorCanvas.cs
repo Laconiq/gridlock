@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using AIWE.Modules;
 using AIWE.NodeEditor.Data;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -9,10 +11,13 @@ namespace AIWE.NodeEditor.UI
 {
     public class NodeEditorCanvas : MonoBehaviour, IPointerDownHandler, IDragHandler, IScrollHandler
     {
+        public event Action<string> OnNodeAdded;
+        public event Action<string> OnNodeRemoved;
         [Header("References")]
         [SerializeField] private RectTransform content;
         [SerializeField] private NodeWidget nodeWidgetPrefab;
         [SerializeField] private ConnectionRenderer connectionPrefab;
+        [SerializeField] private ModuleRegistry moduleRegistry;
 
         [Header("Settings")]
         [SerializeField] private float zoomSpeed = 0.1f;
@@ -41,7 +46,6 @@ namespace AIWE.NodeEditor.UI
         {
             if (_graph == null) _graph = new NodeGraphData();
 
-            // Update positions from widgets
             foreach (var widget in _nodeWidgets)
             {
                 if (widget == null) continue;
@@ -77,7 +81,7 @@ namespace AIWE.NodeEditor.UI
             foreach (var nodeData in _graph.nodes)
             {
                 var widget = Instantiate(nodeWidgetPrefab, content);
-                widget.Initialize(nodeData, this);
+                widget.Initialize(nodeData, this, moduleRegistry);
                 widget.GetComponent<RectTransform>().anchoredPosition = nodeData.editorPosition;
                 _nodeWidgets.Add(widget);
             }
@@ -95,9 +99,11 @@ namespace AIWE.NodeEditor.UI
                 if (fromWidget != null && toWidget != null)
                 {
                     var renderer = Instantiate(connectionPrefab, content);
+                    var lineColor = fromWidget.GetOutputPortColor(conn.fromPort);
                     renderer.SetEndpoints(
                         fromWidget.GetOutputPort(conn.fromPort),
-                        toWidget.GetInputPort(conn.toPort)
+                        toWidget.GetInputPort(conn.toPort),
+                        lineColor
                     );
                     _connectionRenderers.Add(renderer);
                 }
@@ -108,7 +114,6 @@ namespace AIWE.NodeEditor.UI
         {
             if (_graph == null) _graph = new NodeGraphData();
 
-            // Validate trigger count
             if (nodeData.category == ModuleCategory.Trigger)
             {
                 int triggerCount = _graph.nodes.FindAll(n => n.category == ModuleCategory.Trigger).Count;
@@ -124,9 +129,10 @@ namespace AIWE.NodeEditor.UI
             if (nodeWidgetPrefab != null && content != null)
             {
                 var widget = Instantiate(nodeWidgetPrefab, content);
-                widget.Initialize(nodeData, this);
+                widget.Initialize(nodeData, this, moduleRegistry);
                 widget.GetComponent<RectTransform>().anchoredPosition = nodeData.editorPosition;
                 _nodeWidgets.Add(widget);
+                OnNodeAdded?.Invoke(nodeData.moduleDefId);
                 return widget;
             }
             return null;
@@ -134,6 +140,9 @@ namespace AIWE.NodeEditor.UI
 
         public void RemoveNode(string nodeId)
         {
+            var nodeData = _graph?.nodes.Find(n => n.nodeId == nodeId);
+            string moduleDefId = nodeData?.moduleDefId;
+
             _graph?.nodes.RemoveAll(n => n.nodeId == nodeId);
             _graph?.connections.RemoveAll(c => c.fromNodeId == nodeId || c.toNodeId == nodeId);
 
@@ -144,7 +153,9 @@ namespace AIWE.NodeEditor.UI
                 Destroy(widget.gameObject);
             }
 
-            // Remove associated connection renderers
+            if (moduleDefId != null)
+                OnNodeRemoved?.Invoke(moduleDefId);
+
             RebuildConnections();
         }
 
@@ -152,7 +163,6 @@ namespace AIWE.NodeEditor.UI
         {
             if (_graph == null) return;
 
-            // Remove existing connection to the same input
             _graph.connections.RemoveAll(c => c.toNodeId == toNodeId && c.toPort == toPort);
 
             var conn = new ConnectionData

@@ -2,6 +2,7 @@ using AIWE.Core;
 using AIWE.Interfaces;
 using AIWE.Network;
 using AIWE.NodeEditor.UI;
+using AIWE.Player;
 using AIWE.Towers;
 using Unity.Netcode;
 using UnityEngine;
@@ -24,14 +25,14 @@ namespace AIWE.NodeEditor
 
         private void OnLockGranted()
         {
-            // Find the tower we're looking at and open the editor
             var localPlayer = NetworkManager.Singleton?.LocalClient?.PlayerObject;
             if (localPlayer == null) return;
 
-            var interaction = localPlayer.GetComponent<Player.PlayerInteraction>();
+            var interaction = localPlayer.GetComponent<PlayerInteraction>();
+            var inventory = localPlayer.GetComponent<PlayerInventory>();
             if (interaction?.CurrentInteractable is TowerInteractable towerInteractable)
             {
-                screen?.Open(towerInteractable.Chassis);
+                screen?.Open(towerInteractable.Chassis, inventory);
             }
         }
 

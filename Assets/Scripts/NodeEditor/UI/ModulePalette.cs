@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using AIWE.Modules;
 using AIWE.NodeEditor.Data;
+using AIWE.Player;
 using UnityEngine;
 
 namespace AIWE.NodeEditor.UI
@@ -14,10 +15,22 @@ namespace AIWE.NodeEditor.UI
         [SerializeField] private ModuleRegistry moduleRegistry;
 
         private NodeEditorCanvas _canvas;
+        private PlayerInventory _inventory;
+        private readonly Dictionary<string, ModulePaletteItem> _itemsByModuleId = new();
 
-        public void Initialize(NodeEditorCanvas canvas)
+        public void Initialize(NodeEditorCanvas canvas, PlayerInventory inventory)
         {
             _canvas = canvas;
+            _inventory = inventory;
+
+            if (_canvas != null)
+            {
+                _canvas.OnNodeAdded -= OnNodeAdded;
+                _canvas.OnNodeRemoved -= OnNodeRemoved;
+                _canvas.OnNodeAdded += OnNodeAdded;
+                _canvas.OnNodeRemoved += OnNodeRemoved;
+            }
+
             PopulateModules();
         }
 
@@ -26,11 +39,16 @@ namespace AIWE.NodeEditor.UI
             ClearSection(triggerSection);
             ClearSection(zoneSection);
             ClearSection(effectSection);
+            _itemsByModuleId.Clear();
 
             if (moduleRegistry == null || paletteItemPrefab == null) return;
 
             foreach (var moduleDef in moduleRegistry.AllModules)
             {
+                int count = _inventory != null ? _inventory.GetCount(moduleDef.moduleId) : -1;
+
+                if (_inventory != null && count <= 0) continue;
+
                 var parent = moduleDef.category switch
                 {
                     ModuleCategory.Trigger => triggerSection,
@@ -42,8 +60,21 @@ namespace AIWE.NodeEditor.UI
                 if (parent == null) continue;
 
                 var item = Instantiate(paletteItemPrefab, parent);
-                item.Initialize(moduleDef, _canvas);
+                item.Initialize(moduleDef, _canvas, count);
+                _itemsByModuleId[moduleDef.moduleId] = item;
             }
+        }
+
+        private void OnNodeAdded(string moduleDefId)
+        {
+            if (_itemsByModuleId.TryGetValue(moduleDefId, out var item))
+                item.AdjustCount(-1);
+        }
+
+        private void OnNodeRemoved(string moduleDefId)
+        {
+            if (_itemsByModuleId.TryGetValue(moduleDefId, out var item))
+                item.AdjustCount(1);
         }
 
         private void ClearSection(Transform section)
@@ -52,6 +83,15 @@ namespace AIWE.NodeEditor.UI
             for (int i = section.childCount - 1; i >= 0; i--)
             {
                 Destroy(section.GetChild(i).gameObject);
+            }
+        }
+
+        private void OnDestroy()
+        {
+            if (_canvas != null)
+            {
+                _canvas.OnNodeAdded -= OnNodeAdded;
+                _canvas.OnNodeRemoved -= OnNodeRemoved;
             }
         }
     }

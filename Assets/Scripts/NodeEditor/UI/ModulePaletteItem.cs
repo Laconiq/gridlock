@@ -1,4 +1,3 @@
-using System;
 using AIWE.Modules;
 using AIWE.NodeEditor.Data;
 using TMPro;
@@ -16,21 +15,51 @@ namespace AIWE.NodeEditor.UI
         private ModuleDefinition _definition;
         private NodeEditorCanvas _canvas;
         private GameObject _ghost;
+        private int _count;
+        private bool _hasInventory;
+        private CanvasGroup _canvasGroup;
 
-        public void Initialize(ModuleDefinition definition, NodeEditorCanvas canvas)
+        public void Initialize(ModuleDefinition definition, NodeEditorCanvas canvas, int count = -1)
         {
             _definition = definition;
             _canvas = canvas;
+            _hasInventory = count >= 0;
+            _count = count;
 
+            _canvasGroup = GetComponent<CanvasGroup>();
+            if (_canvasGroup == null)
+                _canvasGroup = gameObject.AddComponent<CanvasGroup>();
+
+            UpdateDisplay();
+        }
+
+        public void AdjustCount(int delta)
+        {
+            if (!_hasInventory) return;
+            _count = Mathf.Max(0, _count + delta);
+            UpdateDisplay();
+        }
+
+        private void UpdateDisplay()
+        {
             if (nameText != null)
-                nameText.text = definition.displayName;
+            {
+                nameText.text = _hasInventory
+                    ? $"{_definition.displayName} (x{_count})"
+                    : _definition.displayName;
+            }
 
             if (colorBar != null)
-                colorBar.color = definition.nodeColor;
+                colorBar.color = _definition.nodeColor;
+
+            if (_canvasGroup != null)
+                _canvasGroup.alpha = (_hasInventory && _count <= 0) ? 0.4f : 1f;
         }
 
         public void OnBeginDrag(PointerEventData eventData)
         {
+            if (_hasInventory && _count <= 0) return;
+
             _ghost = new GameObject("DragGhost");
             _ghost.transform.SetParent(transform.root, false);
             var rt = _ghost.AddComponent<RectTransform>();
@@ -67,10 +96,9 @@ namespace AIWE.NodeEditor.UI
                 Destroy(_ghost);
             }
 
-            // Check if dropped on the canvas area
             if (_canvas == null || _definition == null) return;
+            if (_hasInventory && _count <= 0) return;
 
-            // Create a new node at the drop position
             var nodeData = new NodeData
             {
                 moduleDefId = _definition.moduleId,
@@ -78,7 +106,6 @@ namespace AIWE.NodeEditor.UI
                 editorPosition = eventData.position
             };
 
-            // Convert screen position to canvas local position
             var canvasRt = _canvas.GetComponent<RectTransform>();
             if (canvasRt != null)
             {
