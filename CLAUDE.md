@@ -26,6 +26,27 @@ AIWE is a Unity 6 (6000.3.10f1) 3D project using the Universal Render Pipeline (
 **Player actions:** Move, Look, Attack, Interact (hold), Crouch, Jump, Sprint, Previous, Next
 **UI actions:** Navigate, Submit, Cancel, Point, Click, RightClick, MiddleClick, ScrollWheel, TrackedDevicePosition, TrackedDeviceOrientation
 
+## Git Workflow (Gitflow)
+
+- **`main`** — Production-ready code. Only receives merges from `release/*` and `hotfix/*`. Protected, never commit directly.
+- **`dev`** — Integration branch. All feature branches merge here. This is the default working branch.
+- **`feature/<name>`** — New features. Branch from `dev`, merge back into `dev` via PR.
+- **`release/<version>`** — Release preparation (final fixes, version bumps). Branch from `dev`, merge into both `main` and `dev`.
+- **`hotfix/<name>`** — Urgent production fixes. Branch from `main`, merge into both `main` and `dev`.
+
+### Branch naming conventions
+
+- `feature/player-movement`, `feature/inventory-system`
+- `release/0.1.0`, `release/1.0.0`
+- `hotfix/fix-crash-on-load`
+
+### Rules
+
+- All work happens on `feature/*` branches, never directly on `dev` or `main`
+- PRs target `dev` by default
+- Use squash merge for features, merge commit for releases/hotfixes
+- Delete feature branches after merge
+
 ## Development
 
 - Open the project in Unity 6 (version 6000.3.10f1)
