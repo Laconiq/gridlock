@@ -61,12 +61,12 @@ namespace AIWE.Player
             else
             {
                 var json = GraphSerializer.Serialize(graph);
-                UpdateGraphServerRpc(json);
+                UpdateGraphRpc(json);
             }
         }
 
-        [ServerRpc(RequireOwnership = false)]
-        private void UpdateGraphServerRpc(string json, ServerRpcParams rpcParams = default)
+        [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+        private void UpdateGraphRpc(string json)
         {
             if (string.IsNullOrEmpty(json) || json.Length > 4000) return;
             var graph = GraphSerializer.Deserialize(json);

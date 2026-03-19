@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d7c8f099edca454fa787de466c3812a, type: 3}
+  m_Name: DOT
+  m_EditorClassIdentifier: Assembly-CSharp::AIWE.Modules.Effects.EffectDefinition
+  moduleId: dot
+  displayName: Damage Over Time
+  icon: {fileID: 21300000, guid: 1e0c0d46b84072f40868347c7e3e67f5, type: 3}
+  category: 2
+  nodeColor: {r: 0.9, g: 0.3, b: 0.3, a: 1}
+  description: 
+  editableParams:
+  - name: damage
+    defaultValue: 5
+    min: 1
+    max: 100
+  - name: duration
+    defaultValue: 4
+    min: 0.5
+    max: 10
+  defaultDamage: 5
+  defaultDuration: 4

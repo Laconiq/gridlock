@@ -73,9 +73,10 @@ namespace AIWE.Player
             }
         }
 
-        private void OnDestroy()
+        public override void OnDestroy()
         {
             _controls?.Dispose();
+            base.OnDestroy();
         }
     }
 }

@@ -47,6 +47,7 @@ namespace AIWE.NodeEditor.UI
 
             var graph = chassis.GetNodeGraph();
             if (canvas != null) canvas.LoadGraph(graph, chassis.MaxTriggers);
+            if (palette != null) palette.Initialize(canvas);
 
             _controls.Player.Disable();
             _controls.UI.Enable();
@@ -73,7 +74,7 @@ namespace AIWE.NodeEditor.UI
             var lockManager = ServiceLocator.Get<EditorLockManager>();
             if (lockManager != null && NetworkManager.Singleton != null)
             {
-                lockManager.ReleaseLockServerRpc(NetworkManager.Singleton.LocalClientId);
+                lockManager.ReleaseLockRpc(NetworkManager.Singleton.LocalClientId);
             }
 
             _currentChassis = null;

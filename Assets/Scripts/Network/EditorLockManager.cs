@@ -63,24 +63,24 @@ namespace AIWE.Network
             return _currentEditorClientId.Value == (long)clientId;
         }
 
-        [ServerRpc(RequireOwnership = false)]
-        public void RequestLockServerRpc(ulong clientId, ServerRpcParams rpcParams = default)
+        [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+        public void RequestLockRpc(ulong clientId)
         {
             if (_currentEditorClientId.Value < 0)
             {
                 _currentEditorClientId.Value = (long)clientId;
                 Debug.Log($"[EditorLock] Lock granted to client {clientId}");
-                GrantLockClientRpc(clientId);
+                GrantLockRpc(clientId);
             }
             else
             {
                 Debug.Log($"[EditorLock] Lock denied for client {clientId} (held by {_currentEditorClientId.Value})");
-                DenyLockClientRpc(clientId);
+                DenyLockRpc(clientId);
             }
         }
 
-        [ServerRpc(RequireOwnership = false)]
-        public void ReleaseLockServerRpc(ulong clientId, ServerRpcParams rpcParams = default)
+        [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+        public void ReleaseLockRpc(ulong clientId)
         {
             if (_currentEditorClientId.Value == (long)clientId)
             {
@@ -89,8 +89,8 @@ namespace AIWE.Network
             }
         }
 
-        [ClientRpc]
-        private void GrantLockClientRpc(ulong clientId)
+        [Rpc(SendTo.ClientsAndHost)]
+        private void GrantLockRpc(ulong clientId)
         {
             if (clientId == NetworkManager.Singleton.LocalClientId)
             {
@@ -98,8 +98,8 @@ namespace AIWE.Network
             }
         }
 
-        [ClientRpc]
-        private void DenyLockClientRpc(ulong clientId)
+        [Rpc(SendTo.ClientsAndHost)]
+        private void DenyLockRpc(ulong clientId)
         {
             if (clientId == NetworkManager.Singleton.LocalClientId)
             {

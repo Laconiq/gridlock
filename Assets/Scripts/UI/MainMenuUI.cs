@@ -42,6 +42,21 @@ namespace AIWE.UI
             ShowMainMenu();
         }
 
+        private void OnEnable()
+        {
+            if (GameManager.Instance != null)
+                GameManager.Instance.CurrentState.OnValueChanged += OnGameStateChanged;
+        }
+
+        private void OnGameStateChanged(GameState prev, GameState current)
+        {
+            if (current != GameState.Lobby)
+            {
+                mainMenuPanel.SetActive(false);
+                lobbyPanel.SetActive(false);
+            }
+        }
+
         private void OnHostClicked()
         {
             SetStatus("Creating game...");

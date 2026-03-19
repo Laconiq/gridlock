@@ -1,3 +1,5 @@
+using System.Collections;
+using AIWE.Core;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -34,13 +36,15 @@ namespace AIWE.Player
                 return;
             }
 
-            _controls.Player.Enable();
             _controls.Player.Jump.performed += OnJump;
             _controls.Player.Sprint.performed += _ => _isSprinting = true;
             _controls.Player.Sprint.canceled += _ => _isSprinting = false;
 
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
+            // Don't lock cursor or enable input yet — wait for game to start
+            SetPlayerInputActive(false);
+
+            // Listen for game state changes (may need to wait for GameManager)
+            StartCoroutine(WaitForGameManager());
         }
 
         public override void OnNetworkDespawn()
@@ -48,6 +52,50 @@ namespace AIWE.Player
             if (!IsOwner) return;
             _controls.Player.Jump.performed -= OnJump;
             _controls.Player.Disable();
+
+            if (GameManager.Instance != null)
+                GameManager.Instance.CurrentState.OnValueChanged -= OnGameStateChanged;
+        }
+
+        private IEnumerator WaitForGameManager()
+        {
+            while (GameManager.Instance == null)
+                yield return null;
+
+            GameManager.Instance.CurrentState.OnValueChanged += OnGameStateChanged;
+            CheckGameState(GameManager.Instance.CurrentState.Value);
+        }
+
+        private void OnGameStateChanged(GameState prev, GameState current)
+        {
+            CheckGameState(current);
+        }
+
+        private void CheckGameState(GameState state)
+        {
+            bool gameActive = state == GameState.Preparing || state == GameState.Wave || state == GameState.Intermission;
+            SetPlayerInputActive(gameActive);
+        }
+
+        public void SetPlayerInputActive(bool active)
+        {
+            InputEnabled = active;
+            if (active)
+            {
+                _controls.Player.Enable();
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
+            }
+            else
+            {
+                _controls.Player.Disable();
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
+            }
+
+            // Also toggle camera input
+            var cam = GetComponentInChildren<PlayerCamera>();
+            if (cam != null) cam.InputEnabled = active;
         }
 
         private void Update()
@@ -87,9 +135,10 @@ namespace AIWE.Player
             }
         }
 
-        private void OnDestroy()
+        public override void OnDestroy()
         {
             _controls?.Dispose();
+            base.OnDestroy();
         }
     }
 }
