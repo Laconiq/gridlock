@@ -1,0 +1,91 @@
+using System.Collections.Generic;
+using AIWE.Interfaces;
+using UnityEngine;
+
+namespace AIWE.Combat
+{
+    public class StatusEffectManager : MonoBehaviour
+    {
+        private readonly List<ActiveStatusEffect> _activeEffects = new();
+
+        public float SpeedMultiplier { get; private set; } = 1f;
+
+        public void ApplyEffect(StatusEffectData data)
+        {
+            _activeEffects.Add(new ActiveStatusEffect
+            {
+                Data = data,
+                RemainingDuration = data.Duration,
+                TickTimer = 0f
+            });
+
+            RecalculateModifiers();
+        }
+
+        private void Update()
+        {
+            bool changed = false;
+
+            for (int i = _activeEffects.Count - 1; i >= 0; i--)
+            {
+                var effect = _activeEffects[i];
+                effect.RemainingDuration -= Time.deltaTime;
+
+                // Process DOT ticks
+                if (effect.Data.Type == StatusEffectType.DamageOverTime)
+                {
+                    effect.TickTimer += Time.deltaTime;
+                    if (effect.TickTimer >= effect.Data.TickInterval)
+                    {
+                        effect.TickTimer = 0f;
+                        var damageable = GetComponent<IDamageable>();
+                        damageable?.TakeDamage(new DamageInfo(
+                            effect.Data.Value, 0, DamageType.DamageOverTime));
+                    }
+                }
+
+                if (effect.RemainingDuration <= 0f)
+                {
+                    _activeEffects.RemoveAt(i);
+                    changed = true;
+                }
+            }
+
+            if (changed) RecalculateModifiers();
+        }
+
+        private void RecalculateModifiers()
+        {
+            SpeedMultiplier = 1f;
+
+            foreach (var effect in _activeEffects)
+            {
+                if (effect.Data.Type == StatusEffectType.Slow)
+                {
+                    SpeedMultiplier *= effect.Data.Value;
+                }
+            }
+        }
+
+        private class ActiveStatusEffect
+        {
+            public StatusEffectData Data;
+            public float RemainingDuration;
+            public float TickTimer;
+        }
+    }
+
+    public struct StatusEffectData
+    {
+        public StatusEffectType Type;
+        public float Value;
+        public float Duration;
+        public float TickInterval;
+    }
+
+    public enum StatusEffectType
+    {
+        Slow,
+        DamageOverTime
+    }
+}
