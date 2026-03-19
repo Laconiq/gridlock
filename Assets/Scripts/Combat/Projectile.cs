@@ -37,7 +37,6 @@ namespace AIWE.Combat
                 return;
             }
 
-            // Simple collision check
             if (Physics.SphereCast(transform.position - _direction * 0.1f, 0.15f, _direction, out var hit, _speed * Time.deltaTime + 0.2f))
             {
                 var damageable = hit.collider.GetComponentInParent<IDamageable>();

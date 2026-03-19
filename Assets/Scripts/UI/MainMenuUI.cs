@@ -42,10 +42,19 @@ namespace AIWE.UI
             ShowMainMenu();
         }
 
-        private void OnEnable()
+        private bool _subscribedToGameState;
+
+        private void SubscribeToGameState()
         {
-            if (GameManager.Instance != null)
-                GameManager.Instance.CurrentState.OnValueChanged += OnGameStateChanged;
+            if (_subscribedToGameState || GameManager.Instance == null) return;
+            GameManager.Instance.CurrentState.OnValueChanged += OnGameStateChanged;
+            _subscribedToGameState = true;
+
+            if (GameManager.Instance.CurrentState.Value != GameState.Lobby)
+            {
+                mainMenuPanel.SetActive(false);
+                lobbyPanel.SetActive(false);
+            }
         }
 
         private void OnGameStateChanged(GameState prev, GameState current)
@@ -121,6 +130,9 @@ namespace AIWE.UI
 
         private void Update()
         {
+            if (!_subscribedToGameState)
+                SubscribeToGameState();
+
             if (lobbyPanel.activeSelf)
             {
                 var nm = Unity.Netcode.NetworkManager.Singleton;
@@ -151,6 +163,8 @@ namespace AIWE.UI
                 _bootstrap.OnClientStarted -= OnConnected;
                 _bootstrap.OnError -= OnConnectionError;
             }
+            if (_subscribedToGameState && GameManager.Instance != null)
+                GameManager.Instance.CurrentState.OnValueChanged -= OnGameStateChanged;
         }
     }
 }

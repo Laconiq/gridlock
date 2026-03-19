@@ -91,6 +91,12 @@ Trigger (WHEN) ──► Zone (WHERE/WHO) ──► Effect (WHAT)
 - Squash merge for features, merge commit for releases/hotfixes
 - Delete feature branches after merge
 
+## Code Style
+
+- **No superfluous comments.** Do not add comments that restate what the code does. Only comment to explain *why* something non-obvious is done. The code should be self-documenting.
+- **No Editor scripts.** Do not create scripts under `Assets/Scripts/Editor/`. Use ScriptableObjects, assets, or MCP tooling instead.
+- **Module system uses `[SerializeReference]` + Odin.** Module definitions (Trigger/Zone/Effect) use `[SerializeReference, ListDrawerSettings, InlineProperty] List<T>` for concrete implementations, following the DarkTales pattern. No string-based factory dispatch — the SO holds the template, `CreateInstance()` clones it.
+
 ## Development
 
 - Open in Unity 6 (version 6000.3.10f1)

@@ -1,5 +1,4 @@
 using System.Collections;
-using AIWE.Core;
 using AIWE.Interfaces;
 using Unity.Netcode;
 using UnityEngine;
@@ -14,9 +13,27 @@ namespace AIWE.Player
         private Controls _controls;
         private IInteractable _currentInteractable;
         private InteractionHUD _interactionHUD;
+        private bool _inputEnabled;
 
         public IInteractable CurrentInteractable => _currentInteractable;
-        public bool InputEnabled { get; set; }
+
+        public bool InputEnabled
+        {
+            get => _inputEnabled;
+            set
+            {
+                _inputEnabled = value;
+                if (_controls == null) return;
+                if (value)
+                    _controls.Player.Enable();
+                else
+                {
+                    _controls.Player.Disable();
+                    _currentInteractable = null;
+                    if (_interactionHUD != null) _interactionHUD.Hide();
+                }
+            }
+        }
 
         private void Awake()
         {
@@ -37,7 +54,6 @@ namespace AIWE.Player
 
         private IEnumerator WaitForHUD()
         {
-            // HUD is created at runtime, wait for it
             while (_interactionHUD == null)
             {
                 _interactionHUD = FindAnyObjectByType<InteractionHUD>();
@@ -53,7 +69,7 @@ namespace AIWE.Player
 
         private void Update()
         {
-            if (!IsOwner || !InputEnabled) return;
+            if (!IsOwner || !_inputEnabled) return;
             CheckForInteractable();
         }
 
@@ -97,10 +113,11 @@ namespace AIWE.Player
 
         private void TryInteract()
         {
-            if (!InputEnabled) return;
+            if (!_inputEnabled) return;
             if (_currentInteractable == null) return;
             if (!_currentInteractable.CanInteract(OwnerClientId)) return;
 
+            Debug.Log($"[Interaction] Interacting with {_currentInteractable.GetPromptText()}");
             _currentInteractable.Interact(OwnerClientId);
         }
 

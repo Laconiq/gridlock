@@ -31,7 +31,6 @@ namespace AIWE.Combat
                 var effect = _activeEffects[i];
                 effect.RemainingDuration -= Time.deltaTime;
 
-                // Process DOT ticks
                 if (effect.Data.Type == StatusEffectType.DamageOverTime)
                 {
                     effect.TickTimer += Time.deltaTime;

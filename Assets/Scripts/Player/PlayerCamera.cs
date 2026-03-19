@@ -62,10 +62,8 @@ namespace AIWE.Player
             _pitch -= lookInput.y * sensitivity;
             _pitch = Mathf.Clamp(_pitch, minPitch, maxPitch);
 
-            // Rotate the player body horizontally
             transform.parent.rotation = Quaternion.Euler(0f, _yaw, 0f);
 
-            // Update Cinemachine PanTilt for vertical look
             if (panTilt != null)
             {
                 panTilt.PanAxis.Value = 0f;

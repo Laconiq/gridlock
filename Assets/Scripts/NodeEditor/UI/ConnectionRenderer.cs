@@ -12,10 +12,12 @@ namespace AIWE.NodeEditor.UI
         private RectTransform _startPoint;
         private RectTransform _endPoint;
 
-        public void SetEndpoints(RectTransform start, RectTransform end)
+        public void SetEndpoints(RectTransform start, RectTransform end, Color? lineColor = null)
         {
             _startPoint = start;
             _endPoint = end;
+            if (lineColor.HasValue)
+                color = lineColor.Value;
             SetVerticesDirty();
         }
 

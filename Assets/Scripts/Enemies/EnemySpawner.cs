@@ -48,7 +48,6 @@ namespace AIWE.Enemies
             var health = go.GetComponent<EnemyHealth>();
             health?.SetMaxHP(definition.maxHP);
 
-            // Add StatusEffectManager if not present
             if (go.GetComponent<StatusEffectManager>() == null)
                 go.AddComponent<StatusEffectManager>();
         }

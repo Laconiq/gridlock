@@ -44,7 +44,6 @@ namespace AIWE.Enemies
             var direction = (_targetPosition.Value - transform.position).normalized;
             transform.position += direction * (speed * Time.deltaTime);
 
-            // Check if reached target
             if (Vector3.Distance(transform.position, _targetPosition.Value) < 0.5f)
             {
                 NetworkObject.Despawn();

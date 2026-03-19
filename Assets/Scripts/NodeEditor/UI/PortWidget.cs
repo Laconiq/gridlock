@@ -1,10 +1,12 @@
+using System.Collections.Generic;
+using AIWE.NodeEditor.Data;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace AIWE.NodeEditor.UI
 {
-    public class PortWidget : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IDropHandler
+    public class PortWidget : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
     {
         [SerializeField] private Image portImage;
 
@@ -12,58 +14,126 @@ namespace AIWE.NodeEditor.UI
         private int _portIndex;
         private bool _isInput;
         private NodeEditorCanvas _canvas;
+        private Color _portColor;
 
         private static PortWidget _dragSource;
-        private static GameObject _tempLine;
+        private static bool _dragFromInput;
+        private static GameObject _dragLine;
+        private static RectTransform _dragLineParentRt;
 
         public NodeWidget ParentNode => _parentNode;
         public int PortIndex => _portIndex;
         public bool IsInput => _isInput;
+        public Color PortColor => _portColor;
+        public static bool IsDraggingPort => _dragSource != null;
 
-        public void Initialize(NodeWidget parentNode, int portIndex, bool isInput, NodeEditorCanvas canvas)
+        public void Initialize(NodeWidget parentNode, int portIndex, bool isInput, NodeEditorCanvas canvas, Color color)
         {
             _parentNode = parentNode;
             _portIndex = portIndex;
             _isInput = isInput;
             _canvas = canvas;
+            _portColor = color;
 
             if (portImage != null)
-            {
-                portImage.color = isInput ? new Color(0.8f, 0.8f, 0.8f) : Color.white;
-            }
+                portImage.color = color;
         }
 
         public void OnBeginDrag(PointerEventData eventData)
         {
-            if (_isInput) return; // Can only drag from output ports
             _dragSource = this;
+            _dragFromInput = _isInput;
+
+            var rootCanvas = GetComponentInParent<Canvas>().rootCanvas;
+            _dragLineParentRt = rootCanvas.GetComponent<RectTransform>();
+
+            _dragLine = new GameObject("DragLine");
+            _dragLine.transform.SetParent(rootCanvas.transform, false);
+            var lineImg = _dragLine.AddComponent<Image>();
+            lineImg.color = _portColor;
+            lineImg.raycastTarget = false;
         }
 
         public void OnDrag(PointerEventData eventData)
         {
-            // Visual feedback could be added here (temp line)
+            if (_dragSource != this || _dragLine == null) return;
+
+            var cam = eventData.pressEventCamera;
+
+            var portScreenPos = RectTransformUtility.WorldToScreenPoint(cam, transform.position);
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                _dragLineParentRt, portScreenPos, cam, out var localStart);
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                _dragLineParentRt, eventData.position, cam, out var localEnd);
+
+            var diff = localEnd - localStart;
+            float distance = diff.magnitude;
+            float angle = Mathf.Atan2(diff.y, diff.x) * Mathf.Rad2Deg - 90f;
+
+            var lineRt = _dragLine.GetComponent<RectTransform>();
+            lineRt.anchoredPosition = localStart;
+            lineRt.sizeDelta = new Vector2(3, distance);
+            lineRt.pivot = new Vector2(0.5f, 0);
+            lineRt.localRotation = Quaternion.Euler(0, 0, angle);
         }
 
         public void OnEndDrag(PointerEventData eventData)
         {
+            if (_dragSource != this) return;
+
+            if (_dragLine != null)
+            {
+                Destroy(_dragLine);
+                _dragLine = null;
+            }
+
+            var target = FindPortUnderCursor(eventData);
+            if (target != null && target != this && target._parentNode != _parentNode)
+            {
+                PortWidget output, input;
+                if (_dragFromInput)
+                {
+                    if (!target._isInput) { output = target; input = this; }
+                    else { _dragSource = null; return; }
+                }
+                else
+                {
+                    if (target._isInput) { output = this; input = target; }
+                    else { _dragSource = null; return; }
+                }
+
+                TryConnect(output, input);
+            }
+
             _dragSource = null;
         }
 
-        public void OnDrop(PointerEventData eventData)
+        private PortWidget FindPortUnderCursor(PointerEventData eventData)
         {
-            if (!_isInput) return; // Can only drop on input ports
-            if (_dragSource == null) return;
-            if (_dragSource.ParentNode == _parentNode) return; // No self-connections
+            var results = new List<RaycastResult>();
+            EventSystem.current.RaycastAll(eventData, results);
 
-            // Validate connection types:
-            // Trigger -> Zone, Zone -> Zone or Zone -> Effect
-            var fromCategory = _dragSource.ParentNode.Data.category;
-            var toCategory = _parentNode.Data.category;
+            foreach (var result in results)
+            {
+                var port = result.gameObject.GetComponent<PortWidget>();
+                if (port != null && port != this) return port;
+            }
+            return null;
+        }
 
-            bool valid = false;
-            if (fromCategory == Data.ModuleCategory.Trigger && toCategory == Data.ModuleCategory.Zone) valid = true;
-            if (fromCategory == Data.ModuleCategory.Zone && toCategory == Data.ModuleCategory.Zone) valid = true;
-            if (fromCategory == Data.ModuleCategory.Zone && toCategory == Data.ModuleCategory.Effect) valid = true;
+        private void TryConnect(PortWidget from, PortWidget to)
+        {
+            var fromCategory = from.ParentNode.Data.category;
+            var toCategory = to.ParentNode.Data.category;
+
+            bool valid = (fromCategory, toCategory) switch
+            {
+                (ModuleCategory.Trigger, ModuleCategory.Zone) => true,
+                (ModuleCategory.Zone, ModuleCategory.Zone) => true,
+                (ModuleCategory.Zone, ModuleCategory.Effect) => true,
+                (ModuleCategory.Effect, ModuleCategory.Effect) => true,
+                _ => false
+            };
 
             if (!valid)
             {
@@ -72,8 +142,8 @@ namespace AIWE.NodeEditor.UI
             }
 
             _canvas?.AddConnection(
-                _dragSource.ParentNode.NodeId, _dragSource.PortIndex,
-                _parentNode.NodeId, _portIndex
+                from.ParentNode.NodeId, from.PortIndex,
+                to.ParentNode.NodeId, to.PortIndex
             );
         }
     }

@@ -1007,11 +1007,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db4b4140ec17dc640824808cc987839e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AIWE.NodeEditor.UI.ModulePalette
-  paletteItemPrefab: {fileID: 0}
+  paletteItemPrefab: {fileID: 4770292964287496004, guid: 932ad08453ae0b148aa6db540c9352c1, type: 3}
   triggerSection: {fileID: 1453689427}
   zoneSection: {fileID: 1573467531}
   effectSection: {fileID: 827296097}
-  moduleRegistry: {fileID: 0}
+  moduleRegistry: {fileID: 11400000, guid: 22193429fd66e25468601df6db58c91d, type: 2}
 --- !u!224 &135042514
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1032,8 +1032,8 @@ RectTransform:
   - {fileID: 827296097}
   m_Father: {fileID: 1162156345}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0.15, y: 0.95}
+  m_AnchorMin: {x: 0.8, y: 0}
+  m_AnchorMax: {x: 1, y: 0.95}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -1449,8 +1449,8 @@ RectTransform:
   - {fileID: 297059308}
   m_Father: {fileID: 1162156345}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.15, y: 0}
-  m_AnchorMax: {x: 1, y: 0.95}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0.8, y: 0.95}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -1518,8 +1518,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AIWE.NodeEditor.UI.NodeEditorCanvas
   content: {fileID: 297059308}
-  nodeWidgetPrefab: {fileID: 0}
-  connectionPrefab: {fileID: 0}
+  nodeWidgetPrefab: {fileID: 7853058921818712376, guid: 56d8ef55b60605f4faa84a05bdf407b4, type: 3}
+  connectionPrefab: {fileID: 7675395076575333579, guid: a39e15ee38d6eec4c86cb492b833b560, type: 3}
+  moduleRegistry: {fileID: 11400000, guid: 22193429fd66e25468601df6db58c91d, type: 2}
   zoomSpeed: 0.1
   minZoom: 0.3
   maxZoom: 2
@@ -2259,8 +2260,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 683040486}
-  - component: {fileID: 683040488}
   - component: {fileID: 683040489}
+  - component: {fileID: 683040488}
   m_Layer: 0
   m_Name: EditorLockManager
   m_TagString: Untagged
@@ -2916,7 +2917,7 @@ MonoBehaviour:
   m_Spacing: 4
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
-  m_ChildControlWidth: 0
+  m_ChildControlWidth: 1
   m_ChildControlHeight: 0
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
@@ -3251,7 +3252,7 @@ MonoBehaviour:
   m_BlockingObjects: 0
   m_BlockingMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 55
 --- !u!114 &999092733
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5478,7 +5479,7 @@ MonoBehaviour:
   m_Spacing: 4
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
-  m_ChildControlWidth: 0
+  m_ChildControlWidth: 1
   m_ChildControlHeight: 0
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
@@ -6057,7 +6058,7 @@ MonoBehaviour:
   m_Spacing: 4
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
-  m_ChildControlWidth: 0
+  m_ChildControlWidth: 1
   m_ChildControlHeight: 0
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
@@ -6411,8 +6412,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1884937633}
-  - component: {fileID: 1884937634}
   - component: {fileID: 1884937635}
+  - component: {fileID: 1884937634}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged

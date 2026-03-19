@@ -43,7 +43,6 @@ namespace AIWE.Player
             // Don't lock cursor or enable input yet — wait for game to start
             SetPlayerInputActive(false);
 
-            // Listen for game state changes (may need to wait for GameManager)
             StartCoroutine(WaitForGameManager());
         }
 
@@ -93,7 +92,6 @@ namespace AIWE.Player
                 Cursor.visible = true;
             }
 
-            // Also toggle camera and interaction input
             var cam = GetComponentInChildren<PlayerCamera>();
             if (cam != null) cam.InputEnabled = active;
 
