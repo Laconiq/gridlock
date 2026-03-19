@@ -1,19 +1,16 @@
+using System;
 using AIWE.Interfaces;
 using UnityEngine;
 
 namespace AIWE.Modules.Triggers
 {
+    [Serializable]
     public class OnEnemyEnterRangeTrigger : TriggerInstance
     {
-        private readonly float _range;
-        private readonly float _cooldown;
-        private int _lastEnemyCount;
+        [SerializeField] private float range = 10f;
+        [SerializeField] private float cooldown = 0.5f;
 
-        public OnEnemyEnterRangeTrigger(float range, float cooldown)
-        {
-            _range = range;
-            _cooldown = cooldown;
-        }
+        [NonSerialized] private int _lastEnemyCount;
 
         public override void Tick(float deltaTime)
         {
@@ -22,23 +19,26 @@ namespace AIWE.Modules.Triggers
 
             if (Owner?.FirePoint == null) return;
 
-            var colliders = Physics.OverlapSphere(Owner.FirePoint.position, _range);
+            var colliders = Physics.OverlapSphere(Owner.FirePoint.position, range);
             int enemyCount = 0;
             foreach (var col in colliders)
             {
                 if (col.GetComponentInParent<ITargetable>() is { IsAlive: true })
-                {
                     enemyCount++;
-                }
             }
 
             if (enemyCount > _lastEnemyCount && enemyCount > 0)
             {
                 Fire();
-                CooldownTimer = _cooldown;
+                CooldownTimer = cooldown;
             }
 
             _lastEnemyCount = enemyCount;
+        }
+
+        public override TriggerInstance CreateInstance()
+        {
+            return new OnEnemyEnterRangeTrigger { range = range, cooldown = cooldown };
         }
     }
 }

@@ -17,11 +17,13 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: 5b027040907535249b9e0a4c747f9c44, type: 3}
   category: 2
   nodeColor: {r: 0.25, g: 0.8, b: 0.35, a: 1}
-  description: 
-  editableParams:
-  - name: damage
-    defaultValue: 20
-    min: 1
-    max: 100
-  defaultDamage: 20
-  defaultDuration: 0
+  description:
+  effects:
+  - rid: 684771300558454790
+  references:
+    version: 2
+    RefIds:
+    - rid: 684771300558454790
+      type: {class: HitscanEffect, ns: AIWE.Modules.Effects, asm: Assembly-CSharp}
+      data:
+        damage: 20

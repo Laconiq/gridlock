@@ -1,9 +1,11 @@
+using System;
 using System.Collections.Generic;
 using AIWE.Interfaces;
 using UnityEngine;
 
 namespace AIWE.Modules.Zones
 {
+    [Serializable]
     public class NearestEnemyZone : ZoneInstance
     {
         public override List<ITargetable> SelectTargets(Vector3 origin, float range)
@@ -29,6 +31,11 @@ namespace AIWE.Modules.Zones
 
             if (nearest != null) result.Add(nearest);
             return result;
+        }
+
+        public override ZoneInstance CreateInstance()
+        {
+            return new NearestEnemyZone();
         }
     }
 }

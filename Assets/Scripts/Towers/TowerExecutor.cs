@@ -13,7 +13,6 @@ namespace AIWE.Towers
     public class TowerExecutor : NetworkBehaviour
     {
         [SerializeField] private ModuleRegistry moduleRegistry;
-        [SerializeField] private GameObject projectilePrefab;
 
         private IChassis _chassis;
         private readonly List<TriggerChain> _triggerChains = new();
@@ -22,9 +21,6 @@ namespace AIWE.Towers
         public override void OnNetworkSpawn()
         {
             _chassis = GetComponent<IChassis>();
-
-            if (projectilePrefab != null)
-                ModuleFactory.SetProjectilePrefab(projectilePrefab);
 
             var towerChassis = GetComponent<TowerChassis>();
             if (towerChassis != null)
@@ -41,7 +37,6 @@ namespace AIWE.Towers
             if (graph == null || graph.nodes.Count == 0 || moduleRegistry == null || _chassis == null)
                 return;
 
-            // Find all trigger nodes
             foreach (var node in graph.nodes)
             {
                 if (node.category != ModuleCategory.Trigger) continue;
@@ -49,25 +44,28 @@ namespace AIWE.Towers
                 var triggerDef = moduleRegistry.GetById(node.moduleDefId) as TriggerDefinition;
                 if (triggerDef == null) continue;
 
-                var triggerInstance = ModuleFactory.CreateTrigger(triggerDef, _chassis, node.paramOverrides);
+                var triggers = ModuleFactory.CreateTriggers(triggerDef, _chassis);
+                if (triggers.Count == 0) continue;
 
-                var chain = new TriggerChain { Trigger = triggerInstance };
-
-                // Follow connections from this trigger
-                BuildZoneChain(graph, node.nodeId, chain.ZoneChains);
-
-                // Wire up trigger event
-                chain.Trigger.OnTriggered += () => ExecuteChain(chain);
-
-                _triggerChains.Add(chain);
+                foreach (var triggerInstance in triggers)
+                {
+                    var chain = new TriggerChain { Trigger = triggerInstance };
+                    BuildZoneChain(graph, node.nodeId, chain.ZoneChains);
+                    chain.Trigger.OnTriggered += () => ExecuteChain(chain);
+                    _triggerChains.Add(chain);
+                }
             }
 
             _initialized = _triggerChains.Count > 0;
             Debug.Log($"[TowerExecutor] Built {_triggerChains.Count} trigger chains on {gameObject.name}");
         }
 
-        private void BuildZoneChain(NodeGraphData graph, string fromNodeId, List<ZoneChain> zoneChains)
+        private const int MaxChainDepth = 8;
+
+        private void BuildZoneChain(NodeGraphData graph, string fromNodeId, List<ZoneChain> zoneChains, int depth = 0)
         {
+            if (depth >= MaxChainDepth) return;
+
             foreach (var conn in graph.connections)
             {
                 if (conn.fromNodeId != fromNodeId) continue;
@@ -80,28 +78,37 @@ namespace AIWE.Towers
                     var zoneDef = moduleRegistry.GetById(targetNode.moduleDefId) as ZoneDefinition;
                     if (zoneDef == null) continue;
 
-                    var zoneInstance = ModuleFactory.CreateZone(zoneDef, _chassis, targetNode.paramOverrides);
-                    var zoneChain = new ZoneChain { Zone = zoneInstance };
+                    var zones = ModuleFactory.CreateZones(zoneDef, _chassis);
+                    if (zones.Count == 0) continue;
 
-                    // Find effects connected to this zone
-                    foreach (var effConn in graph.connections)
-                    {
-                        if (effConn.fromNodeId != targetNode.nodeId) continue;
-                        var effNode = graph.nodes.Find(n => n.nodeId == effConn.toNodeId);
-                        if (effNode?.category != ModuleCategory.Effect) continue;
+                    var zoneChain = new ZoneChain { Zone = zones[0] };
 
-                        var effDef = moduleRegistry.GetById(effNode.moduleDefId) as EffectDefinition;
-                        if (effDef == null) continue;
+                    CollectEffects(graph, targetNode.nodeId, zoneChain.Effects);
 
-                        var effInstance = ModuleFactory.CreateEffect(effDef, _chassis, effNode.paramOverrides);
-                        zoneChain.Effects.Add(effInstance);
-                    }
-
-                    // Recurse for chained zones
-                    BuildZoneChain(graph, targetNode.nodeId, zoneChain.ChainedZones);
+                    BuildZoneChain(graph, targetNode.nodeId, zoneChain.ChainedZones, depth + 1);
 
                     zoneChains.Add(zoneChain);
                 }
+            }
+        }
+
+        private void CollectEffects(NodeGraphData graph, string fromNodeId, List<EffectInstance> effects, int depth = 0)
+        {
+            if (depth >= MaxChainDepth) return;
+
+            foreach (var conn in graph.connections)
+            {
+                if (conn.fromNodeId != fromNodeId) continue;
+                var effNode = graph.nodes.Find(n => n.nodeId == conn.toNodeId);
+                if (effNode?.category != ModuleCategory.Effect) continue;
+
+                var effDef = moduleRegistry.GetById(effNode.moduleDefId) as EffectDefinition;
+                if (effDef == null) continue;
+
+                var effInstances = ModuleFactory.CreateEffects(effDef, _chassis);
+                effects.AddRange(effInstances);
+
+                CollectEffects(graph, effNode.nodeId, effects, depth + 1);
             }
         }
 

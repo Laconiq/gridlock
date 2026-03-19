@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using AIWE.Combat;
 using AIWE.Interfaces;
@@ -5,22 +6,17 @@ using UnityEngine;
 
 namespace AIWE.Modules.Effects
 {
+    [Serializable]
     public class SlowEffect : EffectInstance
     {
-        private readonly float _slowFactor;
-        private readonly float _duration;
-
-        public SlowEffect(float slowFactor, float duration)
-        {
-            _slowFactor = slowFactor;
-            _duration = duration;
-        }
+        [SerializeField, Range(0f, 1f)] private float slowFactor = 0.5f;
+        [SerializeField] private float duration = 3f;
 
         public override void Execute(List<ITargetable> targets, Vector3 origin)
         {
             foreach (var target in targets)
             {
-                if (target == null || !target.IsAlive) continue;
+                if (target == null || !target.IsAlive || target.Transform == null) continue;
 
                 var statusManager = target.Transform.GetComponent<StatusEffectManager>();
                 if (statusManager != null)
@@ -28,11 +24,16 @@ namespace AIWE.Modules.Effects
                     statusManager.ApplyEffect(new StatusEffectData
                     {
                         Type = StatusEffectType.Slow,
-                        Value = _slowFactor,
-                        Duration = _duration
+                        Value = slowFactor,
+                        Duration = duration
                     });
                 }
             }
+        }
+
+        public override EffectInstance CreateInstance()
+        {
+            return new SlowEffect { slowFactor = slowFactor, duration = duration };
         }
     }
 }

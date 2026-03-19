@@ -32,7 +32,7 @@ namespace AIWE.Modules
 
         private void OnEnable()
         {
-            _lookup = null; // Reset cache
+            _lookup = null;
         }
     }
 }

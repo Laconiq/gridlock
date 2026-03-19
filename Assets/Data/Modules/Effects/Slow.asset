@@ -17,11 +17,14 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: a248862cd5ac0554bbe508c9900e448b, type: 3}
   category: 2
   nodeColor: {r: 0.4, g: 0.7, b: 0.9, a: 1}
-  description: 
-  editableParams:
-  - name: duration
-    defaultValue: 3
-    min: 0.5
-    max: 10
-  defaultDamage: 0
-  defaultDuration: 3
+  description:
+  effects:
+  - rid: 684771300558454791
+  references:
+    version: 2
+    RefIds:
+    - rid: 684771300558454791
+      type: {class: SlowEffect, ns: AIWE.Modules.Effects, asm: Assembly-CSharp}
+      data:
+        slowFactor: 0.5
+        duration: 3

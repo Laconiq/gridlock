@@ -17,10 +17,14 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: c41b2b8a99f73be47869d9b691ca74cb, type: 3}
   category: 0
   nodeColor: {r: 1, g: 0.5, b: 0.15, a: 1}
-  description: 
-  editableParams:
-  - name: cooldown
-    defaultValue: 0.5
-    min: 0.1
-    max: 10
-  defaultCooldown: 0.5
+  description:
+  triggers:
+  - rid: 684771300558454786
+  references:
+    version: 2
+    RefIds:
+    - rid: 684771300558454786
+      type: {class: OnEnemyEnterRangeTrigger, ns: AIWE.Modules.Triggers, asm: Assembly-CSharp}
+      data:
+        range: 10
+        cooldown: 0.5

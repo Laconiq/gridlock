@@ -17,11 +17,13 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: 75bf8ef72299b47419161adb692e85e6, type: 3}
   category: 1
   nodeColor: {r: 0.3, g: 0.5, b: 1, a: 1}
-  description: 
-  editableParams:
-  - name: range
-    defaultValue: 15
-    min: 1
-    max: 50
+  description:
+  zones:
+  - rid: 684771300558454787
   defaultRange: 15
-  isAoE: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: 684771300558454787
+      type: {class: NearestEnemyZone, ns: AIWE.Modules.Zones, asm: Assembly-CSharp}
+      data: {}
