@@ -93,9 +93,12 @@ namespace AIWE.Player
                 Cursor.visible = true;
             }
 
-            // Also toggle camera input
+            // Also toggle camera and interaction input
             var cam = GetComponentInChildren<PlayerCamera>();
             if (cam != null) cam.InputEnabled = active;
+
+            var interaction = GetComponent<PlayerInteraction>();
+            if (interaction != null) interaction.InputEnabled = active;
         }
 
         private void Update()

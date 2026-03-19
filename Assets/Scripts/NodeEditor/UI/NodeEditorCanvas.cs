@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using AIWE.NodeEditor.Data;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace AIWE.NodeEditor.UI
@@ -209,7 +210,7 @@ namespace AIWE.NodeEditor.UI
 
         private void LateUpdate()
         {
-            if (!UnityEngine.Input.GetMouseButton(1) && !UnityEngine.Input.GetMouseButton(2))
+            if (!Mouse.current.rightButton.isPressed && !Mouse.current.middleButton.isPressed)
             {
                 _isPanning = false;
             }

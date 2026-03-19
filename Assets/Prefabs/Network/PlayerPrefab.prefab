@@ -155,7 +155,6 @@ GameObject:
   - component: {fileID: 8600339989166948754}
   - component: {fileID: 1897906357807185745}
   - component: {fileID: 5316730252319613843}
-  - component: {fileID: 9046962346381265371}
   m_Layer: 0
   m_Name: PlayerPrefab
   m_TagString: Untagged
@@ -310,22 +309,6 @@ MonoBehaviour:
   interactionMask:
     serializedVersion: 2
     m_Bits: 4294967295
---- !u!114 &9046962346381265371
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7362235884474108154}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 73a3f51db88f1654f828ecce02a3ac56, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AIWE.Player.PlayerHUD
-  ShowTopMostFoldoutHeaderGroup: 1
-  interactionPrompt: {fileID: 0}
-  interactionText: {fileID: 0}
-  crosshair: {fileID: 0}
 --- !u!1 &8724841465568502037
 GameObject:
   m_ObjectHideFlags: 0
