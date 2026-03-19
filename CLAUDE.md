@@ -17,84 +17,107 @@ AIWE is a **cooperative FPS Tower Defense** (2-4 players) built in Unity 6 (6000
 | Multiplayer services | Unity Relay + Lobby |
 | AI navigation | AI Navigation 2.0.12 |
 | Level design | **LDtk** + LDtkToUnity (`com.cammin.ldtkunity`) |
-| Cinematics | Timeline 1.8.10 |
 | Scripting backend | IL2CPP |
 | Inspector | Odin Inspector (Sirenix) |
 | Juice/Feedback | Feel (MoreMountains) |
 
+## Code Style
+
+- **No superfluous comments.** Only comment to explain *why* something non-obvious is done. The code should be self-documenting.
+- **No Editor scripts.** Do not create scripts under `Assets/Scripts/Editor/`. Use ScriptableObjects, assets, or MCP tooling instead.
+- **Module system uses `[SerializeReference]` + Odin.** Module definitions use `[SerializeReference, ListDrawerSettings, InlineProperty] List<T>` for concrete implementations (DarkTales pattern). The SO holds templates, `CreateInstance()` clones them at runtime. No string-based factory dispatch.
+
 ## Architecture
 
-### Folder structure
+### Networking authority
 
-```
-Assets/
-├── Animations/          # Animation clips, Animator Controllers
-├── Audio/               # SFX and music
-├── LDtk/                # LDtk project files and tilesets
-├── Materials/           # URP materials
-├── Meshes/              # 3D models (.fbx, .obj)
-├── Prefabs/             # Reusable prefabs (Chassis, Modules, Enemies, Entities)
-├── Scenes/              # Unity scenes
-├── Scripts/             # C# code
-│   ├── Controls.inputactions / Controls.cs (auto-generated — DO NOT EDIT)
-│   ├── Core/            # GameManager, WaveManager
-│   ├── Player/          # FPS controller, weapons, interactions
-│   ├── Towers/          # Chassis + module system
-│   ├── NodeEditor/      # Visual node editor UI
-│   ├── Enemies/         # AI, pathfinding, spawner
-│   ├── Network/         # NGO networking logic
-│   └── UI/              # HUD, menus
-├── Settings/            # URP configs (PC_RPAsset, PC_Renderer)
-├── Textures/            # Textures and sprites
-└── Plugins/             # Third-party (Odin, Feel, editor tools)
-```
+Server-authoritative model. All game state lives in `NetworkVariable` (server write, everyone read). Clients request changes via `ServerRpc`, server validates then commits. Key authority boundaries:
 
-### Key systems
+- **GameManager** — `NetworkVariable<GameState>` controls game flow (Lobby → Preparing → Wave → Intermission)
+- **TowerChassis** — `NetworkVariable<FixedString4096Bytes>` stores serialized node graphs. Client sends `UpdateGraphRpc`, server validates size (<4KB) and deserializes before accepting
+- **PlayerInventory** — `NetworkList<ModuleSlot>` synced to all. Mutations go through `ServerRpc`
+- **EditorLockManager** — Server grants/denies locks atomically via RPCs
 
-- **Rendering:** URP — `PC_RPAsset` for desktop. Config in `Assets/Settings/`.
-- **Input:** `Assets/Scripts/Controls.inputactions` defines all bindings. The C# wrapper regenerates automatically — do not edit `Controls.cs`.
-- **Scene:** `Assets/Scenes/GameScene.unity` (build index 0).
-- **Level Design:** LDtk files in `Assets/LDtk/`. Imported via LDtkToUnity ScriptedImporter. Tile layers → Tilemaps, Entity layers → Prefab instances.
-- **Networking:** Client-server via NGO. Unity Relay for NAT traversal, Lobby for matchmaking.
+Rule: always check `IsServer` before writing state, `IsOwner` before processing input.
 
 ### Module system (core gameplay)
 
-Towers are empty chassis configured via a visual node editor with 3 module types chained together:
+Towers are empty chassis configured via a visual node editor. Three module types chain together:
 
 ```
 Trigger (WHEN) ──► Zone (WHERE/WHO) ──► Effect (WHAT)
+                   Zone ──► Zone (serial chaining)
+                   Effect ──► Effect (vertical chaining)
 ```
 
-- **Trigger**: event that starts execution (On Enemy Enter, On Timer, On Kill…)
-- **Zone**: target selection (Nearest Enemy, All In Range, Self…)
-- **Effect**: concrete action (Projectile, Hitscan, Slow, Knockback…)
+**Definition SOs** hold `[SerializeReference] List<T>` of `[Serializable]` runtime classes:
+- `TriggerDefinition` → `List<TriggerInstance>` (e.g. OnTimerTrigger, OnEnemyEnterRangeTrigger)
+- `ZoneDefinition` → `List<ZoneInstance>` (e.g. NearestEnemyZone, AllEnemiesInRangeZone)
+- `EffectDefinition` → `List<EffectInstance>` (e.g. ProjectileEffect, HitscanEffect, SlowEffect, DotEffect)
 
-## Input Actions
+**Execution pipeline** (server only, in `TowerExecutor`):
+1. `RebuildFromGraph(NodeGraphData)` walks the graph from Trigger nodes
+2. For each Trigger → follows connections to Zones → collects Effects
+3. Builds `TriggerChain → ZoneChain → List<EffectInstance>` tree (max depth 8)
+4. Each frame, triggers tick. On fire → zones select targets → effects execute on targets
 
-**Player:** Move, Look, Attack, Interact (hold), Crouch, Jump, Sprint, Previous, Next
-**UI:** Navigate, Submit, Cancel, Point, Click, RightClick, MiddleClick, ScrollWheel, TrackedDevicePosition, TrackedDeviceOrientation
-**Control schemes:** Keyboard & Mouse, Gamepad, Touch, Joystick, XR
+### Node editor data flow
+
+```
+Player saves graph → NodeEditorScreen.SaveGraph()
+  → TowerChassis.SetNodeGraph(graph)
+    → Client: sends UpdateGraphRpc(json) → Server validates → NetworkVariable updated
+    → Server: writes NetworkVariable directly
+  → TowerChassis.OnGraphChanged() → TowerExecutor.RebuildFromGraph()
+  → PlayerInventory adjusted (module count delta)
+```
+
+Graph serialized as JSON via `GraphSerializer` (JsonUtility), stored in `FixedString4096Bytes`.
+
+### Interaction flow
+
+```
+PlayerInteraction (raycast) → IInteractable found (TowerInteractable)
+  → Interact() → EditorLockManager.RequestLockRpc()
+    → Server grants/denies
+  → OnLockGranted → NodeEditorController → NodeEditorScreen.Open(chassis, inventory)
+    → Player controls disabled, cursor unlocked
+  → Save & Close → graph saved, lock released, controls re-enabled
+```
+
+### ServiceLocator
+
+Static dictionary for global singletons. Registered: `GameManager`, `NetworkBootstrap`, `EditorLockManager`.
+
+```csharp
+ServiceLocator.Register<T>(instance);  // in Awake
+ServiceLocator.Get<T>();               // anywhere
+ServiceLocator.Unregister<T>();        // in OnDestroy
+```
+
+### Key interfaces
+
+| Interface | Contract | Implementors |
+|-----------|----------|-------------|
+| `IChassis` | Tower config container (get/set graph, fire point, max triggers) | TowerChassis, PlayerWeaponChassis |
+| `IInteractable` | Interaction prompt + permission + action | TowerInteractable |
+| `ITargetable` | Position, IsAlive, Transform for targeting | EnemyController |
+| `IDamageable` | TakeDamage(DamageInfo) | EnemyHealth |
+
+## Key Files
+
+- `Controls.inputactions` / `Controls.cs` — Input bindings. **Do not edit Controls.cs** (auto-generated)
+- `Assets/Scenes/GameScene.unity` — Single scene (build index 0)
+- `Assets/Data/Modules/` — Module definition SOs (Triggers/, Zones/, Effects/)
+- `Assets/Data/ModuleRegistry.asset` — Registry referencing all module definitions
+- `Assets/Data/DefaultLoadout.asset` — Starter module kit given to players on spawn
 
 ## Git Workflow (Gitflow)
 
-- **`main`** — Production-ready. Only receives merges from `release/*` and `hotfix/*`. Protected, never commit directly.
-- **`dev`** — Integration branch (default). All feature branches merge here.
-- **`feature/<name>`** — New features. Branch from `dev`, merge back via PR.
-- **`release/<version>`** — Release prep. Branch from `dev`, merge into `main` and `dev`.
-- **`hotfix/<name>`** — Urgent fixes. Branch from `main`, merge into `main` and `dev`.
+- **`main`** — Production-ready. Protected, never commit directly.
+- **`dev`** — Integration branch. All feature branches merge here.
+- **`feature/<name>`** — Branch from `dev`, merge back via PR (squash merge).
+- **`release/<version>`** — Branch from `dev`, merge into `main` and `dev`.
+- **`hotfix/<name>`** — Branch from `main`, merge into `main` and `dev`.
 
-### Conventions
-
-- `feature/player-movement`, `release/0.1.0`, `hotfix/fix-crash-on-load`
-- All work on `feature/*` branches, never directly on `dev` or `main`
-- PRs target `dev` by default
-- Squash merge for features, merge commit for releases/hotfixes
-- Delete feature branches after merge
-
-## Development
-
-- Open in Unity 6 (version 6000.3.10f1)
-- Solution file: `AIWE.sln`
-- C# scripts go in `Assets/Scripts/` in the appropriate subfolder
-- Edit input bindings via `Controls.inputactions` in Unity (wrapper auto-regenerates)
-- LDtk levels: edit in LDtk app, auto-reimported on save
+PRs target `dev` by default. Delete feature branches after merge.
