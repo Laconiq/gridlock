@@ -28,6 +28,14 @@ namespace AIWE.Core
             }
         }
 
+        public override void OnNetworkDespawn()
+        {
+            if (!IsServer) return;
+            var gm = GameManager.Instance;
+            if (gm != null)
+                gm.CurrentState.OnValueChanged -= OnGameStateChanged;
+        }
+
         private void OnGameStateChanged(GameState prev, GameState current)
         {
             if (!IsServer) return;

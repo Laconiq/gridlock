@@ -43,6 +43,10 @@ namespace AIWE.Towers
             var json = current.ToString();
             _cachedGraph = GraphSerializer.Deserialize(json);
             Debug.Log($"[TowerChassis] Graph updated on {gameObject.name}");
+
+            var executor = GetComponent<TowerExecutor>();
+            if (executor != null)
+                executor.RebuildFromGraph(_cachedGraph);
         }
 
         public NodeGraphData GetNodeGraph()
@@ -56,6 +60,11 @@ namespace AIWE.Towers
             if (IsServer)
             {
                 var json = GraphSerializer.Serialize(graph);
+                if (json.Length > 4000)
+                {
+                    Debug.LogWarning("[TowerChassis] Graph too large, truncated");
+                    return;
+                }
                 _serializedGraph.Value = new FixedString4096Bytes(json);
             }
             else

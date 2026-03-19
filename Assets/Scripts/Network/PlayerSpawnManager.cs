@@ -20,12 +20,12 @@ namespace AIWE.Network
         private void OnClientConnected(ulong clientId)
         {
             if (!NetworkManager.Singleton.IsServer) return;
+            if (!NetworkManager.Singleton.ConnectedClients.TryGetValue(clientId, out var client)) return;
 
             var spawnPos = GetNextSpawnPosition();
-            var player = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject;
-            if (player != null)
+            if (client.PlayerObject != null)
             {
-                player.transform.position = spawnPos;
+                client.PlayerObject.transform.position = spawnPos;
             }
         }
 

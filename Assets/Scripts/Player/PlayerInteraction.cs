@@ -14,6 +14,7 @@ namespace AIWE.Player
         private IInteractable _currentInteractable;
         private InteractionHUD _interactionHUD;
         private bool _inputEnabled;
+        private Camera _cachedCamera;
 
         public IInteractable CurrentInteractable => _currentInteractable;
 
@@ -75,7 +76,8 @@ namespace AIWE.Player
 
         private void CheckForInteractable()
         {
-            var cam = Camera.main;
+            if (_cachedCamera == null) _cachedCamera = Camera.main;
+            var cam = _cachedCamera;
             if (cam == null) return;
 
             IInteractable found = null;
