@@ -1,0 +1,85 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="DesignTokens.uss" />
+    <Style src="NodeEditor.uss" />
+
+    <ui:VisualElement name="node-editor-root" class="node-editor-root">
+
+        <!-- Top Bar -->
+        <ui:VisualElement class="top-bar">
+            <ui:VisualElement class="top-bar__left">
+                <ui:Label text="KINETIC_LOGIC_ENGINE" class="top-bar__title" />
+            </ui:VisualElement>
+            <ui:Button name="save-btn" text="DEPLOY_CIRCUIT" class="top-bar__save-btn" />
+        </ui:VisualElement>
+
+        <!-- Content Area -->
+        <ui:VisualElement class="content-area">
+
+            <!-- Sidebar -->
+            <ui:VisualElement name="sidebar" class="sidebar">
+                <ui:VisualElement class="sidebar__header">
+                    <ui:Label text="INVENTORY_CORE" class="sidebar__header-title" />
+                    <ui:Label text="MODULE_REGISTRY" class="sidebar__header-version" />
+                </ui:VisualElement>
+
+                <ui:VisualElement name="sidebar-tabs" class="sidebar__tabs">
+                    <ui:Button name="tab-triggers" class="sidebar__tab sidebar__tab--triggers sidebar__tab--active">
+                        <ui:VisualElement class="sidebar__tab-icon" style="background-image: resource('UI/NodeEditor/Icons/icon_trigger')" />
+                        <ui:Label text="TRIGGERS" />
+                    </ui:Button>
+                    <ui:Button name="tab-zones" class="sidebar__tab sidebar__tab--zones">
+                        <ui:VisualElement class="sidebar__tab-icon" style="background-image: resource('UI/NodeEditor/Icons/icon_zone')" />
+                        <ui:Label text="ZONES" />
+                    </ui:Button>
+                    <ui:Button name="tab-effects" class="sidebar__tab sidebar__tab--effects">
+                        <ui:VisualElement class="sidebar__tab-icon" style="background-image: resource('UI/NodeEditor/Icons/icon_effect')" />
+                        <ui:Label text="EFFECTS" />
+                    </ui:Button>
+                </ui:VisualElement>
+
+                <ui:VisualElement class="sidebar__items">
+                    <ui:ScrollView name="palette-scroll" class="sidebar__items-scroll" />
+                </ui:VisualElement>
+
+                <ui:VisualElement class="sidebar__footer">
+                    <ui:Button name="btn-docs" class="sidebar__footer-btn">
+                        <ui:VisualElement class="sidebar__tab-icon" style="background-image: resource('UI/NodeEditor/Icons/icon_help')" />
+                        <ui:Label text="DOCUMENTATION" />
+                    </ui:Button>
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+            <!-- Canvas Area -->
+            <ui:VisualElement name="canvas-area" class="canvas-area">
+                <ui:VisualElement name="canvas-content" class="canvas-content" />
+                <ui:Label name="canvas-info" class="canvas-info" text="GRID_SNAP: ACTIVE (40PX)" />
+
+                <!-- Viewport Nav (Minimap) -->
+                <ui:VisualElement name="viewport-nav" class="viewport-nav">
+                    <ui:Label text="VIEWPORT_NAV" class="viewport-nav__title" />
+                    <ui:VisualElement name="viewport-nav-canvas" class="viewport-nav__canvas" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+        </ui:VisualElement>
+
+        <!-- Bottom Bar -->
+        <ui:VisualElement class="bottom-bar">
+            <ui:VisualElement class="bottom-bar__hint">
+                <ui:Label text="LMB" class="bottom-bar__key" />
+                <ui:Label text="DRAG" class="bottom-bar__action" />
+            </ui:VisualElement>
+            <ui:VisualElement class="bottom-bar__hint">
+                <ui:Label text="RMB" class="bottom-bar__key" />
+                <ui:Label text="PAN" class="bottom-bar__action" />
+            </ui:VisualElement>
+            <ui:VisualElement class="bottom-bar__hint">
+                <ui:Label text="ESC" class="bottom-bar__key" />
+                <ui:Label text="CLOSE" class="bottom-bar__action" />
+            </ui:VisualElement>
+            <ui:VisualElement class="bottom-bar__spacer" />
+            <ui:Label name="status-label" text="SYSTEM_READY" class="bottom-bar__status" />
+        </ui:VisualElement>
+
+    </ui:VisualElement>
+</ui:UXML>
