@@ -28,6 +28,7 @@ namespace AIWE.Player
         private PlayerController _player;
 
         public bool InputEnabled { get; set; } = true;
+        public Vector2 LookDelta { get; private set; }
 
         private void Awake()
         {
@@ -71,6 +72,7 @@ namespace AIWE.Player
         private void HandleLook()
         {
             var lookInput = _controls.Player.Look.ReadValue<Vector2>();
+            LookDelta = lookInput;
 
             _yaw += lookInput.x * sensitivity;
             _pitch -= lookInput.y * sensitivity;

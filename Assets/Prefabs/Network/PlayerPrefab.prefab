@@ -121,6 +121,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8515411381219221355}
+  - component: {fileID: 3788406640947891279}
   m_Layer: 0
   m_Name: WeaponHolder
   m_TagString: Untagged
@@ -145,6 +146,29 @@ Transform:
   - {fileID: 482350407481709052}
   m_Father: {fileID: 4605936232692467012}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3788406640947891279
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2418068130571341917}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3c070cce98952f642a6a0794372c02ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AIWE.Player.CameraEffects.WeaponViewModel
+  swayAmount: 2
+  maxSway: 4
+  swaySmoothTime: 0.08
+  lagAmount: 0.002
+  maxLag: 0.015
+  lagSmoothTime: 0.06
+  bobFrequencyX: 0.6
+  bobFrequencyY: 1.2
+  bobAmplitudeX: 0.003
+  bobAmplitudeY: 0.004
+  bobSmooth: 8
 --- !u!1 &3785678646733113147
 GameObject:
   m_ObjectHideFlags: 0
@@ -342,6 +366,7 @@ GameObject:
   - component: {fileID: 246163496260019747}
   - component: {fileID: 2391153678999310061}
   - component: {fileID: 3694259310363427128}
+  - component: {fileID: 7994668698274532728}
   m_Layer: 0
   m_Name: PlayerPrefab
   m_TagString: Untagged
@@ -625,6 +650,24 @@ MonoBehaviour:
   minFallSpeed: 4
   maxFallSpeed: 20
   maxImpulseForce: 1
+--- !u!114 &7994668698274532728
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7362235884474108154}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c327b18ffa074cc488b8e3233849aa43, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AIWE.Player.CameraEffects.PostProcessFeedback
+  volume: {fileID: 0}
+  vignetteSpeedThreshold: 0.6
+  maxVignetteIntensity: 0.35
+  vignetteSmoothTime: 0.2
+  maxChromaticIntensity: 0.6
+  chromaticDecaySpeed: 4
 --- !u!1 &8724841465568502037
 GameObject:
   m_ObjectHideFlags: 0
@@ -640,6 +683,7 @@ GameObject:
   - component: {fileID: 3933029911516647342}
   - component: {fileID: 1238528417733411353}
   - component: {fileID: 4526654350607618733}
+  - component: {fileID: 6263219174184877379}
   m_Layer: 0
   m_Name: PlayerCinemachineCamera
   m_TagString: Untagged
@@ -810,3 +854,17 @@ MonoBehaviour:
   noise: {fileID: 0}
   amplitudeSmooth: 8
   minSpeedThreshold: 0.1
+--- !u!114 &6263219174184877379
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8724841465568502037}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 496ff2c9a1309e44d8b850e1327fa604, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AIWE.Player.CameraEffects.LookRollExtension
+  maxRollAngle: 2
+  rollSmoothTime: 0.1
