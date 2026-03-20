@@ -10536,7 +10536,6 @@ GameObject:
   - component: {fileID: 246163496260019747}
   - component: {fileID: 2391153678999310061}
   - component: {fileID: 3694259310363427128}
-  - component: {fileID: 7994668698274532728}
   - component: {fileID: 8950197660525573764}
   - component: {fileID: 2828110683480760510}
   m_Layer: 0
@@ -10825,25 +10824,6 @@ MonoBehaviour:
   minFallSpeed: 4
   maxFallSpeed: 20
   maxImpulseForce: 1
---- !u!114 &7994668698274532728
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7362235884474108154}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c327b18ffa074cc488b8e3233849aa43, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AIWE.Player.CameraEffects.PostProcessFeedback
-  volume: {fileID: 0}
-  vignetteSpeedThreshold: 0.6
-  maxVignetteIntensity: 0.35
-  vignetteSmoothTime: 0.2
-  maxChromaticIntensity: 0.6
-  chromaticDecaySpeed: 4
-  damageChromaticIntensity: 0.5
 --- !u!114 &8950197660525573764
 MonoBehaviour:
   m_ObjectHideFlags: 0
