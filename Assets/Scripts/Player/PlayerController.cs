@@ -1,8 +1,8 @@
+using System;
 using System.Collections;
 using AIWE.Core;
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 namespace AIWE.Player
 {
@@ -10,17 +10,32 @@ namespace AIWE.Player
     public class PlayerController : NetworkBehaviour
     {
         [Header("Movement")]
-        [SerializeField] private float walkSpeed = 5f;
-        [SerializeField] private float sprintSpeed = 8f;
-        [SerializeField] private float gravity = -15f;
-        [SerializeField] private float jumpHeight = 1.5f;
+        [SerializeField] private float moveSpeed = 8f;
+        [SerializeField] private float acceleration = 80f;
+        [SerializeField] private float deceleration = 160f;
+        [SerializeField] private float airAccelMultiplier = 0.1f;
+
+        [Header("Jump")]
+        [SerializeField] private float gravity = -18f;
+        [SerializeField] private float jumpHeight = 1.2f;
+        [SerializeField] private float coyoteTime = 0.1f;
+        [SerializeField] private float jumpBufferTime = 0.1f;
 
         private CharacterController _controller;
         private Controls _controls;
-        private Vector3 _velocity;
-        private bool _isSprinting;
+        private Vector3 _currentHorizontalVelocity;
+        private float _verticalVelocity;
+        private float _coyoteTimer;
+        private float _jumpBufferTimer;
+        private bool _wasGrounded;
+        private float _fallStartVelocity;
 
         public bool InputEnabled { get; set; } = true;
+        public float CurrentSpeedNormalized => moveSpeed > 0f ? _currentHorizontalVelocity.magnitude / moveSpeed : 0f;
+        public Vector2 MoveInput { get; private set; }
+        public bool IsGrounded => _controller.isGrounded;
+
+        public event Action<float> OnLanded;
 
         private void Awake()
         {
@@ -36,20 +51,15 @@ namespace AIWE.Player
                 return;
             }
 
-            _controls.Player.Jump.performed += OnJump;
-            _controls.Player.Sprint.performed += _ => _isSprinting = true;
-            _controls.Player.Sprint.canceled += _ => _isSprinting = false;
+            _controls.Player.Jump.performed += _ => OnJumpInput();
 
-            // Don't lock cursor or enable input yet — wait for game to start
             SetPlayerInputActive(false);
-
             StartCoroutine(WaitForGameManager());
         }
 
         public override void OnNetworkDespawn()
         {
             if (!IsOwner) return;
-            _controls.Player.Jump.performed -= OnJump;
             _controls.Player.Disable();
 
             if (GameManager.Instance != null)
@@ -106,37 +116,100 @@ namespace AIWE.Player
         {
             if (!IsOwner || !InputEnabled) return;
 
+            UpdateTimers();
             HandleMovement();
             HandleGravity();
+            HandleJumpBuffer();
+            DetectLanding();
+        }
+
+        private void UpdateTimers()
+        {
+            if (_controller.isGrounded)
+                _coyoteTimer = coyoteTime;
+            else
+                _coyoteTimer -= Time.deltaTime;
+
+            _jumpBufferTimer -= Time.deltaTime;
         }
 
         private void HandleMovement()
         {
-            var moveInput = _controls.Player.Move.ReadValue<Vector2>();
-            var speed = _isSprinting ? sprintSpeed : walkSpeed;
+            MoveInput = _controls.Player.Move.ReadValue<Vector2>();
+            var wishDir = transform.right * MoveInput.x + transform.forward * MoveInput.y;
 
-            var move = transform.right * moveInput.x + transform.forward * moveInput.y;
-            _controller.Move(move * (speed * Time.deltaTime));
+            if (wishDir.sqrMagnitude > 1f)
+                wishDir.Normalize();
+
+            var targetVelocity = wishDir * moveSpeed;
+            bool isAccelerating = wishDir.sqrMagnitude > 0.01f;
+
+            float accelRate;
+            if (_controller.isGrounded)
+                accelRate = isAccelerating ? acceleration : deceleration;
+            else
+                accelRate = (isAccelerating ? acceleration : deceleration) * airAccelMultiplier;
+
+            _currentHorizontalVelocity = Vector3.MoveTowards(
+                _currentHorizontalVelocity,
+                targetVelocity,
+                accelRate * Time.deltaTime
+            );
+
+            var finalMove = _currentHorizontalVelocity + Vector3.up * _verticalVelocity;
+            _controller.Move(finalMove * Time.deltaTime);
         }
 
         private void HandleGravity()
         {
-            if (_controller.isGrounded && _velocity.y < 0)
+            if (_controller.isGrounded && _verticalVelocity < 0)
             {
-                _velocity.y = -2f;
+                _verticalVelocity = -2f;
             }
+            else
+            {
+                if (!_wasGrounded && _verticalVelocity < _fallStartVelocity)
+                    _fallStartVelocity = _verticalVelocity;
 
-            _velocity.y += gravity * Time.deltaTime;
-            _controller.Move(_velocity * Time.deltaTime);
+                _verticalVelocity += gravity * Time.deltaTime;
+            }
         }
 
-        private void OnJump(InputAction.CallbackContext ctx)
+        private void HandleJumpBuffer()
+        {
+            if (_jumpBufferTimer > 0 && _coyoteTimer > 0)
+            {
+                ExecuteJump();
+            }
+        }
+
+        private void DetectLanding()
+        {
+            if (_controller.isGrounded && !_wasGrounded)
+            {
+                float fallSpeed = Mathf.Abs(_fallStartVelocity);
+                if (fallSpeed > 3f)
+                    OnLanded?.Invoke(fallSpeed);
+
+                _fallStartVelocity = 0f;
+            }
+            _wasGrounded = _controller.isGrounded;
+        }
+
+        private void OnJumpInput()
         {
             if (!InputEnabled) return;
-            if (_controller.isGrounded)
-            {
-                _velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
-            }
+            _jumpBufferTimer = jumpBufferTime;
+
+            if (_coyoteTimer > 0)
+                ExecuteJump();
+        }
+
+        private void ExecuteJump()
+        {
+            _verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
+            _coyoteTimer = 0f;
+            _jumpBufferTimer = 0f;
         }
 
         public override void OnDestroy()
