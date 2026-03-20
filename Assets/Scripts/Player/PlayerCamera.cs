@@ -69,14 +69,23 @@ namespace AIWE.Player
             HandleDynamicFov();
         }
 
+        private float _recoilPitch;
+        private float _recoilYaw;
+
+        public void ApplyRecoil(float pitch, float yaw)
+        {
+            _recoilPitch = pitch;
+            _recoilYaw = yaw;
+        }
+
         private void HandleLook()
         {
             var lookInput = _controls.Player.Look.ReadValue<Vector2>();
             LookDelta = lookInput;
 
-            _yaw += lookInput.x * sensitivity;
+            _yaw += lookInput.x * sensitivity + _recoilYaw;
             _pitch -= lookInput.y * sensitivity;
-            _pitch = Mathf.Clamp(_pitch, minPitch, maxPitch);
+            _pitch = Mathf.Clamp(_pitch + _recoilPitch, minPitch, maxPitch);
 
             transform.parent.rotation = Quaternion.Euler(0f, _yaw, 0f);
 
@@ -85,6 +94,9 @@ namespace AIWE.Player
                 panTilt.PanAxis.Value = 0f;
                 panTilt.TiltAxis.Value = _pitch;
             }
+
+            _recoilPitch = 0f;
+            _recoilYaw = 0f;
         }
 
         private void HandleDynamicFov()

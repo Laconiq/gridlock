@@ -19,6 +19,9 @@ namespace AIWE.Player.CameraEffects
         [SerializeField] private float maxChromaticIntensity = 0.6f;
         [SerializeField] private float chromaticDecaySpeed = 4f;
 
+        [Header("Damage Chromatic Aberration")]
+        [SerializeField] private float damageChromaticIntensity = 0.5f;
+
         private PlayerController _player;
         private Vignette _vignette;
         private ChromaticAberration _chromatic;
@@ -32,10 +35,26 @@ namespace AIWE.Player.CameraEffects
             if (volume == null)
                 volume = FindAnyObjectByType<Volume>();
 
-            if (volume != null && volume.profile != null)
+            if (volume != null)
             {
-                volume.profile.TryGet(out _vignette);
-                volume.profile.TryGet(out _chromatic);
+                if (volume.profile == null)
+                {
+                    volume.profile = ScriptableObject.CreateInstance<VolumeProfile>();
+                }
+
+                if (!volume.profile.TryGet(out _vignette))
+                {
+                    _vignette = volume.profile.Add<Vignette>();
+                    _vignette.intensity.overrideState = true;
+                    _vignette.intensity.value = 0f;
+                }
+
+                if (!volume.profile.TryGet(out _chromatic))
+                {
+                    _chromatic = volume.profile.Add<ChromaticAberration>();
+                    _chromatic.intensity.overrideState = true;
+                    _chromatic.intensity.value = 0f;
+                }
             }
         }
 
@@ -84,7 +103,12 @@ namespace AIWE.Player.CameraEffects
             if (_chromatic == null) return;
 
             float t = Mathf.InverseLerp(4f, 20f, fallSpeed);
-            _currentChromatic = Mathf.Lerp(0.15f, maxChromaticIntensity, t);
+            _currentChromatic = Mathf.Max(_currentChromatic, Mathf.Lerp(0.15f, maxChromaticIntensity, t));
+        }
+
+        public void PulseDamage()
+        {
+            _currentChromatic = Mathf.Max(_currentChromatic, damageChromaticIntensity);
         }
     }
 }
