@@ -106,7 +106,6 @@
 				{ "value": 1, "identifier": "Floor", "color": "#4CAF50", "tile": null, "groupUid": 0 },
 				{ "value": 2, "identifier": "Wall", "color": "#F44336", "tile": null, "groupUid": 0 },
 				{ "value": 3, "identifier": "Ramp", "color": "#FF9800", "tile": null, "groupUid": 0 },
-				{ "value": 4, "identifier": "Pit", "color": "#212121", "tile": null, "groupUid": 0 },
 				{ "value": 5, "identifier": "HighGround", "color": "#2196F3", "tile": null, "groupUid": 0 }
 			],
 			"intGridValuesGroups": [],

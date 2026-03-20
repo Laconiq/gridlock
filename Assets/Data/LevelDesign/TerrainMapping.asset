@@ -29,11 +29,6 @@ MonoBehaviour:
     material: {fileID: 2100000, guid: a11d2cbd41df70d43b12034d54f74b19, type: 2}
     scale: {x: 1, y: 0.2, z: 1}
     yOffset: 1
-  - intGridValue: 4
-    label: Pit
-    material: {fileID: 2100000, guid: cb942035cf06ee740aa4f949a06f7198, type: 2}
-    scale: {x: 1, y: 0.1, z: 1}
-    yOffset: -2
   - intGridValue: 5
     label: HighGround
     material: {fileID: 2100000, guid: 41e7580dccc26a64d9ddc378e4d4d1ed, type: 2}
