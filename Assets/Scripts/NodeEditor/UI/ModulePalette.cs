@@ -2,97 +2,99 @@ using System.Collections.Generic;
 using AIWE.Modules;
 using AIWE.NodeEditor.Data;
 using AIWE.Player;
-using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace AIWE.NodeEditor.UI
 {
-    public class ModulePalette : MonoBehaviour
+    public class ModulePalette
     {
-        [SerializeField] private ModulePaletteItem paletteItemPrefab;
-        [SerializeField] private Transform triggerSection;
-        [SerializeField] private Transform zoneSection;
-        [SerializeField] private Transform effectSection;
-        [SerializeField] private ModuleRegistry moduleRegistry;
+        private readonly ModuleRegistry _moduleRegistry;
+        private readonly NodeEditorCanvas _canvas;
+        private readonly ScrollView _scrollView;
+        private readonly Button _tabTriggers;
+        private readonly Button _tabZones;
+        private readonly Button _tabEffects;
 
-        private NodeEditorCanvas _canvas;
         private PlayerInventory _inventory;
+        private ModuleCategory _activeCategory = ModuleCategory.Trigger;
         private readonly Dictionary<string, ModulePaletteItem> _itemsByModuleId = new();
 
-        public void Initialize(NodeEditorCanvas canvas, PlayerInventory inventory)
+        public ModulePalette(VisualElement root, ModuleRegistry registry, NodeEditorCanvas canvas)
         {
+            _moduleRegistry = registry;
             _canvas = canvas;
+
+            _scrollView = root.Q<ScrollView>("palette-scroll");
+            _tabTriggers = root.Q<Button>("tab-triggers");
+            _tabZones = root.Q<Button>("tab-zones");
+            _tabEffects = root.Q<Button>("tab-effects");
+
+            _tabTriggers?.RegisterCallback<ClickEvent>(_ => SetCategory(ModuleCategory.Trigger));
+            _tabZones?.RegisterCallback<ClickEvent>(_ => SetCategory(ModuleCategory.Zone));
+            _tabEffects?.RegisterCallback<ClickEvent>(_ => SetCategory(ModuleCategory.Effect));
+        }
+
+        public void Initialize(PlayerInventory inventory)
+        {
             _inventory = inventory;
-
-            if (_canvas != null)
-            {
-                _canvas.OnNodeAdded -= OnNodeAdded;
-                _canvas.OnNodeRemoved -= OnNodeRemoved;
-                _canvas.OnNodeAdded += OnNodeAdded;
-                _canvas.OnNodeRemoved += OnNodeRemoved;
-            }
-
+            _activeCategory = ModuleCategory.Trigger;
+            UpdateTabVisuals();
             PopulateModules();
+        }
+
+        private void SetCategory(ModuleCategory category)
+        {
+            _activeCategory = category;
+            UpdateTabVisuals();
+            PopulateModules();
+        }
+
+        private void UpdateTabVisuals()
+        {
+            UpdateTab(_tabTriggers, ModuleCategory.Trigger);
+            UpdateTab(_tabZones, ModuleCategory.Zone);
+            UpdateTab(_tabEffects, ModuleCategory.Effect);
+        }
+
+        private void UpdateTab(Button tab, ModuleCategory cat)
+        {
+            if (tab == null) return;
+            if (_activeCategory == cat)
+                tab.AddToClassList("sidebar__tab--active");
+            else
+                tab.RemoveFromClassList("sidebar__tab--active");
         }
 
         private void PopulateModules()
         {
-            ClearSection(triggerSection);
-            ClearSection(zoneSection);
-            ClearSection(effectSection);
+            if (_scrollView == null || _moduleRegistry == null) return;
+
+            _scrollView.Clear();
             _itemsByModuleId.Clear();
 
-            if (moduleRegistry == null || paletteItemPrefab == null) return;
-
-            foreach (var moduleDef in moduleRegistry.AllModules)
+            foreach (var moduleDef in _moduleRegistry.AllModules)
             {
-                int count = _inventory != null ? _inventory.GetCount(moduleDef.moduleId) : -1;
+                if (moduleDef.category != _activeCategory) continue;
 
+                int count = _inventory != null ? _inventory.GetCount(moduleDef.moduleId) : -1;
                 if (_inventory != null && count <= 0) continue;
 
-                var parent = moduleDef.category switch
-                {
-                    ModuleCategory.Trigger => triggerSection,
-                    ModuleCategory.Zone => zoneSection,
-                    ModuleCategory.Effect => effectSection,
-                    _ => null
-                };
-
-                if (parent == null) continue;
-
-                var item = Instantiate(paletteItemPrefab, parent);
-                item.Initialize(moduleDef, _canvas, count);
+                var item = new ModulePaletteItem(moduleDef, _canvas, count);
+                _scrollView.Add(item.Element);
                 _itemsByModuleId[moduleDef.moduleId] = item;
             }
         }
 
-        private void OnNodeAdded(string moduleDefId)
+        public void OnNodeAdded(string moduleDefId)
         {
             if (_itemsByModuleId.TryGetValue(moduleDefId, out var item))
                 item.AdjustCount(-1);
         }
 
-        private void OnNodeRemoved(string moduleDefId)
+        public void OnNodeRemoved(string moduleDefId)
         {
             if (_itemsByModuleId.TryGetValue(moduleDefId, out var item))
                 item.AdjustCount(1);
-        }
-
-        private void ClearSection(Transform section)
-        {
-            if (section == null) return;
-            for (int i = section.childCount - 1; i >= 0; i--)
-            {
-                Destroy(section.GetChild(i).gameObject);
-            }
-        }
-
-        private void OnDestroy()
-        {
-            if (_canvas != null)
-            {
-                _canvas.OnNodeAdded -= OnNodeAdded;
-                _canvas.OnNodeRemoved -= OnNodeRemoved;
-            }
         }
     }
 }

@@ -3,43 +3,99 @@ using System.Collections.Generic;
 using AIWE.Modules;
 using AIWE.NodeEditor.Data;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.InputSystem;
-using UnityEngine.UI;
+using UnityEngine.UIElements;
 
 namespace AIWE.NodeEditor.UI
 {
-    public class NodeEditorCanvas : MonoBehaviour, IPointerDownHandler, IDragHandler, IScrollHandler
+    public class NodeEditorCanvas
     {
         public event Action<string> OnNodeAdded;
         public event Action<string> OnNodeRemoved;
-        [Header("References")]
-        [SerializeField] private RectTransform content;
-        [SerializeField] private NodeWidget nodeWidgetPrefab;
-        [SerializeField] private ConnectionRenderer connectionPrefab;
-        [SerializeField] private ModuleRegistry moduleRegistry;
 
-        [Header("Settings")]
-        [SerializeField] private float zoomSpeed = 0.1f;
-        [SerializeField] private float minZoom = 0.3f;
-        [SerializeField] private float maxZoom = 2f;
+        private readonly VisualElement _viewport;
+        private readonly VisualElement _content;
+        private readonly ConnectionLayer _connectionLayer;
+        private readonly GridBackground _gridBackground;
+        private readonly ModuleRegistry _moduleRegistry;
 
         private NodeGraphData _graph;
         private int _maxTriggers;
         private readonly List<NodeWidget> _nodeWidgets = new();
-        private readonly List<ConnectionRenderer> _connectionRenderers = new();
-        private float _currentZoom = 1f;
+
         private Vector2 _panOffset;
         private bool _isPanning;
+        private int _panPointerId = -1;
+
+        private PortWidget _dragSourcePort;
+        private bool _isDraggingPort;
+        private int _dragPortPointerId = -1;
+
+        private NodeWidget _draggedNode;
+        private bool _isDraggingNode;
+        private int _nodeDragPointerId = -1;
+        private Vector2 _nodeDragOffset;
+        private VisualElement _dragOverlay;
+        private VisualElement _sidebar;
+
+        private readonly MinimapWidget _minimap;
+
+        public VisualElement Content => _content;
+
+        public NodeEditorCanvas(VisualElement canvasArea, ModuleRegistry registry)
+        {
+            _moduleRegistry = registry;
+            _viewport = canvasArea;
+
+            _content = canvasArea.Q("canvas-content");
+            if (_content == null)
+            {
+                _content = new VisualElement { name = "canvas-content" };
+                _content.AddToClassList("canvas-content");
+                canvasArea.Add(_content);
+            }
+
+            _gridBackground = new GridBackground();
+            canvasArea.Insert(0, _gridBackground);
+
+            _connectionLayer = new ConnectionLayer();
+            _content.Add(_connectionLayer);
+
+            _viewport.RegisterCallback<PointerDownEvent>(OnViewportPointerDown);
+            _viewport.RegisterCallback<PointerMoveEvent>(OnViewportPointerMove);
+            _viewport.RegisterCallback<PointerUpEvent>(OnViewportPointerUp);
+            _viewport.RegisterCallback<WheelEvent>(OnWheel);
+
+            _sidebar = canvasArea.parent?.Q("sidebar");
+
+            var editorRoot = canvasArea.parent?.parent;
+            if (editorRoot != null)
+            {
+                _dragOverlay = new VisualElement { name = "drag-overlay" };
+                _dragOverlay.style.position = Position.Absolute;
+                _dragOverlay.style.left = 0;
+                _dragOverlay.style.top = 0;
+                _dragOverlay.style.right = 0;
+                _dragOverlay.style.bottom = 0;
+                _dragOverlay.pickingMode = PickingMode.Ignore;
+                editorRoot.Add(_dragOverlay);
+            }
+
+            _minimap = new MinimapWidget(canvasArea);
+        }
 
         public void LoadGraph(NodeGraphData graph, int maxTriggers)
         {
             _graph = graph ?? new NodeGraphData();
             _maxTriggers = maxTriggers;
 
+            _panOffset = Vector2.zero;
+            _content.transform.position = Vector3.zero;
+            _gridBackground.UpdateTransform(_panOffset);
+
             ClearCanvas();
             CreateNodeWidgets();
-            CreateConnections();
+            RefreshConnections();
+            RefreshMinimap();
         }
 
         public NodeGraphData GetCurrentGraph()
@@ -51,9 +107,7 @@ namespace AIWE.NodeEditor.UI
                 if (widget == null) continue;
                 var nodeData = _graph.nodes.Find(n => n.nodeId == widget.NodeId);
                 if (nodeData != null)
-                {
-                    nodeData.editorPosition = widget.GetComponent<RectTransform>().anchoredPosition;
-                }
+                    nodeData.editorPosition = widget.Position;
             }
 
             return _graph;
@@ -62,55 +116,25 @@ namespace AIWE.NodeEditor.UI
         private void ClearCanvas()
         {
             foreach (var widget in _nodeWidgets)
-            {
-                if (widget != null) Destroy(widget.gameObject);
-            }
+                widget.RemoveFromCanvas();
             _nodeWidgets.Clear();
-
-            foreach (var conn in _connectionRenderers)
-            {
-                if (conn != null) Destroy(conn.gameObject);
-            }
-            _connectionRenderers.Clear();
+            _connectionLayer.ClearConnections();
         }
 
         private void CreateNodeWidgets()
         {
-            if (_graph == null || nodeWidgetPrefab == null || content == null) return;
+            if (_graph == null) return;
 
             foreach (var nodeData in _graph.nodes)
             {
-                var widget = Instantiate(nodeWidgetPrefab, content);
-                widget.Initialize(nodeData, this, moduleRegistry);
-                widget.GetComponent<RectTransform>().anchoredPosition = nodeData.editorPosition;
+                var widget = new NodeWidget(nodeData, this, _moduleRegistry);
+                _content.Add(widget.Root);
+                widget.SetPosition(nodeData.editorPosition);
                 _nodeWidgets.Add(widget);
             }
         }
 
-        private void CreateConnections()
-        {
-            if (_graph == null || connectionPrefab == null) return;
-
-            foreach (var conn in _graph.connections)
-            {
-                var fromWidget = _nodeWidgets.Find(w => w.NodeId == conn.fromNodeId);
-                var toWidget = _nodeWidgets.Find(w => w.NodeId == conn.toNodeId);
-
-                if (fromWidget != null && toWidget != null)
-                {
-                    var renderer = Instantiate(connectionPrefab, content);
-                    var lineColor = fromWidget.GetOutputPortColor(conn.fromPort);
-                    renderer.SetEndpoints(
-                        fromWidget.GetOutputPort(conn.fromPort),
-                        toWidget.GetInputPort(conn.toPort),
-                        lineColor
-                    );
-                    _connectionRenderers.Add(renderer);
-                }
-            }
-        }
-
-        public NodeWidget AddNode(NodeData nodeData)
+        public NodeWidget AddNode(NodeData nodeData, bool animated = false)
         {
             if (_graph == null) _graph = new NodeGraphData();
 
@@ -126,16 +150,140 @@ namespace AIWE.NodeEditor.UI
 
             _graph.nodes.Add(nodeData);
 
-            if (nodeWidgetPrefab != null && content != null)
+            var widget = new NodeWidget(nodeData, this, _moduleRegistry);
+            _content.Add(widget.Root);
+            widget.SetPosition(nodeData.editorPosition);
+            _nodeWidgets.Add(widget);
+
+            if (animated)
+                widget.PlaySpawnAnimation();
+
+            OnNodeAdded?.Invoke(nodeData.moduleDefId);
+            RefreshMinimap();
+            return widget;
+        }
+
+        public void BeginNodeDrag(NodeWidget widget, PointerDownEvent evt)
+        {
+            if (_dragOverlay == null || widget == null) return;
+
+            _draggedNode = widget;
+            _isDraggingNode = true;
+            _nodeDragPointerId = evt.pointerId;
+
+            var cursorPanel = RuntimePanelUtils.ScreenToPanel(
+                _viewport.panel, new Vector2(evt.position.x, evt.position.y));
+
+            var bounds = widget.Root.worldBound;
+            bool hasLayout = bounds.width > 1f && bounds.height > 1f;
+
+            if (hasLayout)
             {
-                var widget = Instantiate(nodeWidgetPrefab, content);
-                widget.Initialize(nodeData, this, moduleRegistry);
-                widget.GetComponent<RectTransform>().anchoredPosition = nodeData.editorPosition;
-                _nodeWidgets.Add(widget);
-                OnNodeAdded?.Invoke(nodeData.moduleDefId);
-                return widget;
+                _nodeDragOffset = new Vector2(bounds.position.x, bounds.position.y) - cursorPanel;
             }
-            return null;
+            else
+            {
+                _nodeDragOffset = new Vector2(-96f, -20f);
+            }
+
+            var targetPanel = cursorPanel + _nodeDragOffset;
+
+            widget.Root.RemoveFromHierarchy();
+            _dragOverlay.Add(widget.Root);
+
+            var overlayPos = _dragOverlay.WorldToLocal(targetPanel);
+            widget.Root.style.left = overlayPos.x;
+            widget.Root.style.top = overlayPos.y;
+
+            widget.Root.AddToClassList("node--dragging");
+            widget.Root.BringToFront();
+
+            _viewport.CapturePointer(evt.pointerId);
+            _connectionLayer.MarkDirtyRepaint();
+        }
+
+        private void UpdateNodeDrag(PointerMoveEvent evt)
+        {
+            if (!_isDraggingNode || _draggedNode == null) return;
+
+            var cursorPanel = RuntimePanelUtils.ScreenToPanel(
+                _viewport.panel, new Vector2(evt.position.x, evt.position.y));
+            var targetPanel = cursorPanel + _nodeDragOffset;
+            var overlayPos = _dragOverlay.WorldToLocal(targetPanel);
+
+            _draggedNode.Root.style.left = overlayPos.x;
+            _draggedNode.Root.style.top = overlayPos.y;
+
+            SyncDraggedNodeToContent();
+            _connectionLayer.MarkDirtyRepaint();
+        }
+
+        private void SyncDraggedNodeToContent()
+        {
+            if (_draggedNode == null) return;
+            var nodeWorldPos = _draggedNode.Root.worldBound.position;
+            var contentPos = _content.WorldToLocal(nodeWorldPos);
+            _draggedNode.UpdatePositionSilent(contentPos);
+        }
+
+        private void EndNodeDrag(PointerUpEvent evt)
+        {
+            if (!_isDraggingNode || _draggedNode == null) return;
+
+            _viewport.ReleasePointer(evt.pointerId);
+            _draggedNode.Root.RemoveFromClassList("node--dragging");
+
+            var cursorPanel = RuntimePanelUtils.ScreenToPanel(
+                _viewport.panel, new Vector2(evt.position.x, evt.position.y));
+
+            bool overSidebar = _sidebar != null && _sidebar.worldBound.Contains(cursorPanel);
+
+            if (overSidebar)
+            {
+                var nodeData = _graph?.nodes.Find(n => n.nodeId == _draggedNode.NodeId);
+                if (nodeData != null && !nodeData.isFixed)
+                {
+                    var nodeToRemove = _draggedNode;
+                    nodeToRemove.PlayDespawnAnimation(() =>
+                    {
+                        nodeToRemove.Root.RemoveFromHierarchy();
+                    });
+
+                    string moduleDefId = nodeData.moduleDefId;
+                    _graph.nodes.RemoveAll(n => n.nodeId == nodeToRemove.NodeId);
+                    _graph.connections.RemoveAll(c =>
+                        c.fromNodeId == nodeToRemove.NodeId || c.toNodeId == nodeToRemove.NodeId);
+                    _nodeWidgets.Remove(nodeToRemove);
+                    if (moduleDefId != null) OnNodeRemoved?.Invoke(moduleDefId);
+                    RefreshConnections();
+                }
+                else
+                {
+                    ReturnNodeToContent(cursorPanel);
+                }
+            }
+            else
+            {
+                ReturnNodeToContent(cursorPanel);
+            }
+
+            _draggedNode = null;
+            _isDraggingNode = false;
+            _nodeDragPointerId = -1;
+            _connectionLayer.MarkDirtyRepaint();
+            RefreshConnections();
+            RefreshMinimap();
+        }
+
+        private void ReturnNodeToContent(Vector2 cursorPanel)
+        {
+            if (_draggedNode == null) return;
+            var nodeWorldPos = cursorPanel + _nodeDragOffset;
+            _draggedNode.Root.RemoveFromHierarchy();
+            _content.Add(_draggedNode.Root);
+            var contentPos = _content.WorldToLocal(nodeWorldPos);
+            _draggedNode.SetPosition(contentPos);
+            _draggedNode.Data.editorPosition = contentPos;
         }
 
         public void RemoveNode(string nodeId)
@@ -150,14 +298,14 @@ namespace AIWE.NodeEditor.UI
             var widget = _nodeWidgets.Find(w => w.NodeId == nodeId);
             if (widget != null)
             {
+                widget.RemoveFromCanvas();
                 _nodeWidgets.Remove(widget);
-                Destroy(widget.gameObject);
             }
 
             if (moduleDefId != null)
                 OnNodeRemoved?.Invoke(moduleDefId);
 
-            RebuildConnections();
+            RefreshConnections();
         }
 
         public void AddConnection(string fromNodeId, int fromPort, string toNodeId, int toPort)
@@ -166,64 +314,282 @@ namespace AIWE.NodeEditor.UI
 
             _graph.connections.RemoveAll(c => c.toNodeId == toNodeId && c.toPort == toPort);
 
-            var conn = new ConnectionData
+            _graph.connections.Add(new ConnectionData
             {
                 fromNodeId = fromNodeId,
                 toNodeId = toNodeId,
                 fromPort = fromPort,
                 toPort = toPort
-            };
-            _graph.connections.Add(conn);
-            RebuildConnections();
+            });
+
+            RefreshConnections();
         }
 
-        public void RemoveConnection(string fromNodeId, string toNodeId)
+        public void RefreshConnections()
         {
-            _graph?.connections.RemoveAll(c => c.fromNodeId == fromNodeId && c.toNodeId == toNodeId);
-            RebuildConnections();
-        }
+            if (_graph == null) return;
 
-        private void RebuildConnections()
-        {
-            foreach (var conn in _connectionRenderers)
+            var connectionInfos = new List<(VisualElement from, VisualElement to, Color color)>();
+
+            foreach (var conn in _graph.connections)
             {
-                if (conn != null) Destroy(conn.gameObject);
+                var fromWidget = _nodeWidgets.Find(w => w.NodeId == conn.fromNodeId);
+                var toWidget = _nodeWidgets.Find(w => w.NodeId == conn.toNodeId);
+
+                if (fromWidget != null && toWidget != null)
+                {
+                    var fromPort = fromWidget.GetOutputPort(conn.fromPort);
+                    var toPort = toWidget.GetInputPort(conn.toPort);
+
+                    if (fromPort != null && toPort != null)
+                    {
+                        connectionInfos.Add((fromPort.Element, toPort.Element, fromPort.PortColor));
+                    }
+                }
             }
-            _connectionRenderers.Clear();
-            CreateConnections();
+
+            _connectionLayer.SetConnections(connectionInfos);
         }
 
-        public void OnPointerDown(PointerEventData eventData)
+        public void OnNodeMoved()
         {
-            if (eventData.button == PointerEventData.InputButton.Right ||
-                eventData.button == PointerEventData.InputButton.Middle)
+            _connectionLayer.MarkDirtyRepaint();
+            RefreshMinimap();
+        }
+
+        // === Port Drag ===
+
+        public void StartPortDrag(PortWidget port, PointerDownEvent evt)
+        {
+            _dragSourcePort = port;
+            _isDraggingPort = true;
+            _dragPortPointerId = evt.pointerId;
+            _viewport.CapturePointer(evt.pointerId);
+        }
+
+        private void UpdatePortDrag(PointerMoveEvent evt)
+        {
+            if (!_isDraggingPort || _dragSourcePort == null) return;
+
+            var panelPos = RuntimePanelUtils.ScreenToPanel(
+                _viewport.panel, new Vector2(evt.position.x, evt.position.y));
+            var connLocal = _connectionLayer.WorldToLocal(panelPos);
+
+            _connectionLayer.SetTempConnection(_dragSourcePort.Element, connLocal, _dragSourcePort.PortColor);
+        }
+
+        private void EndPortDrag(PointerUpEvent evt)
+        {
+            if (!_isDraggingPort) return;
+
+            _viewport.ReleasePointer(evt.pointerId);
+            _connectionLayer.ClearTempConnection();
+
+            var panelPos = RuntimePanelUtils.ScreenToPanel(
+                _viewport.panel, new Vector2(evt.position.x, evt.position.y));
+            var targetPort = FindPortAtPanelPosition(panelPos);
+
+            if (targetPort != null && targetPort != _dragSourcePort &&
+                targetPort.ParentNode != _dragSourcePort.ParentNode)
+            {
+                PortWidget output, input;
+                if (_dragSourcePort.IsInput)
+                {
+                    if (!targetPort.IsInput) { output = targetPort; input = _dragSourcePort; }
+                    else { ResetPortDrag(); return; }
+                }
+                else
+                {
+                    if (targetPort.IsInput) { output = _dragSourcePort; input = targetPort; }
+                    else { ResetPortDrag(); return; }
+                }
+
+                TryConnect(output, input);
+            }
+
+            ResetPortDrag();
+        }
+
+        private void ResetPortDrag()
+        {
+            _dragSourcePort = null;
+            _isDraggingPort = false;
+            _dragPortPointerId = -1;
+            PortWidget.ResetDragState();
+        }
+
+        private PortWidget FindPortAtPanelPosition(Vector2 panelPos)
+        {
+            foreach (var node in _nodeWidgets)
+            {
+                foreach (var port in node.AllPorts)
+                {
+                    if (port.Element.worldBound.Contains(panelPos))
+                        return port;
+                }
+            }
+            return null;
+        }
+
+        private void TryConnect(PortWidget from, PortWidget to)
+        {
+            var fromCategory = from.ParentNode.Data.category;
+            var toCategory = to.ParentNode.Data.category;
+
+            bool valid = (fromCategory, toCategory) switch
+            {
+                (ModuleCategory.Trigger, ModuleCategory.Zone) => true,
+                (ModuleCategory.Zone, ModuleCategory.Zone) => true,
+                (ModuleCategory.Zone, ModuleCategory.Effect) => true,
+                (ModuleCategory.Effect, ModuleCategory.Effect) => true,
+                _ => false
+            };
+
+            if (!valid)
+            {
+                Debug.LogWarning($"[NodeEditor] Invalid connection: {fromCategory} -> {toCategory}");
+                return;
+            }
+
+            AddConnection(from.ParentNode.NodeId, from.PortIndex, to.ParentNode.NodeId, to.PortIndex);
+        }
+
+        // === Pan / Zoom ===
+
+        private void OnViewportPointerDown(PointerDownEvent evt)
+        {
+            if (_isDraggingPort) return;
+
+            if (evt.button == 1 || evt.button == 2)
             {
                 _isPanning = true;
+                _panPointerId = evt.pointerId;
+                _viewport.CapturePointer(evt.pointerId);
+                evt.StopPropagation();
             }
         }
 
-        public void OnDrag(PointerEventData eventData)
+        private void OnViewportPointerMove(PointerMoveEvent evt)
         {
-            if (_isPanning && content != null)
+            if (_isDraggingNode && evt.pointerId == _nodeDragPointerId)
             {
-                content.anchoredPosition += eventData.delta / _currentZoom;
+                UpdateNodeDrag(evt);
+                return;
+            }
+
+            if (_isDraggingPort && evt.pointerId == _dragPortPointerId)
+            {
+                UpdatePortDrag(evt);
+                return;
+            }
+
+            if (_isPanning && evt.pointerId == _panPointerId)
+            {
+                var delta = new Vector2(evt.deltaPosition.x, evt.deltaPosition.y);
+                _panOffset += delta;
+                _content.transform.position = new Vector3(_panOffset.x, _panOffset.y, 0);
+                _gridBackground.UpdateTransform(_panOffset);
+                RefreshMinimap();
+                evt.StopPropagation();
             }
         }
 
-        public void OnScroll(PointerEventData eventData)
+        private void OnViewportPointerUp(PointerUpEvent evt)
         {
-            if (content == null) return;
+            if (_isDraggingNode && evt.pointerId == _nodeDragPointerId)
+            {
+                EndNodeDrag(evt);
+                return;
+            }
 
-            var delta = eventData.scrollDelta.y * zoomSpeed;
-            _currentZoom = Mathf.Clamp(_currentZoom + delta, minZoom, maxZoom);
-            content.localScale = Vector3.one * _currentZoom;
-        }
+            if (_isDraggingPort && evt.pointerId == _dragPortPointerId)
+            {
+                EndPortDrag(evt);
+                return;
+            }
 
-        private void LateUpdate()
-        {
-            if (!Mouse.current.rightButton.isPressed && !Mouse.current.middleButton.isPressed)
+            if (_isPanning && evt.pointerId == _panPointerId)
             {
                 _isPanning = false;
+                _viewport.ReleasePointer(evt.pointerId);
+                _panPointerId = -1;
+                evt.StopPropagation();
+            }
+        }
+
+        private void OnWheel(WheelEvent evt)
+        {
+            evt.StopPropagation();
+        }
+
+        public Vector2 ScreenToCanvasPosition(Vector2 screenPos)
+        {
+            var panelPos = RuntimePanelUtils.ScreenToPanel(_viewport.panel, screenPos);
+            return _content.WorldToLocal(panelPos);
+        }
+
+        public void RefreshMinimap()
+        {
+            if (_graph == null) return;
+            _minimap?.Refresh(_nodeWidgets, _panOffset, _viewport.contentRect);
+        }
+
+        // === Grid Background ===
+
+        public class GridBackground : VisualElement
+        {
+            private const float GridSize = 40f;
+            private Vector2 _offset;
+
+            public GridBackground()
+            {
+                generateVisualContent += OnGenerateVisualContent;
+                style.position = Position.Absolute;
+                style.left = 0;
+                style.top = 0;
+                style.right = 0;
+                style.bottom = 0;
+                pickingMode = PickingMode.Ignore;
+            }
+
+            public void UpdateTransform(Vector2 offset)
+            {
+                _offset = offset;
+                MarkDirtyRepaint();
+            }
+
+            private void OnGenerateVisualContent(MeshGenerationContext mgc)
+            {
+                var rect = contentRect;
+                if (rect.width <= 0 || rect.height <= 0) return;
+
+                var painter = mgc.painter2D;
+                var gridColor = DesignConstants.Primary;
+                gridColor.a = 0.05f;
+                painter.strokeColor = gridColor;
+                painter.lineWidth = 1f;
+
+                float startX = _offset.x % GridSize;
+                if (startX < 0) startX += GridSize;
+
+                float startY = _offset.y % GridSize;
+                if (startY < 0) startY += GridSize;
+
+                for (float x = startX; x < rect.width; x += GridSize)
+                {
+                    painter.BeginPath();
+                    painter.MoveTo(new Vector2(x, 0));
+                    painter.LineTo(new Vector2(x, rect.height));
+                    painter.Stroke();
+                }
+
+                for (float y = startY; y < rect.height; y += GridSize)
+                {
+                    painter.BeginPath();
+                    painter.MoveTo(new Vector2(0, y));
+                    painter.LineTo(new Vector2(rect.width, y));
+                    painter.Stroke();
+                }
             }
         }
     }

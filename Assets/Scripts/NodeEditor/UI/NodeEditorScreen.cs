@@ -1,27 +1,33 @@
 using AIWE.Core;
 using AIWE.Interfaces;
+using AIWE.Modules;
 using AIWE.Network;
 using AIWE.NodeEditor.Data;
 using AIWE.Player;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace AIWE.NodeEditor.UI
 {
+    [RequireComponent(typeof(UIDocument))]
     public class NodeEditorScreen : MonoBehaviour
     {
         private const string LeftClickModuleId = "trigger_onleftclick";
         private const string RightClickModuleId = "trigger_onrightclick";
 
-        [SerializeField] private GameObject editorPanel;
-        [SerializeField] private NodeEditorCanvas canvas;
-        [SerializeField] private ModulePalette palette;
+        [SerializeField] private ModuleRegistry moduleRegistry;
 
+        private UIDocument _uiDocument;
+        private VisualElement _root;
         private Controls _controls;
         private IChassis _currentChassis;
         private PlayerInventory _playerInventory;
         private bool _isOpen;
         private bool _isWeaponMode;
+
+        private NodeEditorCanvas _canvas;
+        private ModulePalette _palette;
 
         public bool IsOpen => _isOpen;
         public bool IsWeaponMode => _isWeaponMode;
@@ -33,16 +39,42 @@ namespace AIWE.NodeEditor.UI
         {
             _instance = this;
             _controls = new Controls();
-            if (editorPanel != null) editorPanel.SetActive(false);
+            _uiDocument = GetComponent<UIDocument>();
+        }
+
+        private void OnEnable()
+        {
+            if (_uiDocument == null) return;
+
+            _root = _uiDocument.rootVisualElement;
+            if (_root == null) return;
+
+            _root.style.display = DisplayStyle.None;
+
+            var canvasArea = _root.Q("canvas-area");
+            if (canvasArea != null)
+            {
+                _canvas = new NodeEditorCanvas(canvasArea, moduleRegistry);
+                _canvas.OnNodeAdded += OnCanvasNodeAdded;
+                _canvas.OnNodeRemoved += OnCanvasNodeRemoved;
+            }
+
+            _palette = new ModulePalette(_root, moduleRegistry, _canvas);
+
+            var saveBtn = _root.Q<Button>("save-btn");
+            if (saveBtn != null)
+                saveBtn.clicked += OnSaveButtonClicked;
+
+            var docsBtn = _root.Q<Button>("btn-docs");
+            if (docsBtn != null)
+                docsBtn.clicked += ShowDocumentation;
         }
 
         private void Start()
         {
             var lockManager = ServiceLocator.Get<EditorLockManager>();
             if (lockManager != null)
-            {
                 lockManager.OnLockGranted += OnLockGranted;
-            }
         }
 
         public void Open(IChassis chassis, PlayerInventory inventory = null)
@@ -52,15 +84,16 @@ namespace AIWE.NodeEditor.UI
             _isOpen = true;
             _isWeaponMode = chassis is PlayerWeaponChassis;
 
-            if (editorPanel != null) editorPanel.SetActive(true);
+            if (_root != null)
+                _root.style.display = DisplayStyle.Flex;
 
             var graph = chassis.GetNodeGraph();
 
             if (_isWeaponMode)
                 EnsureFixedTriggerNodes(graph);
 
-            if (canvas != null) canvas.LoadGraph(graph, chassis.MaxTriggers);
-            if (palette != null) palette.Initialize(canvas, _playerInventory);
+            _canvas?.LoadGraph(graph, chassis.MaxTriggers);
+            _palette?.Initialize(_playerInventory);
 
             _controls.Player.Disable();
             _controls.UI.Enable();
@@ -72,10 +105,11 @@ namespace AIWE.NodeEditor.UI
                 if (cam != null) cam.InputEnabled = false;
             }
 
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
+            UnityEngine.Cursor.lockState = CursorLockMode.None;
+            UnityEngine.Cursor.visible = true;
 
-            _controls.UI.Cancel.performed += _ => Close();
+            _controls.UI.Cancel.performed -= OnCancelPerformed;
+            _controls.UI.Cancel.performed += OnCancelPerformed;
         }
 
         private void EnsureFixedTriggerNodes(NodeGraphData graph)
@@ -117,8 +151,10 @@ namespace AIWE.NodeEditor.UI
             if (!_isOpen) return;
             _isOpen = false;
 
-            if (editorPanel != null) editorPanel.SetActive(false);
+            if (_root != null)
+                _root.style.display = DisplayStyle.None;
 
+            _controls.UI.Cancel.performed -= OnCancelPerformed;
             _controls.UI.Disable();
             _controls.Player.Enable();
 
@@ -129,16 +165,14 @@ namespace AIWE.NodeEditor.UI
                 if (cam != null) cam.InputEnabled = true;
             }
 
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
+            UnityEngine.Cursor.lockState = CursorLockMode.Locked;
+            UnityEngine.Cursor.visible = false;
 
             if (!_isWeaponMode)
             {
                 var lockManager = ServiceLocator.Get<EditorLockManager>();
                 if (lockManager != null && NetworkManager.Singleton != null)
-                {
                     lockManager.ReleaseLockRpc(NetworkManager.Singleton.LocalClientId);
-                }
             }
 
             _currentChassis = null;
@@ -147,9 +181,9 @@ namespace AIWE.NodeEditor.UI
 
         public void SaveGraph()
         {
-            if (_currentChassis == null || canvas == null) return;
+            if (_currentChassis == null || _canvas == null) return;
 
-            var graph = canvas.GetCurrentGraph();
+            var graph = _canvas.GetCurrentGraph();
 
             if (_playerInventory != null)
             {
@@ -166,6 +200,7 @@ namespace AIWE.NodeEditor.UI
                         oldCounts[n.moduleDefId] = c + 1;
                     }
                 }
+
                 foreach (var n in graph.nodes)
                 {
                     if (n.isFixed) continue;
@@ -199,18 +234,40 @@ namespace AIWE.NodeEditor.UI
             Close();
         }
 
-        private void OnLockGranted()
+        private void OnCancelPerformed(UnityEngine.InputSystem.InputAction.CallbackContext ctx)
         {
+            Close();
         }
+
+        private void OnCanvasNodeAdded(string moduleDefId)
+        {
+            _palette?.OnNodeAdded(moduleDefId);
+        }
+
+        private void OnCanvasNodeRemoved(string moduleDefId)
+        {
+            _palette?.OnNodeRemoved(moduleDefId);
+        }
+
+        private void ShowDocumentation()
+        {
+            if (_root == null) return;
+
+            var existing = _root.Q("doc-overlay");
+            if (existing != null) { existing.RemoveFromHierarchy(); return; }
+
+            var popup = DocumentationContent.Build();
+            popup.Show(_root);
+        }
+
+        private void OnLockGranted() { }
 
         private void OnDestroy()
         {
             _controls?.Dispose();
             var lockManager = ServiceLocator.Get<EditorLockManager>();
             if (lockManager != null)
-            {
                 lockManager.OnLockGranted -= OnLockGranted;
-            }
         }
     }
 }

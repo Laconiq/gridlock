@@ -1,36 +1,75 @@
 using AIWE.Modules;
 using AIWE.NodeEditor.Data;
-using TMPro;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.UI;
+using UnityEngine.UIElements;
 
 namespace AIWE.NodeEditor.UI
 {
-    public class ModulePaletteItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
+    public class ModulePaletteItem
     {
-        [SerializeField] private TextMeshProUGUI nameText;
-        [SerializeField] private Image colorBar;
+        public VisualElement Element { get; }
 
-        private ModuleDefinition _definition;
-        private NodeEditorCanvas _canvas;
-        private GameObject _ghost;
+        private readonly ModuleDefinition _definition;
+        private readonly NodeEditorCanvas _canvas;
         private int _count;
-        private bool _hasInventory;
-        private CanvasGroup _canvasGroup;
+        private readonly bool _hasInventory;
+        private readonly Label _nameLabel;
+        private readonly Label _countLabel;
 
-        public void Initialize(ModuleDefinition definition, NodeEditorCanvas canvas, int count = -1)
+
+        public ModulePaletteItem(ModuleDefinition definition, NodeEditorCanvas canvas, int count)
         {
             _definition = definition;
             _canvas = canvas;
             _hasInventory = count >= 0;
             _count = count;
 
-            _canvasGroup = GetComponent<CanvasGroup>();
-            if (_canvasGroup == null)
-                _canvasGroup = gameObject.AddComponent<CanvasGroup>();
+            Element = new VisualElement();
+            Element.AddToClassList("palette-item");
+
+            var catClass = definition.category switch
+            {
+                ModuleCategory.Trigger => "palette-item--trigger",
+                ModuleCategory.Zone => "palette-item--zone",
+                ModuleCategory.Effect => "palette-item--effect",
+                _ => ""
+            };
+            if (!string.IsNullOrEmpty(catClass))
+                Element.AddToClassList(catClass);
+
+            var leftGroup = new VisualElement();
+            leftGroup.AddToClassList("palette-item__left");
+
+            var icon = new VisualElement();
+            icon.AddToClassList("palette-item__icon");
+            var iconPath = DesignConstants.GetIconPath(definition.category switch
+            {
+                ModuleCategory.Trigger => "trigger",
+                ModuleCategory.Zone => "zone",
+                ModuleCategory.Effect => "effect",
+                _ => ""
+            });
+            if (iconPath != null)
+            {
+                var iconTex = Resources.Load<Texture2D>(iconPath);
+                if (iconTex != null)
+                    icon.style.backgroundImage = new StyleBackground(iconTex);
+            }
+            leftGroup.Add(icon);
+
+            _nameLabel = new Label();
+            _nameLabel.AddToClassList("palette-item__name");
+            leftGroup.Add(_nameLabel);
+
+            Element.Add(leftGroup);
+
+            _countLabel = new Label();
+            _countLabel.AddToClassList("palette-item__count");
+            Element.Add(_countLabel);
 
             UpdateDisplay();
+
+            Element.RegisterCallback<PointerDownEvent>(OnPointerDown);
         }
 
         public void AdjustCount(int delta)
@@ -42,79 +81,38 @@ namespace AIWE.NodeEditor.UI
 
         private void UpdateDisplay()
         {
-            if (nameText != null)
-            {
-                nameText.text = _hasInventory
-                    ? $"{_definition.displayName} (x{_count})"
-                    : _definition.displayName;
-            }
+            _nameLabel.text = _definition.displayName.ToUpper();
+            _countLabel.text = _hasInventory ? $"x{_count}" : "";
 
-            if (colorBar != null)
-                colorBar.color = _definition.nodeColor;
-
-            if (_canvasGroup != null)
-                _canvasGroup.alpha = (_hasInventory && _count <= 0) ? 0.4f : 1f;
+            if (_hasInventory && _count <= 0)
+                Element.AddToClassList("palette-item--depleted");
+            else
+                Element.RemoveFromClassList("palette-item--depleted");
         }
 
-        public void OnBeginDrag(PointerEventData eventData)
+        private void OnPointerDown(PointerDownEvent evt)
         {
+            if (evt.button != 0) return;
             if (_hasInventory && _count <= 0) return;
-
-            _ghost = new GameObject("DragGhost");
-            _ghost.transform.SetParent(transform.root, false);
-            var rt = _ghost.AddComponent<RectTransform>();
-            rt.sizeDelta = new Vector2(140, 40);
-            var img = _ghost.AddComponent<Image>();
-            img.color = new Color(_definition.nodeColor.r, _definition.nodeColor.g, _definition.nodeColor.b, 0.5f);
-            img.raycastTarget = false;
-
-            var text = new GameObject("Text").AddComponent<TextMeshProUGUI>();
-            text.transform.SetParent(_ghost.transform, false);
-            text.text = _definition.displayName;
-            text.fontSize = 12;
-            text.alignment = TextAlignmentOptions.Center;
-            text.raycastTarget = false;
-            var textRt = text.GetComponent<RectTransform>();
-            textRt.anchorMin = Vector2.zero;
-            textRt.anchorMax = Vector2.one;
-            textRt.offsetMin = Vector2.zero;
-            textRt.offsetMax = Vector2.zero;
-        }
-
-        public void OnDrag(PointerEventData eventData)
-        {
-            if (_ghost != null)
-            {
-                _ghost.transform.position = eventData.position;
-            }
-        }
-
-        public void OnEndDrag(PointerEventData eventData)
-        {
-            if (_ghost != null)
-            {
-                Destroy(_ghost);
-            }
-
             if (_canvas == null || _definition == null) return;
-            if (_hasInventory && _count <= 0) return;
+
+            var screenPos = new Vector2(evt.position.x, evt.position.y);
+            var canvasPos = _canvas.ScreenToCanvasPosition(screenPos);
+            canvasPos.x -= 96f;
+            canvasPos.y -= 20f;
 
             var nodeData = new NodeData
             {
                 moduleDefId = _definition.moduleId,
                 category = _definition.category,
-                editorPosition = eventData.position
+                editorPosition = canvasPos
             };
 
-            var canvasRt = _canvas.GetComponent<RectTransform>();
-            if (canvasRt != null)
-            {
-                RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                    canvasRt, eventData.position, eventData.pressEventCamera, out var localPos);
-                nodeData.editorPosition = localPos;
-            }
+            var node = _canvas.AddNode(nodeData, animated: true);
+            if (node != null)
+                _canvas.BeginNodeDrag(node, evt);
 
-            _canvas.AddNode(nodeData);
+            evt.StopPropagation();
         }
     }
 }
