@@ -18,6 +18,7 @@ namespace AIWE.NodeEditor.Data
         public string moduleDefId;
         public ModuleCategory category;
         public Vector2 editorPosition;
+        public bool isFixed;
         public List<ParamOverride> paramOverrides = new();
 
         public NodeData()

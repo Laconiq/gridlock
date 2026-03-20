@@ -8,34 +8,45 @@ using AIWE.NodeEditor.Data;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace AIWE.Towers
+namespace AIWE.Player
 {
-    public class TowerExecutor : NetworkBehaviour
+    public class PlayerWeaponExecutor : NetworkBehaviour
     {
         [SerializeField] private ModuleRegistry moduleRegistry;
 
-        private IChassis _chassis;
-        private readonly List<TriggerChain> _triggerChains = new();
+        private PlayerWeaponChassis _chassis;
+        private readonly List<TriggerChain> _leftClickChains = new();
+        private readonly List<TriggerChain> _rightClickChains = new();
+        private readonly List<TriggerChain> _timerChains = new();
         private bool _initialized;
 
         public override void OnNetworkSpawn()
         {
-            _chassis = GetComponent<IChassis>();
+            _chassis = GetComponent<PlayerWeaponChassis>();
+            if (_chassis == null) return;
 
-            var towerChassis = GetComponent<TowerChassis>();
-            if (towerChassis != null)
-            {
-                RebuildFromGraph(towerChassis.GetNodeGraph());
-            }
+            _chassis.OnGraphUpdated += RebuildFromGraph;
+            RebuildFromGraph(_chassis.GetNodeGraph());
+        }
+
+        public override void OnNetworkDespawn()
+        {
+            if (_chassis != null)
+                _chassis.OnGraphUpdated -= RebuildFromGraph;
         }
 
         public void RebuildFromGraph(NodeGraphData graph)
         {
-            _triggerChains.Clear();
+            _leftClickChains.Clear();
+            _rightClickChains.Clear();
+            _timerChains.Clear();
             _initialized = false;
 
             if (graph == null || graph.nodes.Count == 0 || moduleRegistry == null || _chassis == null)
+            {
+                Debug.Log($"[PlayerWeaponExecutor] RebuildFromGraph early exit: graph={graph != null}, nodes={graph?.nodes.Count ?? 0}, registry={moduleRegistry != null}, chassis={_chassis != null}");
                 return;
+            }
 
             foreach (var node in graph.nodes)
             {
@@ -51,13 +62,19 @@ namespace AIWE.Towers
                 {
                     var chain = new TriggerChain { Trigger = triggerInstance };
                     BuildZoneChain(graph, node.nodeId, chain.ZoneChains);
-                    chain.Trigger.OnTriggered += () => ExecuteChain(chain);
-                    _triggerChains.Add(chain);
+                    triggerInstance.OnTriggered += () => ExecuteChain(chain);
+
+                    if (triggerInstance is OnLeftClickTrigger)
+                        _leftClickChains.Add(chain);
+                    else if (triggerInstance is OnRightClickTrigger)
+                        _rightClickChains.Add(chain);
+                    else
+                        _timerChains.Add(chain);
                 }
             }
 
-            _initialized = _triggerChains.Count > 0;
-            Debug.Log($"[TowerExecutor] Built {_triggerChains.Count} trigger chains on {gameObject.name}");
+            _initialized = _leftClickChains.Count > 0 || _rightClickChains.Count > 0 || _timerChains.Count > 0;
+            Debug.Log($"[PlayerWeaponExecutor] Rebuilt: L={_leftClickChains.Count} R={_rightClickChains.Count} T={_timerChains.Count}");
         }
 
         private const int MaxChainDepth = 8;
@@ -82,11 +99,8 @@ namespace AIWE.Towers
                     if (zones.Count == 0) continue;
 
                     var zoneChain = new ZoneChain { Zone = zones[0] };
-
                     CollectEffects(graph, targetNode.nodeId, zoneChain.Effects);
-
                     BuildZoneChain(graph, targetNode.nodeId, zoneChain.ChainedZones, depth + 1);
-
                     zoneChains.Add(zoneChain);
                 }
             }
@@ -107,7 +121,6 @@ namespace AIWE.Towers
 
                 var effInstances = ModuleFactory.CreateEffects(effDef, _chassis);
                 effects.AddRange(effInstances);
-
                 CollectEffects(graph, effNode.nodeId, effects, depth + 1);
             }
         }
@@ -116,9 +129,29 @@ namespace AIWE.Towers
         {
             if (!IsServer || !_initialized) return;
 
-            foreach (var chain in _triggerChains)
+            foreach (var chain in _timerChains)
             {
                 chain.Trigger.Tick(Time.deltaTime);
+            }
+        }
+
+        [Rpc(SendTo.Server)]
+        public void FireLeftClickRpc()
+        {
+            Debug.Log($"[PlayerWeaponExecutor] FireLeftClick: {_leftClickChains.Count} chains");
+            foreach (var chain in _leftClickChains)
+            {
+                chain.Trigger.ExternalFire();
+            }
+        }
+
+        [Rpc(SendTo.Server)]
+        public void FireRightClickRpc()
+        {
+            Debug.Log($"[PlayerWeaponExecutor] FireRightClick: {_rightClickChains.Count} chains");
+            foreach (var chain in _rightClickChains)
+            {
+                chain.Trigger.ExternalFire();
             }
         }
 

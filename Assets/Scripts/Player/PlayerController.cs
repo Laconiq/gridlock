@@ -97,6 +97,9 @@ namespace AIWE.Player
 
             var interaction = GetComponent<PlayerInteraction>();
             if (interaction != null) interaction.InputEnabled = active;
+
+            var weaponEditor = GetComponent<PlayerWeaponEditorController>();
+            if (weaponEditor != null) weaponEditor.InputEnabled = active;
         }
 
         private void Update()

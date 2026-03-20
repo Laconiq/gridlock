@@ -174,6 +174,7 @@ namespace AIWE.NodeEditor.UI
         {
             if (eventData.button == PointerEventData.InputButton.Right)
             {
+                if (_nodeData.isFixed) return;
                 _canvas?.RemoveNode(NodeId);
             }
         }

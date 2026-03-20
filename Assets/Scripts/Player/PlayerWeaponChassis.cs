@@ -1,3 +1,4 @@
+using System;
 using AIWE.Interfaces;
 using AIWE.NodeEditor.Data;
 using AIWE.Towers;
@@ -20,9 +21,12 @@ namespace AIWE.Player
 
         private NodeGraphData _cachedGraph;
 
+        public event Action<NodeGraphData> OnGraphUpdated;
+
         public ChassisDefinition Definition => definition;
         public int MaxTriggers => definition != null ? definition.maxTriggers : 2;
         public Transform FirePoint => firePoint;
+        public float BaseRange => definition != null ? definition.baseRange : 15f;
 
         public override void OnNetworkSpawn()
         {
@@ -43,6 +47,7 @@ namespace AIWE.Player
         {
             _cachedGraph = GraphSerializer.Deserialize(current.ToString());
             Debug.Log($"[PlayerWeapon] Graph updated for {gameObject.name}");
+            OnGraphUpdated?.Invoke(_cachedGraph);
         }
 
         public NodeGraphData GetNodeGraph()

@@ -141,6 +141,7 @@ namespace AIWE.NodeEditor.UI
         public void RemoveNode(string nodeId)
         {
             var nodeData = _graph?.nodes.Find(n => n.nodeId == nodeId);
+            if (nodeData != null && nodeData.isFixed) return;
             string moduleDefId = nodeData?.moduleDefId;
 
             _graph?.nodes.RemoveAll(n => n.nodeId == nodeId);
