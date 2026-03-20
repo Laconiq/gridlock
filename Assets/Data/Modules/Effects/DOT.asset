@@ -17,7 +17,7 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: 1e0c0d46b84072f40868347c7e3e67f5, type: 3}
   category: 2
   nodeColor: {r: 0.9, g: 0.3, b: 0.3, a: 1}
-  description:
+  description: 
   effects:
   - rid: 684771300558454792
   references:

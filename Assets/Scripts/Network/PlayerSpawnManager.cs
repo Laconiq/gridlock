@@ -1,3 +1,5 @@
+using System.Linq;
+using AIWE.LevelDesign;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -14,6 +16,22 @@ namespace AIWE.Network
             if (NetworkManager.Singleton != null)
             {
                 NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
+            }
+
+            if (spawnPoints == null || spawnPoints.Length == 0)
+                FindLDtkSpawnPoints();
+        }
+
+        private void FindLDtkSpawnPoints()
+        {
+            var markers = FindObjectsByType<PlayerSpawnMarker>(FindObjectsSortMode.None)
+                .OrderBy(m => m.PlayerIndex)
+                .ToArray();
+
+            if (markers.Length > 0)
+            {
+                spawnPoints = markers.Select(m => m.transform).ToArray();
+                Debug.Log($"[PlayerSpawnManager] Found {spawnPoints.Length} LDtk spawn points");
             }
         }
 
@@ -32,7 +50,7 @@ namespace AIWE.Network
         private Vector3 GetNextSpawnPosition()
         {
             if (spawnPoints == null || spawnPoints.Length == 0)
-                return Vector3.zero;
+                return new Vector3(16, 1, 4);
 
             var pos = spawnPoints[_nextSpawnIndex].position;
             _nextSpawnIndex = (_nextSpawnIndex + 1) % spawnPoints.Length;
