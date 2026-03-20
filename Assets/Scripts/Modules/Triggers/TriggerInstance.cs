@@ -22,6 +22,8 @@ namespace AIWE.Modules.Triggers
             OnTriggered?.Invoke();
         }
 
+        public virtual void ExternalFire() => Fire();
+
         public virtual void Reset()
         {
             CooldownTimer = 0f;

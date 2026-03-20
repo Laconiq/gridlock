@@ -9,5 +9,6 @@ namespace AIWE.Interfaces
         void SetNodeGraph(NodeGraphData graph);
         int MaxTriggers { get; }
         Transform FirePoint { get; }
+        float BaseRange { get; }
     }
 }

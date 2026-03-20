@@ -22,6 +22,7 @@ namespace AIWE.Towers
         public ChassisDefinition Definition => definition;
         public int MaxTriggers => definition != null ? definition.maxTriggers : 1;
         public Transform FirePoint => firePoint;
+        public float BaseRange => definition != null ? definition.baseRange : 10f;
 
         public override void OnNetworkSpawn()
         {

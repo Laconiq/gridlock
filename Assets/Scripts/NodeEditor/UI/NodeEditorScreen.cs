@@ -10,6 +10,9 @@ namespace AIWE.NodeEditor.UI
 {
     public class NodeEditorScreen : MonoBehaviour
     {
+        private const string LeftClickModuleId = "trigger_onleftclick";
+        private const string RightClickModuleId = "trigger_onrightclick";
+
         [SerializeField] private GameObject editorPanel;
         [SerializeField] private NodeEditorCanvas canvas;
         [SerializeField] private ModulePalette palette;
@@ -18,8 +21,10 @@ namespace AIWE.NodeEditor.UI
         private IChassis _currentChassis;
         private PlayerInventory _playerInventory;
         private bool _isOpen;
+        private bool _isWeaponMode;
 
         public bool IsOpen => _isOpen;
+        public bool IsWeaponMode => _isWeaponMode;
 
         private static NodeEditorScreen _instance;
         public static NodeEditorScreen Instance => _instance;
@@ -45,10 +50,15 @@ namespace AIWE.NodeEditor.UI
             _currentChassis = chassis;
             _playerInventory = inventory;
             _isOpen = true;
+            _isWeaponMode = chassis is PlayerWeaponChassis;
 
             if (editorPanel != null) editorPanel.SetActive(true);
 
             var graph = chassis.GetNodeGraph();
+
+            if (_isWeaponMode)
+                EnsureFixedTriggerNodes(graph);
+
             if (canvas != null) canvas.LoadGraph(graph, chassis.MaxTriggers);
             if (palette != null) palette.Initialize(canvas, _playerInventory);
 
@@ -66,6 +76,40 @@ namespace AIWE.NodeEditor.UI
             Cursor.visible = true;
 
             _controls.UI.Cancel.performed += _ => Close();
+        }
+
+        private void EnsureFixedTriggerNodes(NodeGraphData graph)
+        {
+            bool hasLeft = false;
+            bool hasRight = false;
+
+            foreach (var node in graph.nodes)
+            {
+                if (node.isFixed && node.moduleDefId == LeftClickModuleId) hasLeft = true;
+                if (node.isFixed && node.moduleDefId == RightClickModuleId) hasRight = true;
+            }
+
+            if (!hasLeft)
+            {
+                graph.nodes.Insert(0, new NodeData
+                {
+                    moduleDefId = LeftClickModuleId,
+                    category = ModuleCategory.Trigger,
+                    editorPosition = new Vector2(-300, -80),
+                    isFixed = true
+                });
+            }
+
+            if (!hasRight)
+            {
+                graph.nodes.Insert(1, new NodeData
+                {
+                    moduleDefId = RightClickModuleId,
+                    category = ModuleCategory.Trigger,
+                    editorPosition = new Vector2(-300, 80),
+                    isFixed = true
+                });
+            }
         }
 
         public void Close()
@@ -88,13 +132,17 @@ namespace AIWE.NodeEditor.UI
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
 
-            var lockManager = ServiceLocator.Get<EditorLockManager>();
-            if (lockManager != null && NetworkManager.Singleton != null)
+            if (!_isWeaponMode)
             {
-                lockManager.ReleaseLockRpc(NetworkManager.Singleton.LocalClientId);
+                var lockManager = ServiceLocator.Get<EditorLockManager>();
+                if (lockManager != null && NetworkManager.Singleton != null)
+                {
+                    lockManager.ReleaseLockRpc(NetworkManager.Singleton.LocalClientId);
+                }
             }
 
             _currentChassis = null;
+            _isWeaponMode = false;
         }
 
         public void SaveGraph()
@@ -113,12 +161,14 @@ namespace AIWE.NodeEditor.UI
                 {
                     foreach (var n in oldGraph.nodes)
                     {
+                        if (n.isFixed) continue;
                         oldCounts.TryGetValue(n.moduleDefId, out int c);
                         oldCounts[n.moduleDefId] = c + 1;
                     }
                 }
                 foreach (var n in graph.nodes)
                 {
+                    if (n.isFixed) continue;
                     newCounts.TryGetValue(n.moduleDefId, out int c);
                     newCounts[n.moduleDefId] = c + 1;
                 }
