@@ -13,6 +13,10 @@ namespace AIWE.Player.CameraEffects
         [SerializeField] private float footstepVolume = 0.4f;
         [SerializeField] private float pitchVariation = 0.1f;
 
+        [Header("Jump")]
+        [SerializeField] private AudioClip jumpClip;
+        [SerializeField] private float jumpVolume = 0.3f;
+
         [Header("Wind")]
         [SerializeField] private AudioSource windSource;
         [SerializeField] private float windSpeedThreshold = 0.5f;
@@ -30,6 +34,8 @@ namespace AIWE.Player.CameraEffects
         private float _stepTimer;
         private float _windVolumeVelocity;
         private float _windPitchVelocity;
+        private int _lastFootstepIndex = -1;
+        private bool _wasGrounded;
 
         private void Awake()
         {
@@ -61,6 +67,7 @@ namespace AIWE.Player.CameraEffects
 
             HandleFootsteps();
             HandleWind();
+            DetectJump();
         }
 
         private void HandleFootsteps()
@@ -80,10 +87,37 @@ namespace AIWE.Player.CameraEffects
             if (_stepTimer >= interval)
             {
                 _stepTimer = 0f;
-                var clip = footstepClips[Random.Range(0, footstepClips.Length)];
-                footstepSource.pitch = 1f + Random.Range(-pitchVariation, pitchVariation);
-                footstepSource.PlayOneShot(clip, footstepVolume * speed);
+                PlayRandomFootstep(speed);
             }
+        }
+
+        private void PlayRandomFootstep(float speedNorm)
+        {
+            int index;
+            if (footstepClips.Length > 1)
+            {
+                do { index = Random.Range(0, footstepClips.Length); }
+                while (index == _lastFootstepIndex);
+            }
+            else
+            {
+                index = 0;
+            }
+
+            _lastFootstepIndex = index;
+            footstepSource.pitch = 1f + Random.Range(-pitchVariation, pitchVariation);
+            footstepSource.PlayOneShot(footstepClips[index], footstepVolume * Mathf.Max(0.5f, speedNorm));
+        }
+
+        private void DetectJump()
+        {
+            bool grounded = _player.IsGrounded;
+            if (_wasGrounded && !grounded && jumpClip != null && footstepSource != null)
+            {
+                footstepSource.pitch = 1f + Random.Range(-0.05f, 0.05f);
+                footstepSource.PlayOneShot(jumpClip, jumpVolume);
+            }
+            _wasGrounded = grounded;
         }
 
         private void HandleWind()
