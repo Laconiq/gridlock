@@ -1,7 +1,6 @@
 using Unity.Cinemachine;
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 namespace AIWE.Player
 {
@@ -12,6 +11,12 @@ namespace AIWE.Player
         [SerializeField] private float minPitch = -80f;
         [SerializeField] private float maxPitch = 80f;
 
+        [Header("Dynamic FOV")]
+        [SerializeField] private float baseFov = 100f;
+        [SerializeField] private float maxFovBonus = 10f;
+        [SerializeField] private float fovSmoothTime = 0.2f;
+        [SerializeField] private float fovSpeedThreshold = 0.5f;
+
         [Header("References")]
         [SerializeField] private CinemachineCamera cinemachineCamera;
         [SerializeField] private CinemachinePanTilt panTilt;
@@ -19,12 +24,16 @@ namespace AIWE.Player
         private Controls _controls;
         private float _yaw;
         private float _pitch;
+        private float _fovVelocity;
+        private PlayerController _player;
 
         public bool InputEnabled { get; set; } = true;
+        public Vector2 LookDelta { get; private set; }
 
         private void Awake()
         {
             _controls = new Controls();
+            _player = GetComponentInParent<PlayerController>();
 
             if (cinemachineCamera == null)
                 cinemachineCamera = GetComponentInChildren<CinemachineCamera>();
@@ -56,11 +65,27 @@ namespace AIWE.Player
         {
             if (!IsOwner || !InputEnabled) return;
 
-            var lookInput = _controls.Player.Look.ReadValue<Vector2>();
+            HandleLook();
+            HandleDynamicFov();
+        }
 
-            _yaw += lookInput.x * sensitivity;
+        private float _recoilPitch;
+        private float _recoilYaw;
+
+        public void ApplyRecoil(float pitch, float yaw)
+        {
+            _recoilPitch = pitch;
+            _recoilYaw = yaw;
+        }
+
+        private void HandleLook()
+        {
+            var lookInput = _controls.Player.Look.ReadValue<Vector2>();
+            LookDelta = lookInput;
+
+            _yaw += lookInput.x * sensitivity + _recoilYaw;
             _pitch -= lookInput.y * sensitivity;
-            _pitch = Mathf.Clamp(_pitch, minPitch, maxPitch);
+            _pitch = Mathf.Clamp(_pitch + _recoilPitch, minPitch, maxPitch);
 
             transform.parent.rotation = Quaternion.Euler(0f, _yaw, 0f);
 
@@ -69,6 +94,24 @@ namespace AIWE.Player
                 panTilt.PanAxis.Value = 0f;
                 panTilt.TiltAxis.Value = _pitch;
             }
+
+            _recoilPitch = 0f;
+            _recoilYaw = 0f;
+        }
+
+        private void HandleDynamicFov()
+        {
+            if (cinemachineCamera == null || _player == null) return;
+
+            float speedNorm = _player.CurrentSpeedNormalized;
+            float fovBonus = speedNorm > fovSpeedThreshold
+                ? maxFovBonus * Mathf.InverseLerp(fovSpeedThreshold, 1f, speedNorm)
+                : 0f;
+
+            float targetFov = baseFov + fovBonus;
+            var lens = cinemachineCamera.Lens;
+            lens.FieldOfView = Mathf.SmoothDamp(lens.FieldOfView, targetFov, ref _fovVelocity, fovSmoothTime);
+            cinemachineCamera.Lens = lens;
         }
 
         public override void OnDestroy()
