@@ -46,6 +46,13 @@ crashlytics-build.properties
 *.opendb
 *.VC.db
 
+# Screenshots
+/[Aa]ssets/[Ss]creenshots/
+/[Aa]ssets/[Ss]creenshots.meta
+
+# Claude memory
+/.claude/
+
 # OS
 .DS_Store
 Thumbs.db

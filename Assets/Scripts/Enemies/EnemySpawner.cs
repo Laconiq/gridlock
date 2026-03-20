@@ -1,5 +1,7 @@
 using System.Collections;
+using System.Linq;
 using AIWE.Combat;
+using AIWE.LevelDesign;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -16,7 +18,53 @@ namespace AIWE.Enemies
         [SerializeField] private EnemyDefinition testEnemy;
         [SerializeField] private float testInterval = 5f;
 
+        private Transform[] _spawnPoints;
+        private int _nextSpawnIndex;
         private float _testTimer;
+
+        public override void OnNetworkSpawn()
+        {
+            base.OnNetworkSpawn();
+
+            if (!IsServer) return;
+
+            if (spawnPoint == null)
+                FindLDtkSpawnPoints();
+
+            FindLDtkObjective();
+        }
+
+        private void FindLDtkSpawnPoints()
+        {
+            var markers = FindObjectsByType<EnemySpawnerMarker>(FindObjectsSortMode.None);
+            if (markers.Length > 0)
+            {
+                _spawnPoints = markers.Select(m => m.transform).ToArray();
+                spawnPoint = _spawnPoints[0];
+                Debug.Log($"[EnemySpawner] Found {_spawnPoints.Length} LDtk spawn points");
+            }
+        }
+
+        private void FindLDtkObjective()
+        {
+            var objective = FindAnyObjectByType<ObjectiveMarker>();
+            if (objective != null)
+            {
+                targetPosition = objective.transform.position;
+                Debug.Log($"[EnemySpawner] Target set to LDtk Objective at {targetPosition}");
+            }
+        }
+
+        private Vector3 GetSpawnPosition()
+        {
+            if (_spawnPoints != null && _spawnPoints.Length > 0)
+            {
+                var pos = _spawnPoints[_nextSpawnIndex].position;
+                _nextSpawnIndex = (_nextSpawnIndex + 1) % _spawnPoints.Length;
+                return pos;
+            }
+            return spawnPoint != null ? spawnPoint.position : transform.position;
+        }
 
         private void Update()
         {
@@ -55,11 +103,11 @@ namespace AIWE.Enemies
         {
             if (enemyPrefab == null || !IsServer) return;
 
-            var pos = spawnPoint != null ? spawnPoint.position : transform.position;
+            var pos = GetSpawnPosition();
             var go = Instantiate(enemyPrefab, pos, Quaternion.identity);
 
             var netObj = go.GetComponent<NetworkObject>();
-            netObj.Spawn();
+            if (netObj != null) netObj.Spawn();
 
             var controller = go.GetComponent<EnemyController>();
             controller?.Setup(definition, targetPosition);
