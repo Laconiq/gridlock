@@ -1,9 +1,7 @@
 using System.Collections.Generic;
 using AIWE.Interfaces;
 using AIWE.Modules;
-using AIWE.Modules.Effects;
 using AIWE.Modules.Triggers;
-using AIWE.Modules.Zones;
 using AIWE.NodeEditor.Data;
 using Unity.Netcode;
 using UnityEngine;
@@ -50,7 +48,7 @@ namespace AIWE.Towers
                 foreach (var triggerInstance in triggers)
                 {
                     var chain = new TriggerChain { Trigger = triggerInstance };
-                    BuildZoneChain(graph, node.nodeId, chain.ZoneChains);
+                    ChainBuilder.BuildZoneChains(graph, node.nodeId, chain.ZoneChains, moduleRegistry, _chassis);
                     chain.Trigger.OnTriggered += () => ExecuteChain(chain);
                     _triggerChains.Add(chain);
                 }
@@ -58,58 +56,6 @@ namespace AIWE.Towers
 
             _initialized = _triggerChains.Count > 0;
             Debug.Log($"[TowerExecutor] Built {_triggerChains.Count} trigger chains on {gameObject.name}");
-        }
-
-        private const int MaxChainDepth = 8;
-
-        private void BuildZoneChain(NodeGraphData graph, string fromNodeId, List<ZoneChain> zoneChains, int depth = 0)
-        {
-            if (depth >= MaxChainDepth) return;
-
-            foreach (var conn in graph.connections)
-            {
-                if (conn.fromNodeId != fromNodeId) continue;
-
-                var targetNode = graph.nodes.Find(n => n.nodeId == conn.toNodeId);
-                if (targetNode == null) continue;
-
-                if (targetNode.category == ModuleCategory.Zone)
-                {
-                    var zoneDef = moduleRegistry.GetById(targetNode.moduleDefId) as ZoneDefinition;
-                    if (zoneDef == null) continue;
-
-                    var zones = ModuleFactory.CreateZones(zoneDef, _chassis);
-                    if (zones.Count == 0) continue;
-
-                    var zoneChain = new ZoneChain { Zone = zones[0] };
-
-                    CollectEffects(graph, targetNode.nodeId, zoneChain.Effects);
-
-                    BuildZoneChain(graph, targetNode.nodeId, zoneChain.ChainedZones, depth + 1);
-
-                    zoneChains.Add(zoneChain);
-                }
-            }
-        }
-
-        private void CollectEffects(NodeGraphData graph, string fromNodeId, List<EffectInstance> effects, int depth = 0)
-        {
-            if (depth >= MaxChainDepth) return;
-
-            foreach (var conn in graph.connections)
-            {
-                if (conn.fromNodeId != fromNodeId) continue;
-                var effNode = graph.nodes.Find(n => n.nodeId == conn.toNodeId);
-                if (effNode?.category != ModuleCategory.Effect) continue;
-
-                var effDef = moduleRegistry.GetById(effNode.moduleDefId) as EffectDefinition;
-                if (effDef == null) continue;
-
-                var effInstances = ModuleFactory.CreateEffects(effDef, _chassis);
-                effects.AddRange(effInstances);
-
-                CollectEffects(graph, effNode.nodeId, effects, depth + 1);
-            }
         }
 
         private void Update()
@@ -120,18 +66,7 @@ namespace AIWE.Towers
             foreach (var chain in _triggerChains)
             {
                 chain.Trigger.Tick(dt);
-                TickCooldowns(chain.ZoneChains, dt);
-            }
-        }
-
-        private void TickCooldowns(List<ZoneChain> zoneChains, float dt)
-        {
-            foreach (var zc in zoneChains)
-            {
-                zc.Zone.TickCooldown(dt);
-                foreach (var eff in zc.Effects)
-                    eff.TickCooldown(dt);
-                TickCooldowns(zc.ChainedZones, dt);
+                ChainBuilder.TickCooldowns(chain.ZoneChains, dt);
             }
         }
 
@@ -144,11 +79,11 @@ namespace AIWE.Towers
 
             foreach (var zoneChain in chain.ZoneChains)
             {
-                ExecuteZoneChain(zoneChain, origin, range);
+                ExecuteZoneChainWithRotation(zoneChain, origin, range);
             }
         }
 
-        private void ExecuteZoneChain(ZoneChain zoneChain, Vector3 origin, float range)
+        private void ExecuteZoneChainWithRotation(ZoneChain zoneChain, Vector3 origin, float range)
         {
             if (!zoneChain.Zone.IsReady) return;
 
@@ -171,21 +106,8 @@ namespace AIWE.Towers
 
             foreach (var chained in zoneChain.ChainedZones)
             {
-                ExecuteZoneChain(chained, origin, range);
+                ExecuteZoneChainWithRotation(chained, origin, range);
             }
-        }
-
-        private class TriggerChain
-        {
-            public TriggerInstance Trigger;
-            public readonly List<ZoneChain> ZoneChains = new();
-        }
-
-        private class ZoneChain
-        {
-            public ZoneInstance Zone;
-            public readonly List<EffectInstance> Effects = new();
-            public readonly List<ZoneChain> ChainedZones = new();
         }
     }
 }
