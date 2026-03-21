@@ -135,32 +135,75 @@ namespace AIWE.Player
             }
         }
 
+        private Vector3 _serverOrigin;
+        private Vector3 _serverAimDir;
+        private bool _ownerAlreadySpawnedVisual;
+
         [Rpc(SendTo.Server)]
-        public void FireLeftClickRpc()
+        public void FireLeftClickRpc(Vector3 origin, Vector3 aimDirection)
         {
-            Debug.Log($"[PlayerWeaponExecutor] FireLeftClick: {_leftClickChains.Count} chains");
+            SetServerAim(origin, aimDirection);
             foreach (var chain in _leftClickChains)
-            {
                 chain.Trigger.ExternalFire();
-            }
+            BroadcastVisualProjectileRpc(origin, aimDirection, false);
         }
 
         [Rpc(SendTo.Server)]
-        public void FireRightClickRpc()
+        public void FireRightClickRpc(Vector3 origin, Vector3 aimDirection)
         {
-            Debug.Log($"[PlayerWeaponExecutor] FireRightClick: {_rightClickChains.Count} chains");
+            SetServerAim(origin, aimDirection);
             foreach (var chain in _rightClickChains)
-            {
                 chain.Trigger.ExternalFire();
+            BroadcastVisualProjectileRpc(origin, aimDirection, true);
+        }
+
+        private void SetServerAim(Vector3 origin, Vector3 aimDirection)
+        {
+            _serverOrigin = origin;
+            _serverAimDir = aimDirection.sqrMagnitude > 0.01f ? aimDirection : Vector3.forward;
+            if (_chassis?.FirePoint != null)
+                _chassis.FirePoint.rotation = Quaternion.LookRotation(_serverAimDir);
+        }
+
+        public void SpawnLocalProjectile(Vector3 origin, Vector3 direction, bool rightClick = false)
+        {
+            _ownerAlreadySpawnedVisual = true;
+            SpawnVisualFromChains(origin, direction, rightClick);
+        }
+
+        [Rpc(SendTo.ClientsAndHost)]
+        private void BroadcastVisualProjectileRpc(Vector3 origin, Vector3 direction, bool rightClick)
+        {
+            if (IsOwner && _ownerAlreadySpawnedVisual)
+            {
+                _ownerAlreadySpawnedVisual = false;
+                return;
+            }
+
+            SpawnVisualFromChains(origin, direction, rightClick);
+        }
+
+        private void SpawnVisualFromChains(Vector3 origin, Vector3 direction, bool rightClick = false)
+        {
+            var chains = rightClick ? _rightClickChains : _leftClickChains;
+
+            foreach (var chain in chains)
+            {
+                foreach (var zoneChain in chain.ZoneChains)
+                {
+                    foreach (var effect in zoneChain.Effects)
+                    {
+                        if (effect is ProjectileEffect proj)
+                            ProjectileEffect.SpawnVisual(proj.ProjectilePrefab, origin, direction, proj.Speed);
+                    }
+                }
             }
         }
 
         private void ExecuteChain(TriggerChain chain)
         {
-            if (_chassis?.FirePoint == null) return;
-
-            var origin = _chassis.FirePoint.position;
-            var range = _chassis.BaseRange;
+            var origin = _serverOrigin != Vector3.zero ? _serverOrigin : (_chassis?.FirePoint?.position ?? transform.position);
+            var range = _chassis?.BaseRange ?? 15f;
 
             foreach (var zoneChain in chain.ZoneChains)
             {
