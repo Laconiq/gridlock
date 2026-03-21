@@ -36,5 +36,41 @@ MonoBehaviour:
     rarity: 2
   - module: {fileID: 11400000, guid: a3f0f241c1fc2574a8e113aefa452e78, type: 2}
     rarity: 2
+  - module: {fileID: 11400000, guid: 0491fd2a70c0b5d49b30d7f08353720d, type: 2}
+    rarity: 0
+  - module: {fileID: 11400000, guid: ec45217dd6d72164baa75de325f44a28, type: 2}
+    rarity: 0
+  - module: {fileID: 11400000, guid: 5d5e84fb890c03d4a9aa9be339128514, type: 2}
+    rarity: 0
+  - module: {fileID: 11400000, guid: 7ee87d57881bffb4cb4e2b301deed511, type: 2}
+    rarity: 0
+  - module: {fileID: 11400000, guid: dd95596bacfc1ec41915514d797c7cd2, type: 2}
+    rarity: 0
+  - module: {fileID: 11400000, guid: 3486db2540f6beb41804df0ddfe16b3f, type: 2}
+    rarity: 0
+  - module: {fileID: 11400000, guid: 32eadc83395a17c44ba98fa4883ddfac, type: 2}
+    rarity: 0
+  - module: {fileID: 11400000, guid: c2b80e09b0d490941862c925c4d75128, type: 2}
+    rarity: 0
+  - module: {fileID: 11400000, guid: ae5c643b3baba7d43bd38544c0ce39bd, type: 2}
+    rarity: 1
+  - module: {fileID: 11400000, guid: 511ebf96415e78c40953f8d12ccac489, type: 2}
+    rarity: 1
+  - module: {fileID: 11400000, guid: 42c9bc551fc001244b54b70d2e101b3c, type: 2}
+    rarity: 1
+  - module: {fileID: 11400000, guid: e9b14d5d6be53f84ca74d2679fee68fd, type: 2}
+    rarity: 1
+  - module: {fileID: 11400000, guid: 8b0f0799153363840999d2996547ae0c, type: 2}
+    rarity: 1
+  - module: {fileID: 11400000, guid: a2c5129a8231eb649bf184b00c62ae03, type: 2}
+    rarity: 2
+  - module: {fileID: 11400000, guid: 1395ac9a20c8fa94194e0158213cdcc4, type: 2}
+    rarity: 2
+  - module: {fileID: 11400000, guid: 1be02274de4928f46aaf3346bd884dc3, type: 2}
+    rarity: 2
+  - module: {fileID: 11400000, guid: 386ce922389c08349a20935934dc8984, type: 2}
+    rarity: 2
+  - module: {fileID: 11400000, guid: f6548ac36da27c945bbd78a914222fd9, type: 2}
+    rarity: 2
   dropChance: 0.5
   simulationRolls: 10000
