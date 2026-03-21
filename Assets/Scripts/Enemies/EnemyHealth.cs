@@ -19,6 +19,23 @@ namespace AIWE.Enemies
         public bool IsAlive => _currentHP.Value > 0f;
 
         public event Action OnDeath;
+        public event Action<float> _currentHPChanged;
+
+        public override void OnNetworkSpawn()
+        {
+            _currentHP.OnValueChanged += HandleHPChanged;
+        }
+
+        public override void OnNetworkDespawn()
+        {
+            _currentHP.OnValueChanged -= HandleHPChanged;
+        }
+
+        private void HandleHPChanged(float previous, float current)
+        {
+            if (current < previous)
+                _currentHPChanged?.Invoke(previous - current);
+        }
 
         public void SetMaxHP(float maxHP)
         {
