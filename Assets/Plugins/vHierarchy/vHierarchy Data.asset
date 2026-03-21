@@ -74,7 +74,7 @@ MonoBehaviour:
           isIconRecursive: 0
           isColorRecursive: 0
         - colorIndex: 0
-          iconNameOrGuid: Folder Icon
+          iconNameOrGuid: UIDocument Icon
           isIconRecursive: 0
           isColorRecursive: 0
         - colorIndex: 0
