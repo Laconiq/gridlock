@@ -17,37 +17,37 @@ MonoBehaviour:
     - nodeId: default_left_trigger
       moduleDefId: trigger_onleftclick
       category: 0
-      editorPosition: {x: -300, y: 0}
+      editorPosition: {x: 200, y: 150}
       isFixed: 1
       paramOverrides: []
     - nodeId: default_right_trigger
       moduleDefId: trigger_onrightclick
       category: 0
-      editorPosition: {x: -300, y: 400}
+      editorPosition: {x: 200, y: 550}
       isFixed: 1
       paramOverrides: []
     - nodeId: default_zone_left
       moduleDefId: forward_aim
       category: 1
-      editorPosition: {x: 0, y: 0}
+      editorPosition: {x: 500, y: 150}
       isFixed: 0
       paramOverrides: []
     - nodeId: default_zone_right
       moduleDefId: forward_aim
       category: 1
-      editorPosition: {x: 0, y: 400}
+      editorPosition: {x: 500, y: 550}
       isFixed: 0
       paramOverrides: []
     - nodeId: default_effect_left
       moduleDefId: projectile
       category: 2
-      editorPosition: {x: 10, y: 160}
+      editorPosition: {x: 510, y: 310}
       isFixed: 0
       paramOverrides: []
     - nodeId: default_effect_right
       moduleDefId: projectile
       category: 2
-      editorPosition: {x: 10, y: 560}
+      editorPosition: {x: 510, y: 710}
       isFixed: 0
       paramOverrides: []
     connections:
