@@ -182,6 +182,7 @@
 
 .hud__self-substats {
     flex-direction: row;
+    justify-content: flex-end;
     margin-top: 4px;
 }
 
@@ -312,5 +313,38 @@
     color: var(--on-surface-variant);
     opacity: var(--hud-opacity-log);
     margin-bottom: 1px;
+}
+
+/* === READY PROMPT (center) === */
+.hud__center-prompt {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 40%;
+    align-items: center;
+    justify-content: center;
+}
+
+.hud__ready-prompt {
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--on-surface-variant);
+    opacity: 0.3;
+}
+
+/* === SQUAD READY LABEL === */
+.hud__squad-ready {
+    font-size: 8px;
+    letter-spacing: 2px;
+    margin-left: 8px;
+}
+
+.hud__squad-ready--ready {
+    color: var(--secondary);
+}
+
+.hud__squad-ready--waiting {
+    color: var(--on-surface-variant);
+    opacity: 0.5;
 }
 

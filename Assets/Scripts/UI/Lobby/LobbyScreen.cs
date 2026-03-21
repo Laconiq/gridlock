@@ -186,7 +186,7 @@ namespace AIWE.UI.Lobby
 
         private void OnStartClicked()
         {
-            GameManager.Instance?.SetState(GameState.Wave);
+            GameManager.Instance?.SetState(GameState.Preparing);
         }
 
         private void OnDisconnectClicked()

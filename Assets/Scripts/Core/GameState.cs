@@ -5,7 +5,6 @@ namespace AIWE.Core
         Lobby,
         Preparing,
         Wave,
-        Intermission,
         GameOver
     }
 }

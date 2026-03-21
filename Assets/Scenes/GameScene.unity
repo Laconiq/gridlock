@@ -1156,9 +1156,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AIWE.Core.WaveManager
   ShowTopMostFoldoutHeaderGroup: 1
-  waves: []
+  waves:
+  - {fileID: 11400000, guid: 74097913572c44b4c94d3aa8a9a3b097, type: 2}
   spawner: {fileID: 0}
-  intermissionDuration: 5
 --- !u!1 &1205560537
 GameObject:
   m_ObjectHideFlags: 0
@@ -1577,6 +1577,7 @@ GameObject:
   - component: {fileID: 1884937633}
   - component: {fileID: 1884937635}
   - component: {fileID: 1884937634}
+  - component: {fileID: 1884937636}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -1637,6 +1638,19 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
+--- !u!114 &1884937636
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1884937632}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 360d7c4185c38a440a7203d2d5a89704, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AIWE.Core.ReadyManager
+  ShowTopMostFoldoutHeaderGroup: 1
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
