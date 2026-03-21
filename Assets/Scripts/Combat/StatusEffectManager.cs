@@ -60,9 +60,9 @@ namespace AIWE.Combat
             foreach (var effect in _activeEffects)
             {
                 if (effect.Data.Type == StatusEffectType.Slow)
-                {
                     SpeedMultiplier *= effect.Data.Value;
-                }
+                else if (effect.Data.Type == StatusEffectType.SpeedBoost)
+                    SpeedMultiplier *= effect.Data.Value;
             }
         }
 
@@ -85,6 +85,10 @@ namespace AIWE.Combat
     public enum StatusEffectType
     {
         Slow,
-        DamageOverTime
+        DamageOverTime,
+        Weaken,
+        Vulnerability,
+        SpeedBoost,
+        DamageBoost
     }
 }
