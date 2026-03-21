@@ -23,6 +23,10 @@ namespace AIWE.NodeEditor.UI
         private readonly List<NodeWidget> _nodeWidgets = new();
 
         private Vector2 _panOffset;
+        private float _zoomLevel = 1f;
+        private const float ZoomMin = 0.15f;
+        private const float ZoomMax = 3f;
+        private const float ZoomFactor = 1.08f;
         private bool _isPanning;
         private int _panPointerId = -1;
 
@@ -89,8 +93,9 @@ namespace AIWE.NodeEditor.UI
             _maxTriggers = maxTriggers;
 
             _panOffset = Vector2.zero;
-            _content.transform.position = Vector3.zero;
-            _gridBackground.UpdateTransform(_panOffset);
+            _zoomLevel = 1f;
+            ApplyContentTransform();
+            _gridBackground.UpdateTransform(_panOffset, _zoomLevel);
 
             ClearCanvas();
             CreateNodeWidgets();
@@ -190,6 +195,10 @@ namespace AIWE.NodeEditor.UI
             widget.Root.RemoveFromHierarchy();
             _dragOverlay.Add(widget.Root);
 
+            widget.Root.style.transformOrigin = new StyleTransformOrigin(new TransformOrigin(0, 0, 0));
+            float dragScale = _zoomLevel * 1.04f;
+            widget.Root.transform.scale = new Vector3(dragScale, dragScale, 1f);
+
             var overlayPos = _dragOverlay.WorldToLocal(targetPanel);
             widget.Root.style.left = overlayPos.x;
             widget.Root.style.top = overlayPos.y;
@@ -277,6 +286,8 @@ namespace AIWE.NodeEditor.UI
             if (_draggedNode == null) return;
             var nodeWorldPos = cursorPanel + _nodeDragOffset;
             _draggedNode.Root.RemoveFromHierarchy();
+            _draggedNode.Root.transform.scale = Vector3.one;
+            _draggedNode.Root.style.transformOrigin = StyleKeyword.Null;
             _content.Add(_draggedNode.Root);
             var contentPos = _content.WorldToLocal(nodeWorldPos);
             _draggedNode.SetPosition(contentPos);
@@ -480,8 +491,8 @@ namespace AIWE.NodeEditor.UI
             {
                 var delta = new Vector2(evt.deltaPosition.x, evt.deltaPosition.y);
                 _panOffset += delta;
-                _content.transform.position = new Vector3(_panOffset.x, _panOffset.y, 0);
-                _gridBackground.UpdateTransform(_panOffset);
+                ApplyContentTransform();
+                _gridBackground.UpdateTransform(_panOffset, _zoomLevel);
                 RefreshMinimap();
                 evt.StopPropagation();
             }
@@ -512,7 +523,30 @@ namespace AIWE.NodeEditor.UI
 
         private void OnWheel(WheelEvent evt)
         {
+            float oldZoom = _zoomLevel;
+            float factor = evt.delta.y > 0 ? 1f / ZoomFactor : ZoomFactor;
+            _zoomLevel = Mathf.Clamp(_zoomLevel * factor, ZoomMin, ZoomMax);
+
+            if (Mathf.Approximately(oldZoom, _zoomLevel))
+            {
+                evt.StopPropagation();
+                return;
+            }
+
+            var cursorLocal = _viewport.WorldToLocal(evt.mousePosition);
+            var contentPoint = (cursorLocal - _panOffset) / oldZoom;
+            _panOffset = cursorLocal - contentPoint * _zoomLevel;
+
+            ApplyContentTransform();
+            _gridBackground.UpdateTransform(_panOffset, _zoomLevel);
+            RefreshMinimap();
             evt.StopPropagation();
+        }
+
+        private void ApplyContentTransform()
+        {
+            _content.transform.position = new Vector3(_panOffset.x, _panOffset.y, 0);
+            _content.transform.scale = new Vector3(_zoomLevel, _zoomLevel, 1f);
         }
 
         public Vector2 PanelToCanvasPosition(Vector2 panelPos)
@@ -523,7 +557,7 @@ namespace AIWE.NodeEditor.UI
         public void RefreshMinimap()
         {
             if (_graph == null) return;
-            _minimap?.Refresh(_nodeWidgets, _panOffset, _viewport.contentRect);
+            _minimap?.Refresh(_nodeWidgets, _panOffset, _viewport.contentRect, _zoomLevel);
         }
 
         // === Grid Background ===
@@ -532,6 +566,7 @@ namespace AIWE.NodeEditor.UI
         {
             private const float GridSize = 40f;
             private Vector2 _offset;
+            private float _zoom = 1f;
 
             public GridBackground()
             {
@@ -544,9 +579,10 @@ namespace AIWE.NodeEditor.UI
                 pickingMode = PickingMode.Ignore;
             }
 
-            public void UpdateTransform(Vector2 offset)
+            public void UpdateTransform(Vector2 offset, float zoom = 1f)
             {
                 _offset = offset;
+                _zoom = zoom;
                 MarkDirtyRepaint();
             }
 
@@ -561,13 +597,16 @@ namespace AIWE.NodeEditor.UI
                 painter.strokeColor = gridColor;
                 painter.lineWidth = 1f;
 
-                float startX = _offset.x % GridSize;
-                if (startX < 0) startX += GridSize;
+                float scaledGrid = GridSize * _zoom;
+                if (scaledGrid < 4f) return;
 
-                float startY = _offset.y % GridSize;
-                if (startY < 0) startY += GridSize;
+                float startX = _offset.x % scaledGrid;
+                if (startX < 0) startX += scaledGrid;
 
-                for (float x = startX; x < rect.width; x += GridSize)
+                float startY = _offset.y % scaledGrid;
+                if (startY < 0) startY += scaledGrid;
+
+                for (float x = startX; x < rect.width; x += scaledGrid)
                 {
                     painter.BeginPath();
                     painter.MoveTo(new Vector2(x, 0));
@@ -575,7 +614,7 @@ namespace AIWE.NodeEditor.UI
                     painter.Stroke();
                 }
 
-                for (float y = startY; y < rect.height; y += GridSize)
+                for (float y = startY; y < rect.height; y += scaledGrid)
                 {
                     painter.BeginPath();
                     painter.MoveTo(new Vector2(0, y));

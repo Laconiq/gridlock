@@ -247,7 +247,6 @@
 }
 
 .node--dragging {
-    scale: 1.04 1.04;
     border-color: var(--node-border-drag, rgba(143, 245, 255, 0.25));
 }
 

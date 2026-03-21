@@ -22,7 +22,7 @@ namespace AIWE.NodeEditor.UI
 
         public bool IsValid => _canvas != null;
 
-        public void Refresh(IReadOnlyList<NodeWidget> nodes, Vector2 panOffset, Rect viewportRect)
+        public void Refresh(IReadOnlyList<NodeWidget> nodes, Vector2 panOffset, Rect viewportRect, float zoom = 1f)
         {
             if (_canvas == null) return;
 
@@ -86,10 +86,15 @@ namespace AIWE.NodeEditor.UI
             _viewportRect.style.display = DisplayStyle.Flex;
             _viewportRect.BringToFront();
 
-            _viewportRect.style.left = (-panOffset.x - minX) * scale;
-            _viewportRect.style.top = (-panOffset.y - minY) * scale;
-            _viewportRect.style.width = viewportRect.width * scale;
-            _viewportRect.style.height = viewportRect.height * scale;
+            float viewOriginX = -panOffset.x / zoom;
+            float viewOriginY = -panOffset.y / zoom;
+            float viewW = viewportRect.width / zoom;
+            float viewH = viewportRect.height / zoom;
+
+            _viewportRect.style.left = (viewOriginX - minX) * scale;
+            _viewportRect.style.top = (viewOriginY - minY) * scale;
+            _viewportRect.style.width = viewW * scale;
+            _viewportRect.style.height = viewH * scale;
         }
     }
 }
