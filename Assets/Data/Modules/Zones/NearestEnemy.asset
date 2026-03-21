@@ -27,4 +27,4 @@ MonoBehaviour:
     - rid: 684771300558454787
       type: {class: NearestEnemyZone, ns: AIWE.Modules.Zones, asm: Assembly-CSharp}
       data:
-        cooldown: 3
+        cooldown: 0.5

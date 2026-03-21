@@ -27,4 +27,4 @@ MonoBehaviour:
     - rid: 500000000000000003
       type: {class: AlliesInRangeZone, ns: AIWE.Modules.Zones, asm: Assembly-CSharp}
       data:
-        cooldown: 0
+        cooldown: 1

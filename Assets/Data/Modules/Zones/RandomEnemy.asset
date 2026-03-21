@@ -27,4 +27,4 @@ MonoBehaviour:
     - rid: 200000000000000005
       type: {class: RandomEnemyZone, ns: AIWE.Modules.Zones, asm: Assembly-CSharp}
       data:
-        cooldown: 0
+        cooldown: 0.3

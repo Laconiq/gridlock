@@ -27,4 +27,4 @@ MonoBehaviour:
     - rid: 200000000000000003
       type: {class: FirstInPathZone, ns: AIWE.Modules.Zones, asm: Assembly-CSharp}
       data:
-        cooldown: 0
+        cooldown: 0.5

@@ -27,4 +27,4 @@ MonoBehaviour:
     - rid: 500000000000000004
       type: {class: SelfTargetZone, ns: AIWE.Modules.Zones, asm: Assembly-CSharp}
       data:
-        cooldown: 0
+        cooldown: 2
