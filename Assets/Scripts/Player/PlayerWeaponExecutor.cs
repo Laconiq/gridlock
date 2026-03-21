@@ -127,12 +127,40 @@ namespace AIWE.Player
 
         private void Update()
         {
-            if (!IsServer || !_initialized) return;
+            if (!_initialized) return;
 
-            foreach (var chain in _timerChains)
+            float dt = Time.deltaTime;
+
+            if (IsServer)
             {
-                chain.Trigger.Tick(Time.deltaTime);
+                foreach (var chain in _timerChains)
+                    chain.Trigger.Tick(dt);
             }
+
+            TickAllCooldowns(dt);
+        }
+
+        private void TickAllCooldowns(float dt)
+        {
+            void TickChains(List<TriggerChain> chains)
+            {
+                foreach (var chain in chains)
+                    foreach (var zc in chain.ZoneChains)
+                        TickZoneChain(zc, dt);
+            }
+
+            void TickZoneChain(ZoneChain zc, float delta)
+            {
+                zc.Zone.TickCooldown(delta);
+                foreach (var eff in zc.Effects)
+                    eff.TickCooldown(delta);
+                foreach (var chained in zc.ChainedZones)
+                    TickZoneChain(chained, delta);
+            }
+
+            TickChains(_leftClickChains);
+            TickChains(_rightClickChains);
+            TickChains(_timerChains);
         }
 
         private Vector3 _serverOrigin;
@@ -143,18 +171,41 @@ namespace AIWE.Player
         public void FireLeftClickRpc(Vector3 origin, Vector3 aimDirection)
         {
             SetServerAim(origin, aimDirection);
-            foreach (var chain in _leftClickChains)
-                chain.Trigger.ExternalFire();
-            BroadcastVisualProjectileRpc(origin, aimDirection, false);
+            bool fired = TryFireChains(_leftClickChains);
+            if (fired) BroadcastVisualProjectileRpc(origin, aimDirection, false);
         }
 
         [Rpc(SendTo.Server)]
         public void FireRightClickRpc(Vector3 origin, Vector3 aimDirection)
         {
             SetServerAim(origin, aimDirection);
-            foreach (var chain in _rightClickChains)
-                chain.Trigger.ExternalFire();
-            BroadcastVisualProjectileRpc(origin, aimDirection, true);
+            bool fired = TryFireChains(_rightClickChains);
+            if (fired) BroadcastVisualProjectileRpc(origin, aimDirection, true);
+        }
+
+        private bool TryFireChains(List<TriggerChain> chains)
+        {
+            bool anyFired = false;
+            foreach (var chain in chains)
+            {
+                if (HasReadyEffects(chain))
+                {
+                    chain.Trigger.ExternalFire();
+                    anyFired = true;
+                }
+            }
+            return anyFired;
+        }
+
+        private bool HasReadyEffects(TriggerChain chain)
+        {
+            foreach (var zc in chain.ZoneChains)
+            {
+                if (!zc.Zone.IsReady) continue;
+                foreach (var eff in zc.Effects)
+                    if (eff.IsReady) return true;
+            }
+            return false;
         }
 
         private void SetServerAim(Vector3 origin, Vector3 aimDirection)
@@ -167,8 +218,18 @@ namespace AIWE.Player
 
         public void SpawnLocalProjectile(Vector3 origin, Vector3 direction, bool rightClick = false)
         {
+            var chains = rightClick ? _rightClickChains : _leftClickChains;
+            if (!HasAnyReady(chains)) return;
+
             _ownerAlreadySpawnedVisual = true;
             SpawnVisualFromChains(origin, direction, rightClick);
+        }
+
+        private bool HasAnyReady(List<TriggerChain> chains)
+        {
+            foreach (var chain in chains)
+                if (HasReadyEffects(chain)) return true;
+            return false;
         }
 
         [Rpc(SendTo.ClientsAndHost)]
@@ -213,11 +274,16 @@ namespace AIWE.Player
 
         private void ExecuteZoneChain(ZoneChain zoneChain, Vector3 origin, float range)
         {
+            if (!zoneChain.Zone.IsReady) return;
+
             var targets = zoneChain.Zone.SelectTargets(origin, range);
+            zoneChain.Zone.StartCooldown();
 
             foreach (var effect in zoneChain.Effects)
             {
+                if (!effect.IsReady) continue;
                 effect.Execute(targets, origin);
+                effect.StartCooldown();
             }
 
             foreach (var chained in zoneChain.ChainedZones)

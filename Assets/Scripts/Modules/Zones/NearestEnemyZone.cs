@@ -35,7 +35,7 @@ namespace AIWE.Modules.Zones
 
         public override ZoneInstance CreateInstance()
         {
-            return new NearestEnemyZone();
+            return new NearestEnemyZone { cooldown = cooldown };
         }
     }
 }

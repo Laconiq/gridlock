@@ -28,7 +28,7 @@ namespace AIWE.Modules.Zones
 
         public override ZoneInstance CreateInstance()
         {
-            return new AllEnemiesInRangeZone();
+            return new AllEnemiesInRangeZone { cooldown = cooldown };
         }
     }
 }

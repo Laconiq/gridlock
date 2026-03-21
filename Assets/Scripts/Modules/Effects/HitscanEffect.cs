@@ -25,7 +25,7 @@ namespace AIWE.Modules.Effects
 
         public override EffectInstance CreateInstance()
         {
-            return new HitscanEffect { damage = damage };
+            return new HitscanEffect { damage = damage, cooldown = cooldown };
         }
     }
 }
