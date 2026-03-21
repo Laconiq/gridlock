@@ -10,6 +10,8 @@ namespace AIWE.Combat
         private IDamageable _damageable;
 
         public float SpeedMultiplier { get; private set; } = 1f;
+        public float DamageMultiplier { get; private set; } = 1f;
+        public float VulnerabilityMultiplier { get; private set; } = 1f;
 
         private void Awake()
         {
@@ -61,13 +63,25 @@ namespace AIWE.Combat
         private void RecalculateModifiers()
         {
             SpeedMultiplier = 1f;
+            DamageMultiplier = 1f;
+            VulnerabilityMultiplier = 1f;
 
             foreach (var effect in _activeEffects)
             {
-                if (effect.Data.Type == StatusEffectType.Slow)
-                    SpeedMultiplier *= effect.Data.Value;
-                else if (effect.Data.Type == StatusEffectType.SpeedBoost)
-                    SpeedMultiplier *= effect.Data.Value;
+                switch (effect.Data.Type)
+                {
+                    case StatusEffectType.Slow:
+                    case StatusEffectType.SpeedBoost:
+                        SpeedMultiplier *= effect.Data.Value;
+                        break;
+                    case StatusEffectType.Weaken:
+                    case StatusEffectType.DamageBoost:
+                        DamageMultiplier *= effect.Data.Value;
+                        break;
+                    case StatusEffectType.Vulnerability:
+                        VulnerabilityMultiplier *= effect.Data.Value;
+                        break;
+                }
             }
         }
 
