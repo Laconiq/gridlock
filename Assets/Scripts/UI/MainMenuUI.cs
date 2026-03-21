@@ -30,6 +30,7 @@ namespace AIWE.UI
         {
             _bootstrap = ServiceLocator.Get<NetworkBootstrap>();
 
+            joinCodeInput.onValueChanged.AddListener(v => joinCodeInput.text = v.ToUpperInvariant());
             hostButton.onClick.AddListener(OnHostClicked);
             joinButton.onClick.AddListener(OnJoinClicked);
             startGameButton.onClick.AddListener(OnStartGameClicked);

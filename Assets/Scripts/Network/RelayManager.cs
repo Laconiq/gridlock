@@ -12,7 +12,7 @@ namespace AIWE.Network
         public static async Task<string> CreateRelay(int maxPlayers)
         {
             var allocation = await RelayService.Instance.CreateAllocationAsync(maxPlayers);
-            var joinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
+            var joinCode = (await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId)).ToUpperInvariant();
 
             var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
             var relayServerData = allocation.ToRelayServerData("dtls");
@@ -24,6 +24,7 @@ namespace AIWE.Network
 
         public static async Task JoinRelay(string joinCode)
         {
+            joinCode = joinCode.ToUpperInvariant();
             var joinAllocation = await RelayService.Instance.JoinAllocationAsync(joinCode);
 
             var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();

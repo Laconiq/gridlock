@@ -41,8 +41,8 @@
                 <!-- Join Game -->
                 <ui:VisualElement class="lobby__join-section">
                     <ui:VisualElement class="lobby__input-wrapper">
-                        <ui:Label text="LOBBY_CODE" class="lobby__input-label" />
                         <ui:TextField name="join-code-input" class="lobby__input" />
+                        <ui:Label text="LOBBY_CODE" class="lobby__input-label" picking-mode="Ignore" />
                     </ui:VisualElement>
                     <ui:Button name="join-btn" class="lobby__join-btn">
                         <ui:Label text="JOIN GAME" class="lobby__join-btn-label" />

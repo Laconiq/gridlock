@@ -55,6 +55,12 @@ namespace AIWE.UI.Lobby
             _hostBtn = _root.Q<Button>("host-btn");
             _joinBtn = _root.Q<Button>("join-btn");
             _joinCodeInput = _root.Q<TextField>("join-code-input");
+            _joinCodeInput?.RegisterValueChangedCallback(evt =>
+            {
+                var upper = evt.newValue.ToUpperInvariant();
+                if (upper != evt.newValue)
+                    _joinCodeInput.SetValueWithoutNotify(upper);
+            });
             _statusText = _root.Q<Label>("status-text");
 
             _lobbyCodeDisplay = _root.Q<Label>("lobby-code-display");

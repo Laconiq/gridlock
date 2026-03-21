@@ -204,6 +204,7 @@
     position: absolute;
     top: -8px;
     left: 16px;
+    z-index: 1;
     font-size: 8px;
     -unity-font-style: bold;
     color: var(--primary);
