@@ -458,6 +458,12 @@ namespace AIWE.NodeEditor.UI
                 return;
             }
 
+            if (from.PortColor != to.PortColor)
+            {
+                Debug.LogWarning("[NodeEditor] Port color mismatch");
+                return;
+            }
+
             AddConnection(from.ParentNode.NodeId, from.PortIndex, to.ParentNode.NodeId, to.PortIndex);
         }
 

@@ -6,10 +6,6 @@ namespace AIWE.NodeEditor.UI
 {
     public static class DocumentationContent
     {
-        private const float NodeWidth = DesignConstants.NodeWidth;
-        private const float SidePortY = DesignConstants.SidePortY;
-        private const float NodeHeight = DesignConstants.NodeHeight;
-
         public static PopupPanel Build()
         {
             var popup = new PopupPanel("SYSTEM_DOCUMENTATION");
@@ -58,53 +54,65 @@ namespace AIWE.NodeEditor.UI
             tag.style.color = new StyleColor(DesignConstants.PrimaryDim);
             page.Add(tag);
 
-            var title = new Label("MODULE_CHAIN_ARCHITECTURE");
+            var title = new Label("DEFAULT_TOWER_LOADOUT");
             title.AddToClassList("doc-module-page__title");
             page.Add(title);
 
             var desc = new Label(
-                "Modules chain together to create behaviors. Each chain follows:\n" +
-                "TRIGGER (when) \u2500\u25b6 ZONE (where) \u2500\u25b6 EFFECT (what)\n" +
-                "Zones connect vertically down to Effects. Effects chain to other Effects.");
+                "Every tower starts with this chain.\n" +
+                "Blue cables = horizontal flow. Green cables = vertical flow.");
             desc.AddToClassList("doc-module-page__desc");
             page.Add(desc);
-
-            // Diagram
-            float tX = 80f,  tY = 15f;
-            float zX = 350f, zY = 15f;
-            float eX = 350f, eY = 170f;
 
             var diagram = new VisualElement();
             diagram.AddToClassList("chain-diagram");
 
             var container = new VisualElement();
             container.AddToClassList("chain-diagram__container");
-            container.style.height = 300;
+            container.style.height = 280;
 
-            container.Add(PlaceNode("ON_ENEMY_ENTER", ModuleCategory.Trigger, tX, tY));
-            container.Add(PlaceNode("NEAREST_ENEMY", ModuleCategory.Zone, zX, zY));
-            container.Add(PlaceNode("PROJECTILE", ModuleCategory.Effect, eX, eY));
+            float tX = 100f, tY = -20f;
+            float zX = 360f, zY = -20f;
+            float eX = 368f, eY = 150f;
 
-            var cables = new CableRenderer();
-            // Trigger OUT → Zone IN (horizontal)
-            cables.AddCable(
-                new Vector2(tX + NodeWidth, tY + SidePortY),
-                new Vector2(zX, zY + SidePortY),
-                DesignConstants.PortChain, false);
-            // Zone bottom → Effect top (vertical)
-            cables.AddCable(
-                new Vector2(zX + NodeWidth * 0.5f, zY + NodeHeight),
-                new Vector2(eX + NodeWidth * 0.5f, eY),
-                DesignConstants.PortEffect, true);
+            var triggerNode = PlaceNode("ON_TIMER", ModuleCategory.Trigger, tX, tY);
+            var zoneNode = PlaceNode("NEAREST_ENEMY", ModuleCategory.Zone, zX, zY);
+            var effectNode = PlaceNode("PROJECTILE", ModuleCategory.Effect, eX, eY);
+
+            container.Add(triggerNode);
+            container.Add(zoneNode);
+            container.Add(effectNode);
+
+            // Find port dots after layout to draw cables at their real positions
+            var cables = new CableRenderer(animated: true);
             container.Add(cables);
 
-            // Labels
-            var chainLabelColor = DesignConstants.PortChain;
-            chainLabelColor.a = 0.4f;
-            var effectLabelColor = DesignConstants.PortEffect;
-            effectLabelColor.a = 0.4f;
-            container.Add(MakeLabel("HORIZONTAL_CHAIN", tX + NodeWidth + 10, tY + SidePortY - 16, chainLabelColor));
-            container.Add(MakeLabel("VERTICAL_CHAIN", zX + NodeWidth * 0.5f + 10, zY + NodeHeight + 15, effectLabelColor));
+            container.RegisterCallback<GeometryChangedEvent>(_ =>
+            {
+                cables.Clear();
+
+                // Trigger OUT port (right-side dot)
+                var triggerOut = FindPortDot(triggerNode, "right-ports");
+                // Zone IN port (left-side dot) and vertical bottom port
+                var zoneIn = FindPortDot(zoneNode, "left-ports");
+                var zoneBottom = FindVerticalPort(zoneNode, false);
+                // Effect top vertical port
+                var effectTop = FindVerticalPort(effectNode, true);
+
+                if (triggerOut != null && zoneIn != null)
+                {
+                    var from = CenterInParent(triggerOut, container);
+                    var to = CenterInParent(zoneIn, container);
+                    cables.AddCable(from, to, DesignConstants.PortChain, false);
+                }
+
+                if (zoneBottom != null && effectTop != null)
+                {
+                    var from = CenterInParent(zoneBottom, container);
+                    var to = CenterInParent(effectTop, container);
+                    cables.AddCable(from, to, DesignConstants.PortEffect, true);
+                }
+            });
 
             diagram.Add(container);
             page.Add(diagram);
@@ -170,16 +178,26 @@ namespace AIWE.NodeEditor.UI
             return node;
         }
 
-        private static Label MakeLabel(string text, float x, float y, Color color)
+        private static VisualElement FindPortDot(VisualElement node, string portGroupName)
         {
-            var lbl = new Label(text);
-            lbl.style.position = Position.Absolute;
-            lbl.style.left = x;
-            lbl.style.top = y;
-            lbl.style.fontSize = 8;
-            lbl.style.color = new StyleColor(color);
-            lbl.style.letterSpacing = 2;
-            return lbl;
+            var group = node.Q(portGroupName);
+            return group?.Q(className: "port");
+        }
+
+        private static VisualElement FindVerticalPort(VisualElement node, bool top)
+        {
+            var className = top ? "node__port-vertical-top" : "node__port-vertical-bottom";
+            return node.Q(className: className);
+        }
+
+        private static Vector2 CenterInParent(VisualElement element, VisualElement parent)
+        {
+            var elBound = element.worldBound;
+            var parentBound = parent.worldBound;
+            return new Vector2(
+                elBound.center.x - parentBound.x,
+                elBound.center.y - parentBound.y
+            );
         }
     }
 }

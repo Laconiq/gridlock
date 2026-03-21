@@ -8,8 +8,21 @@ namespace AIWE.NodeEditor.UI
     {
         private readonly List<(Vector2 from, Vector2 to, Color color, bool vertical)> _cables = new();
 
-        public CableRenderer()
+        private const int FlowSamples = 64;
+        private const float DashLength = 12f;
+        private const float GapLength = 28f;
+        private const float FlowSpeed = 40f;
+        private const float FlowWidth = 2.5f;
+        private const float FlowAlpha = 0.7f;
+        private const float BaseAlpha = 0.35f;
+
+        private float _time;
+        private IVisualElementScheduledItem _animSchedule;
+        private bool _animated;
+
+        public CableRenderer(bool animated = false)
         {
+            _animated = animated;
             generateVisualContent += OnGenerateVisualContent;
             style.position = Position.Absolute;
             style.left = 0;
@@ -17,11 +30,38 @@ namespace AIWE.NodeEditor.UI
             style.right = 0;
             style.bottom = 0;
             pickingMode = PickingMode.Ignore;
+
+            if (_animated)
+            {
+                RegisterCallback<AttachToPanelEvent>(_ => StartAnimation());
+                RegisterCallback<DetachFromPanelEvent>(_ => StopAnimation());
+            }
+        }
+
+        private void StartAnimation()
+        {
+            _animSchedule ??= schedule.Execute(() =>
+            {
+                _time += 0.016f;
+                if (_cables.Count > 0) MarkDirtyRepaint();
+            }).Every(16);
+        }
+
+        private void StopAnimation()
+        {
+            _animSchedule?.Pause();
+            _animSchedule = null;
         }
 
         public void AddCable(Vector2 from, Vector2 to, Color color, bool vertical = false)
         {
             _cables.Add((from, to, color, vertical));
+            MarkDirtyRepaint();
+        }
+
+        public void Clear()
+        {
+            _cables.Clear();
             MarkDirtyRepaint();
         }
 
@@ -37,8 +77,8 @@ namespace AIWE.NodeEditor.UI
                 {
                     dist = Mathf.Abs(to.y - from.y) * 0.45f;
                     dist = Mathf.Max(dist, 25f);
-                    cp1 = from + Vector2.down * dist;
-                    cp2 = to + Vector2.up * dist;
+                    cp1 = from + new Vector2(0, dist);
+                    cp2 = to - new Vector2(0, dist);
                 }
                 else
                 {
@@ -48,7 +88,11 @@ namespace AIWE.NodeEditor.UI
                     cp2 = to + Vector2.left * dist;
                 }
 
-                painter.strokeColor = color;
+                var baseColor = _animated
+                    ? new Color(color.r, color.g, color.b, BaseAlpha)
+                    : color;
+
+                painter.strokeColor = baseColor;
                 painter.lineWidth = 2f;
                 painter.lineCap = LineCap.Round;
                 painter.BeginPath();
@@ -56,19 +100,96 @@ namespace AIWE.NodeEditor.UI
                 painter.BezierCurveTo(cp1, cp2, to);
                 painter.Stroke();
 
-                float s = 3f;
-                painter.fillColor = color;
-                foreach (var pt in new[] { from, to })
+                if (_animated)
+                    DrawFlowDashes(painter, from, cp1, cp2, to, color);
+
+                DrawDiamond(painter, from, 3f, color);
+                DrawDiamond(painter, to, 3f, color);
+            }
+        }
+
+        private void DrawFlowDashes(Painter2D painter, Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3, Color color)
+        {
+            var points = new Vector2[FlowSamples + 1];
+            var distances = new float[FlowSamples + 1];
+            float totalLength = 0f;
+
+            points[0] = p0;
+            distances[0] = 0f;
+
+            for (int i = 1; i <= FlowSamples; i++)
+            {
+                float t = i / (float)FlowSamples;
+                float u = 1f - t;
+                points[i] = u * u * u * p0 + 3f * u * u * t * p1 + 3f * u * t * t * p2 + t * t * t * p3;
+                totalLength += Vector2.Distance(points[i - 1], points[i]);
+                distances[i] = totalLength;
+            }
+
+            if (totalLength < 1f) return;
+
+            float cycle = DashLength + GapLength;
+            float offset = cycle - (_time * FlowSpeed) % cycle;
+
+            var flowColor = new Color(color.r, color.g, color.b, FlowAlpha);
+            painter.strokeColor = flowColor;
+            painter.lineWidth = FlowWidth;
+            painter.lineCap = LineCap.Round;
+
+            float dashStart = -offset;
+            while (dashStart < totalLength)
+            {
+                float dStart = Mathf.Max(dashStart, 0f);
+                float dEnd = Mathf.Min(dashStart + DashLength, totalLength);
+
+                if (dEnd > dStart + 0.5f)
                 {
                     painter.BeginPath();
-                    painter.MoveTo(new Vector2(pt.x, pt.y - s));
-                    painter.LineTo(new Vector2(pt.x + s, pt.y));
-                    painter.LineTo(new Vector2(pt.x, pt.y + s));
-                    painter.LineTo(new Vector2(pt.x - s, pt.y));
-                    painter.ClosePath();
-                    painter.Fill();
+                    painter.MoveTo(LerpOnCurve(points, distances, dStart));
+                    for (int i = 1; i < points.Length; i++)
+                    {
+                        if (distances[i] < dStart) continue;
+                        if (distances[i] > dEnd)
+                        {
+                            painter.LineTo(LerpOnCurve(points, distances, dEnd));
+                            break;
+                        }
+                        painter.LineTo(points[i]);
+                    }
+                    if (distances[points.Length - 1] <= dEnd)
+                        painter.LineTo(LerpOnCurve(points, distances, dEnd));
+                    painter.Stroke();
+                }
+
+                dashStart += cycle;
+            }
+        }
+
+        private static Vector2 LerpOnCurve(Vector2[] points, float[] distances, float dist)
+        {
+            for (int i = 1; i < points.Length; i++)
+            {
+                if (distances[i] >= dist)
+                {
+                    float segLen = distances[i] - distances[i - 1];
+                    if (segLen < 0.001f) return points[i];
+                    float t = (dist - distances[i - 1]) / segLen;
+                    return Vector2.Lerp(points[i - 1], points[i], t);
                 }
             }
+            return points[points.Length - 1];
+        }
+
+        private void DrawDiamond(Painter2D painter, Vector2 center, float size, Color color)
+        {
+            painter.fillColor = color;
+            painter.BeginPath();
+            painter.MoveTo(new Vector2(center.x, center.y - size));
+            painter.LineTo(new Vector2(center.x + size, center.y));
+            painter.LineTo(new Vector2(center.x, center.y + size));
+            painter.LineTo(new Vector2(center.x - size, center.y));
+            painter.ClosePath();
+            painter.Fill();
         }
     }
 }
