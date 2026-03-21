@@ -12,6 +12,7 @@ namespace AIWE.Player
     {
         [SerializeField] private ChassisDefinition definition;
         [SerializeField] private Transform firePoint;
+        [SerializeField] private DefaultWeaponGraph defaultWeaponGraph;
 
         private readonly NetworkVariable<FixedString4096Bytes> _serializedGraph = new(
             default,
@@ -32,9 +33,14 @@ namespace AIWE.Player
         {
             _serializedGraph.OnValueChanged += OnGraphChanged;
 
-            if (!string.IsNullOrEmpty(_serializedGraph.Value.ToString()))
+            var graphStr = _serializedGraph.Value.ToString();
+            if (!string.IsNullOrEmpty(graphStr))
             {
-                _cachedGraph = GraphSerializer.Deserialize(_serializedGraph.Value.ToString());
+                _cachedGraph = GraphSerializer.Deserialize(graphStr);
+            }
+            else if (IsServer && defaultWeaponGraph != null && defaultWeaponGraph.graph != null)
+            {
+                SetNodeGraph(defaultWeaponGraph.graph);
             }
         }
 

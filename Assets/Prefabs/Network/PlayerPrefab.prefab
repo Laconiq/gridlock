@@ -10672,6 +10672,7 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   definition: {fileID: 11400000, guid: 85d077a617516a043a23767efd033b14, type: 2}
   firePoint: {fileID: 482350407481709052}
+  defaultWeaponGraph: {fileID: 11400000, guid: 14b02d5ce62de2341b8773186506a7a3, type: 2}
 --- !u!114 &6713198493540012496
 MonoBehaviour:
   m_ObjectHideFlags: 0
