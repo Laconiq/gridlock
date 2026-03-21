@@ -24,6 +24,7 @@ namespace AIWE.HUD
         private HUDEventLog _eventLog;
         private HUDSystemInfo _systemInfo;
 
+        private Label _readyPrompt;
         private int _frameCounter;
 
         private void Awake()
@@ -47,8 +48,13 @@ namespace AIWE.HUD
                 _root.Q<Label>("self-name"),
                 _root.Q("self-hp-fill"),
                 _root.Q<Label>("self-signal"),
-                _root.Q<Label>("self-hp-pct")
+                _root.Q<Label>("self-hp-pct"),
+                _root.Q<Label>("self-ready")
             );
+
+            _readyPrompt = _root.Q<Label>("ready-prompt");
+            if (_readyPrompt != null)
+                _readyPrompt.style.display = DisplayStyle.None;
 
             _squadFeed = new HUDSquadFeed(_root.Q("squad-feed"));
 
@@ -112,7 +118,29 @@ namespace AIWE.HUD
                 case 2: _systemInfo?.Refresh(); break;
             }
 
+            UpdateReadyPrompt();
             _frameCounter++;
+        }
+
+        private void UpdateReadyPrompt()
+        {
+            if (_readyPrompt == null) return;
+
+            var gm = GameManager.Instance;
+            bool preparing = gm != null && gm.CurrentState.Value == GameState.Preparing;
+
+            if (!preparing)
+            {
+                _readyPrompt.style.display = DisplayStyle.None;
+                return;
+            }
+
+            var rm = ReadyManager.Instance;
+            var nm = NetworkManager.Singleton;
+            bool selfReady = rm != null && nm != null && rm.IsPlayerReady(nm.LocalClientId);
+
+            _readyPrompt.style.display = DisplayStyle.Flex;
+            _readyPrompt.text = selfReady ? "WAITING FOR SQUAD..." : "PRESS [F] TO READY UP";
         }
 
         public void SetVisible(bool visible)

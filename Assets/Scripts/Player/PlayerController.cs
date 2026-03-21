@@ -89,7 +89,7 @@ namespace AIWE.Player
 
         private void CheckGameState(GameState state)
         {
-            bool gameActive = state == GameState.Preparing || state == GameState.Wave || state == GameState.Intermission;
+            bool gameActive = state == GameState.Preparing || state == GameState.Wave;
             SetPlayerInputActive(gameActive);
         }
 

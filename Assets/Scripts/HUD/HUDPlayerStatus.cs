@@ -1,5 +1,9 @@
+using AIWE.Core;
 using AIWE.Network;
+using AIWE.NodeEditor.UI;
 using AIWE.Player;
+using Unity.Netcode;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace AIWE.HUD
@@ -13,17 +17,19 @@ namespace AIWE.HUD
         private readonly VisualElement _hpFill;
         private readonly Label _selfSignal;
         private readonly Label _selfHpPct;
+        private readonly Label _selfReady;
 
         private PlayerHealth _health;
         private PlayerData _data;
         private bool _dirty;
 
-        public HUDPlayerStatus(Label selfName, VisualElement hpFill, Label selfSignal, Label selfHpPct)
+        public HUDPlayerStatus(Label selfName, VisualElement hpFill, Label selfSignal, Label selfHpPct, Label selfReady)
         {
             _selfName = selfName;
             _hpFill = hpFill;
             _selfSignal = selfSignal;
             _selfHpPct = selfHpPct;
+            _selfReady = selfReady;
         }
 
         public void Bind(PlayerHealth health, PlayerData data)
@@ -48,6 +54,8 @@ namespace AIWE.HUD
 
         public void Refresh()
         {
+            UpdateReadyState();
+
             if (_health == null || !_dirty) return;
             _dirty = false;
 
@@ -67,6 +75,27 @@ namespace AIWE.HUD
                 _selfSignal.text = _health.IsAlive ? "NOMINAL" : "OFFLINE";
 
             UpdateHPClasses(normalized);
+        }
+
+        private void UpdateReadyState()
+        {
+            if (_selfReady == null) return;
+
+            var gm = GameManager.Instance;
+            bool preparing = gm != null && gm.CurrentState.Value == GameState.Preparing;
+
+            if (!preparing)
+            {
+                _selfReady.text = "";
+                return;
+            }
+
+            var rm = ReadyManager.Instance;
+            var nm = NetworkManager.Singleton;
+            bool ready = rm != null && nm != null && rm.IsPlayerReady(nm.LocalClientId);
+
+            _selfReady.text = ready ? "READY" : "WAITING";
+            _selfReady.style.color = new StyleColor(ready ? DesignConstants.Secondary : DesignConstants.Outline);
         }
 
         private void UpdateHPClasses(float normalized)

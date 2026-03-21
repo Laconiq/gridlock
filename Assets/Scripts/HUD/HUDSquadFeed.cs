@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using AIWE.Core;
 using AIWE.Network;
 using AIWE.Player;
 using Unity.Netcode;
@@ -78,7 +79,11 @@ namespace AIWE.HUD
             var nameLabel = new Label { text = $"OPERATOR_{clientId + 1:D2}" };
             nameLabel.AddToClassList("hud__squad-name");
 
+            var readyLabel = new Label { text = "" };
+            readyLabel.AddToClassList("hud__squad-ready");
+
             header.Add(nameLabel);
+            header.Add(readyLabel);
 
             var hpTrack = new VisualElement();
             hpTrack.AddToClassList("hud__squad-hp-track");
@@ -94,7 +99,9 @@ namespace AIWE.HUD
             {
                 Root = root,
                 Name = nameLabel,
-                HpFill = hpFill
+                HpFill = hpFill,
+                ReadyLabel = readyLabel,
+                ClientId = clientId
             };
         }
 
@@ -102,6 +109,8 @@ namespace AIWE.HUD
         {
             if (data != null)
                 row.Name.text = data.DisplayName;
+
+            UpdateRowReadyState(row);
 
             if (health != null)
             {
@@ -132,11 +141,35 @@ namespace AIWE.HUD
             }
         }
 
+        private void UpdateRowReadyState(SquadRow row)
+        {
+            if (row.ReadyLabel == null) return;
+
+            var gm = GameManager.Instance;
+            bool preparing = gm != null && gm.CurrentState.Value == GameState.Preparing;
+
+            if (!preparing)
+            {
+                row.ReadyLabel.text = "";
+                return;
+            }
+
+            var rm = ReadyManager.Instance;
+            bool ready = rm != null && rm.IsPlayerReady(row.ClientId);
+
+            row.ReadyLabel.text = ready ? "RDY" : "...";
+            row.ReadyLabel.RemoveFromClassList("hud__squad-ready--ready");
+            row.ReadyLabel.RemoveFromClassList("hud__squad-ready--waiting");
+            row.ReadyLabel.AddToClassList(ready ? "hud__squad-ready--ready" : "hud__squad-ready--waiting");
+        }
+
         private class SquadRow
         {
             public VisualElement Root;
             public Label Name;
             public VisualElement HpFill;
+            public Label ReadyLabel;
+            public ulong ClientId;
         }
     }
 }

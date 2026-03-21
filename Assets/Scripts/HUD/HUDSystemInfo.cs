@@ -51,7 +51,6 @@ namespace AIWE.HUD
             {
                 GameState.Wave => DesignConstants.Secondary,
                 GameState.Preparing => DesignConstants.Primary,
-                GameState.Intermission => DesignConstants.Tertiary,
                 _ => DesignConstants.Outline
             };
 

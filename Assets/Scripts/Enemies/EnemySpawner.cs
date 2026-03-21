@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Linq;
 using AIWE.Combat;
@@ -9,6 +10,9 @@ namespace AIWE.Enemies
 {
     public class EnemySpawner : NetworkBehaviour
     {
+        public event Action OnEnemyDespawned;
+        public event Action OnSpawningComplete;
+
         [SerializeField] private GameObject enemyPrefab;
         [SerializeField] private Transform spawnPoint;
         [SerializeField] private Vector3 targetPosition = new(0, 0, -20);
@@ -96,13 +100,15 @@ namespace AIWE.Enemies
 
                 for (int i = 0; i < entry.count; i++)
                 {
-                    SpawnEnemy(entry.enemy);
+                    SpawnEnemy(entry.enemy, tracked: true);
                     yield return new WaitForSeconds(entry.spawnInterval);
                 }
             }
+
+            OnSpawningComplete?.Invoke();
         }
 
-        private void SpawnEnemy(EnemyDefinition definition)
+        private void SpawnEnemy(EnemyDefinition definition, bool tracked = false)
         {
             if (enemyPrefab == null || !IsServer) return;
 
@@ -117,6 +123,12 @@ namespace AIWE.Enemies
 
             var health = go.GetComponent<EnemyHealth>();
             health?.SetMaxHP(definition.maxHP);
+
+            if (tracked)
+            {
+                if (controller != null) controller.OnReachedObjective += () => OnEnemyDespawned?.Invoke();
+                if (health != null) health.OnDeath += () => OnEnemyDespawned?.Invoke();
+            }
 
             if (go.GetComponent<StatusEffectManager>() == null)
                 go.AddComponent<StatusEffectManager>();

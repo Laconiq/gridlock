@@ -1,3 +1,4 @@
+using System;
 using AIWE.Combat;
 using AIWE.Interfaces;
 using Unity.Netcode;
@@ -12,6 +13,8 @@ namespace AIWE.Enemies
         private readonly NetworkVariable<Vector3> _targetPosition = new();
         private EnemyHealth _health;
         private StatusEffectManager _statusEffects;
+
+        public event Action OnReachedObjective;
 
         public Vector3 Position => transform.position;
         public bool IsAlive => _health != null && _health.IsAlive;
@@ -46,6 +49,7 @@ namespace AIWE.Enemies
 
             if (Vector3.Distance(transform.position, _targetPosition.Value) < 0.5f)
             {
+                OnReachedObjective?.Invoke();
                 NetworkObject.Despawn();
             }
         }

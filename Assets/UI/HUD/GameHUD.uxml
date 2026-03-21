@@ -31,6 +31,7 @@
                     <ui:VisualElement class="hud__self-substats" picking-mode="Ignore">
                         <ui:Label name="self-signal" text="SIG::STABLE" class="hud__substat" picking-mode="Ignore" />
                         <ui:Label name="self-hp-pct" text="HP::100%" class="hud__substat" picking-mode="Ignore" />
+                        <ui:Label name="self-ready" text="" class="hud__substat" picking-mode="Ignore" />
                     </ui:VisualElement>
                 </ui:VisualElement>
 
@@ -43,6 +44,11 @@
                 </ui:VisualElement>
 
             </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- Center: ready prompt -->
+        <ui:VisualElement class="hud__center-prompt" picking-mode="Ignore">
+            <ui:Label name="ready-prompt" text="PRESS [F] TO READY UP" class="hud__ready-prompt" picking-mode="Ignore" />
         </ui:VisualElement>
 
         <!-- Bottom row -->
