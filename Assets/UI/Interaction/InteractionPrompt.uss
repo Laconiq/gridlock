@@ -1,0 +1,133 @@
+/* ============================================================
+   VOID_PROTOCOL — Interaction Prompt
+   ============================================================ */
+
+.interaction-root {
+    --surface:                  #0e0e0f;
+    --surface-container:        #19191b;
+    --surface-container-high:   #201f21;
+    --primary:                  #8ff5ff;
+    --primary-container:        #00eefc;
+    --on-primary:               #005d63;
+    --on-surface:               #ffffff;
+    --on-surface-variant:       #adaaab;
+    --outline:                  #767576;
+    --outline-variant:          #484849;
+    --error:                    #ff716c;
+
+    -unity-font-definition: url("project://database/Assets/UI/NodeEditor/Fonts/SpaceGrotesk-Variable.ttf");
+
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    align-items: center;
+    justify-content: flex-end;
+    padding-bottom: 280px;
+}
+
+/* === PROMPT CONTAINER === */
+.interaction__prompt {
+    flex-direction: row;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.15s ease-out;
+}
+
+.interaction__prompt--visible {
+    opacity: 1;
+}
+
+/* === KEY INDICATOR === */
+.interaction__key {
+    width: 40px;
+    height: 40px;
+    background-color: rgba(25, 25, 27, 0.9);
+    border-width: 2px;
+    border-color: var(--outline-variant);
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    overflow: hidden;
+    transition: border-color 0.15s ease-out;
+}
+
+.interaction__key--active {
+    border-color: var(--primary);
+}
+
+.interaction__key--locked {
+    border-color: var(--error);
+}
+
+/* === FILL BAR (grows from bottom) === */
+.interaction__key-fill {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 0;
+    background-color: var(--primary);
+    opacity: 0.3;
+    transition: height 0.05s;
+}
+
+.interaction__key--active .interaction__key-fill {
+    background-color: var(--primary);
+}
+
+/* === KEY LABEL === */
+.interaction__key-label {
+    font-size: 22px;
+    -unity-font-style: bold;
+    color: var(--on-surface-variant);
+    -unity-text-align: middle-center;
+    letter-spacing: 0;
+    margin: 0;
+    padding: 0;
+}
+
+.interaction__key--active .interaction__key-label {
+    color: var(--primary);
+}
+
+.interaction__key--locked .interaction__key-label {
+    color: var(--error);
+}
+
+/* === ACTION TEXT === */
+.interaction__action {
+    font-size: 11px;
+    -unity-font-style: bold;
+    color: var(--on-surface-variant);
+    letter-spacing: 3px;
+    transition: color 0.15s ease-out;
+}
+
+.interaction__action--active {
+    color: var(--on-surface);
+}
+
+.interaction__action--locked {
+    color: var(--outline);
+}
+
+/* === HOLD HINT === */
+.interaction__hold-hint {
+    font-size: 7px;
+    color: var(--outline);
+    letter-spacing: 2px;
+    margin-top: 4px;
+    opacity: 0;
+    transition: opacity 0.15s ease-out;
+}
+
+.interaction__hold-hint--visible {
+    opacity: 1;
+}
+
+/* === TEXT GROUP === */
+.interaction__text-group {
+    flex-direction: column;
+}

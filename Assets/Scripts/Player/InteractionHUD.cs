@@ -1,58 +1,87 @@
-using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.UIElements;
 
 namespace AIWE.Player
 {
+    [RequireComponent(typeof(UIDocument))]
     public class InteractionHUD : MonoBehaviour
     {
-        [Header("References")]
-        [SerializeField] private GameObject promptRoot;
-        [SerializeField] private Image keyBackground;
-        [SerializeField] private TextMeshProUGUI keyText;
-        [SerializeField] private TextMeshProUGUI actionText;
-        [SerializeField] private Image progressFill;
-
-        [Header("Colors")]
-        [SerializeField] private Color activeColor = new(0.9f, 0.9f, 0.9f);
-        [SerializeField] private Color inactiveColor = new(0.4f, 0.4f, 0.4f);
-        [SerializeField] private Color lockedColor = new(0.7f, 0.2f, 0.2f);
+        private UIDocument _uiDocument;
+        private VisualElement _prompt;
+        private VisualElement _keyContainer;
+        private VisualElement _keyFill;
+        private Label _keyLabel;
+        private Label _actionText;
+        private Label _holdHint;
 
         private bool _isShowing;
+        private bool _canInteract;
 
         private void Awake()
         {
-            if (promptRoot != null) promptRoot.SetActive(false);
+            _uiDocument = GetComponent<UIDocument>();
+        }
+
+        private void OnEnable()
+        {
+            if (_uiDocument == null) return;
+            var root = _uiDocument.rootVisualElement;
+            if (root == null) return;
+
+            _prompt = root.Q("prompt");
+            _keyContainer = root.Q("key-container");
+            _keyFill = root.Q("key-fill");
+            _keyLabel = root.Q<Label>("key-label");
+            _actionText = root.Q<Label>("action-text");
+            _holdHint = root.Q<Label>("hold-hint");
+
+            Hide();
         }
 
         public void Show(string text, bool canInteract)
         {
-            if (promptRoot == null) return;
-
-            promptRoot.SetActive(true);
             _isShowing = true;
+            _canInteract = canInteract;
 
-            if (actionText != null)
-                actionText.text = text;
+            _prompt?.AddToClassList("interaction__prompt--visible");
+
+            if (_actionText != null)
+                _actionText.text = text;
+
+            _keyContainer?.RemoveFromClassList("interaction__key--active");
+            _keyContainer?.RemoveFromClassList("interaction__key--locked");
+            _actionText?.RemoveFromClassList("interaction__action--active");
+            _actionText?.RemoveFromClassList("interaction__action--locked");
 
             if (canInteract)
             {
-                if (keyBackground != null) keyBackground.color = activeColor;
-                if (keyText != null) keyText.color = Color.black;
-                if (actionText != null) actionText.color = activeColor;
+                _keyContainer?.AddToClassList("interaction__key--active");
+                _actionText?.AddToClassList("interaction__action--active");
+                _holdHint?.AddToClassList("interaction__hold-hint--visible");
             }
             else
             {
-                if (keyBackground != null) keyBackground.color = lockedColor;
-                if (keyText != null) keyText.color = new Color(0.3f, 0.1f, 0.1f);
-                if (actionText != null) actionText.color = inactiveColor;
+                _keyContainer?.AddToClassList("interaction__key--locked");
+                _actionText?.AddToClassList("interaction__action--locked");
+                _holdHint?.RemoveFromClassList("interaction__hold-hint--visible");
             }
+
+            SetProgress(0f);
         }
 
         public void Hide()
         {
-            if (promptRoot != null) promptRoot.SetActive(false);
             _isShowing = false;
+            _prompt?.RemoveFromClassList("interaction__prompt--visible");
+            _holdHint?.RemoveFromClassList("interaction__hold-hint--visible");
+            SetProgress(0f);
+        }
+
+        public void SetProgress(float progress)
+        {
+            if (_keyFill == null) return;
+            float clamped = Mathf.Clamp01(progress);
+            _keyFill.style.height = Length.Percent(clamped * 100f);
         }
     }
 }
