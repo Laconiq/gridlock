@@ -61,6 +61,15 @@ namespace AIWE.UI.Lobby
                 if (upper != evt.newValue)
                     _joinCodeInput.SetValueWithoutNotify(upper);
             });
+            _joinCodeInput?.RegisterCallback<KeyDownEvent>(evt =>
+            {
+                if (evt.keyCode == KeyCode.Return || evt.keyCode == KeyCode.KeypadEnter)
+                {
+                    evt.PreventDefault();
+                    evt.StopPropagation();
+                    OnJoinClicked();
+                }
+            }, TrickleDown.TrickleDown);
             _statusText = _root.Q<Label>("status-text");
 
             _lobbyCodeDisplay = _root.Q<Label>("lobby-code-display");
