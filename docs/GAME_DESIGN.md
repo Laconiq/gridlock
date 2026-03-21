@@ -434,8 +434,36 @@ TOURELLE C (fond du couloir)
 - Les tourelles coûtent des ressources pour être posées
 - Pas de limite stricte — limité par les ressources disponibles
 - Ressources : kill, bonus de fin de vague, ramassage sur la map
-- Les modules s'achètent / se droppent — inventaire partagé entre joueurs
 - L'éditeur de nodes est accessible **tout le temps**
+
+### Système de drop (Loot Table)
+
+Les modules s'obtiennent via des **drops sur les ennemis tués**. Chaque type d'ennemi possède sa propre **Loot Table** (ScriptableObject).
+
+**Fonctionnement en 2 étapes :**
+
+1. **Roll de rareté** — On tire d'abord quelle rareté tombe (Common, Uncommon, Rare, Epic). Chaque rareté a un **poids** configurable. Le drop rate se règle au niveau de la rareté, pas de l'item individuel.
+
+2. **Roll de module** — Une fois la rareté tirée, on pioche **un module au hasard** parmi le pool de cette rareté. Tous les modules d'un même tier ont la même probabilité entre eux.
+
+```
+Exemple avec une Loot Table :
+  Common (50%)   → [Projectile, Hitscan, ForwardAim]  → 1/3 chacun
+  Uncommon (30%) → [NearestEnemy, Slow]                → 1/2 chacun
+  Rare (15%)     → [AllInRange, DOT]                   → 1/2 chacun
+  Epic (5%)      → [ChainLightning]                    → 100%
+```
+
+**Paramètres par Loot Table :**
+- `dropChance` (0-100%) — chance qu'un ennemi drop quelque chose (vs rien)
+- Poids par rareté — répartition des tiers
+- Pool de modules — assignation rareté par module
+
+**Outil de balancing :**
+- Le ScriptableObject utilise Odin Inspector comme dashboard (tableur, barres de probabilité, simulation Monte Carlo)
+- Double-clic sur l'asset ouvre une fenêtre dédiée pour l'équilibrage
+
+À la mort de l'ennemi, le module droppé apparaît au sol comme un **pickup 3D** (quad flottant + icône). Le premier joueur qui marche dessus l'ajoute à son inventaire.
 
 ---
 
@@ -478,7 +506,7 @@ L'arme du joueur = châssis mobile avec `Primary Fire` et `Secondary Fire`, mêm
 
 ## Questions ouvertes
 
-- Comment le joueur obtient les modules ? (drop sur les ennemis, achat avec ressources, les deux ?)
+- ~~Comment le joueur obtient les modules ?~~ → **Résolu : drop sur les ennemis via Loot Tables par rareté**
 - Coût des tourelles : fixe par châssis ? Scaling ?
 - Limite de cooldown / activation stock pour éviter les boucles infinies de Signal/Repeat ?
 - Limite de modules par rack d'effets, ou illimité ?
