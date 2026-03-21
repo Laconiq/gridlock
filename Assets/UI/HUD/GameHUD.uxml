@@ -1,0 +1,65 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="DesignTokensHUD.uss" />
+    <Style src="GameHUD.uss" />
+
+    <ui:VisualElement name="hud-root" class="hud-root" picking-mode="Ignore">
+
+        <!-- Top row -->
+        <ui:VisualElement class="hud__top-row" picking-mode="Ignore">
+
+            <!-- Top left: system info -->
+            <ui:VisualElement class="hud__sys-info" picking-mode="Ignore">
+                <ui:VisualElement class="hud__sys-tag" picking-mode="Ignore">
+                    <ui:VisualElement name="sys-dot" class="hud__sys-dot" picking-mode="Ignore" />
+                    <ui:Label name="sys-version" text="VOID_PROTOCOL // V.2.4.0" class="hud__sys-version" picking-mode="Ignore" />
+                </ui:VisualElement>
+                <ui:Label name="sys-meta" text="GRID::0.0 | ALT::0M" class="hud__sys-meta" picking-mode="Ignore" />
+            </ui:VisualElement>
+
+            <!-- Top right: player + squad -->
+            <ui:VisualElement class="hud__player-panel" picking-mode="Ignore">
+
+                <!-- Self status -->
+                <ui:VisualElement class="hud__self-status" picking-mode="Ignore">
+                    <ui:VisualElement class="hud__self-header" picking-mode="Ignore">
+                        <ui:Label text="OPERATOR_ID" class="hud__self-label" picking-mode="Ignore" />
+                        <ui:Label name="self-name" text="SELF: OPERATOR_01" class="hud__self-name" picking-mode="Ignore" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="hud__hp-bar-track" picking-mode="Ignore">
+                        <ui:VisualElement name="self-hp-fill" class="hud__hp-bar-fill" picking-mode="Ignore" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="hud__self-substats" picking-mode="Ignore">
+                        <ui:Label name="self-signal" text="SIG::STABLE" class="hud__substat" picking-mode="Ignore" />
+                        <ui:Label name="self-hp-pct" text="HP::100%" class="hud__substat" picking-mode="Ignore" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+
+                <!-- Squad feed -->
+                <ui:VisualElement class="hud__squad-section" picking-mode="Ignore">
+                    <ui:Label text="SQUAD_FEED" class="hud__squad-header" picking-mode="Ignore" />
+                    <ui:VisualElement name="squad-feed" class="hud__squad-feed" picking-mode="Ignore">
+                        <!-- Populated dynamically -->
+                    </ui:VisualElement>
+                </ui:VisualElement>
+
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- Bottom row -->
+        <ui:VisualElement class="hud__bottom-row" picking-mode="Ignore">
+
+            <!-- Bottom left: event log -->
+            <ui:VisualElement class="hud__log-section" picking-mode="Ignore">
+                <ui:VisualElement class="hud__log-header" picking-mode="Ignore">
+                    <ui:Label text="&gt;" class="hud__log-icon" picking-mode="Ignore" />
+                    <ui:Label text="SYS_LOG" class="hud__log-title" picking-mode="Ignore" />
+                </ui:VisualElement>
+                <ui:VisualElement name="event-log" class="hud__event-log" picking-mode="Ignore">
+                    <!-- Populated dynamically -->
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+        </ui:VisualElement>
+
+    </ui:VisualElement>
+</ui:UXML>

@@ -1,5 +1,6 @@
 using System.Collections;
 using AIWE.Core;
+using AIWE.HUD;
 using AIWE.Player.CameraEffects;
 using Unity.Netcode;
 using UnityEngine;
@@ -19,6 +20,7 @@ namespace AIWE.Player
         [SerializeField] private HitFeedback hitFeedback;
 
         private DynamicCrosshair _crosshair;
+        private GameHUD _gameHUD;
 
         public override void OnNetworkSpawn()
         {
@@ -86,6 +88,11 @@ namespace AIWE.Player
 
             if (_crosshair != null)
                 _crosshair.enabled = active;
+
+            if (_gameHUD == null)
+                _gameHUD = FindAnyObjectByType<GameHUD>();
+            if (_gameHUD != null)
+                _gameHUD.SetVisible(active);
         }
     }
 }
