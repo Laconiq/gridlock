@@ -13,6 +13,8 @@ namespace AIWE.NodeEditor
     {
         [SerializeField] private NodeEditorScreen screen;
 
+        public static bool WaitingForLock { get; set; }
+
         private void Start()
         {
             var lockManager = ServiceLocator.Get<EditorLockManager>();
@@ -25,6 +27,9 @@ namespace AIWE.NodeEditor
 
         private void OnLockGranted()
         {
+            if (!WaitingForLock) return;
+            WaitingForLock = false;
+
             var localPlayer = NetworkManager.Singleton?.LocalClient?.PlayerObject;
             if (localPlayer == null) return;
 

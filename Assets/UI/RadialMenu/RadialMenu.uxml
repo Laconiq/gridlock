@@ -1,0 +1,26 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="RadialMenu.uss" />
+
+    <ui:VisualElement name="radial-root" class="radial-root" picking-mode="Ignore">
+        <ui:VisualElement name="radial-overlay" class="radial-overlay">
+
+            <ui:Label text="[R] EXIT" class="radial-exit-hint" />
+
+            <ui:VisualElement name="radial-container" class="radial-container">
+                <ui:VisualElement name="radial-center" class="radial-center">
+                    <ui:Label name="layer-label" text="TRIGGERS" class="radial-center__label" />
+                    <ui:Button name="back-btn" text="BACK" class="radial-center__back" />
+                </ui:VisualElement>
+
+                <ui:VisualElement name="segments-container" class="radial-segments" picking-mode="Ignore" />
+
+                <ui:Button name="add-btn" text="+" class="radial-add-btn" />
+            </ui:VisualElement>
+
+            <ui:VisualElement name="add-popup" class="radial-add-popup">
+                <ui:Label text="SELECT MODULE" class="radial-add-popup__title" />
+                <ui:VisualElement name="add-popup-list" class="radial-add-popup__list" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
