@@ -27,7 +27,7 @@ namespace AIWE.Player
         private float _fovVelocity;
         private PlayerController _player;
 
-        public bool InputEnabled { get; set; } = true;
+        public bool InputEnabled { get; set; }
         public Vector2 LookDelta { get; private set; }
 
         private void Awake()

@@ -70,6 +70,9 @@ namespace AIWE.Enemies
         {
             if (!testMode || !IsServer || testEnemy == null) return;
 
+            var state = Core.GameManager.Instance?.CurrentState.Value;
+            if (state != Core.GameState.Wave) return;
+
             _testTimer -= Time.deltaTime;
             if (_testTimer <= 0f)
             {

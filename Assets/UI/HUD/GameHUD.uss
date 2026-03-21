@@ -1,0 +1,316 @@
+/* ============================================================
+   VOID_PROTOCOL — Game HUD Styles
+   All colors reference design tokens via var(--token).
+   ============================================================ */
+
+/* === ROOT LAYOUT === */
+.hud-root {
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 32px;
+}
+
+/* === VIEWPORT BORDER === */
+.hud__viewport-border {
+    position: absolute;
+    left: 16px;
+    top: 16px;
+    right: 16px;
+    bottom: 16px;
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-left-color: rgba(143, 245, 255, 0.05);
+    border-right-color: rgba(143, 245, 255, 0.05);
+    border-top-color: rgba(143, 245, 255, 0.05);
+    border-bottom-color: rgba(143, 245, 255, 0.05);
+}
+
+/* === CORNER ACCENTS === */
+.hud__corner {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    border-left-color: var(--hud-corner-color);
+    border-right-color: var(--hud-corner-color);
+    border-top-color: var(--hud-corner-color);
+    border-bottom-color: var(--hud-corner-color);
+}
+
+.hud__corner--tl {
+    left: 16px;
+    top: 16px;
+    border-top-width: 1px;
+    border-left-width: 1px;
+    border-right-width: 0;
+    border-bottom-width: 0;
+}
+
+.hud__corner--tr {
+    right: 16px;
+    top: 16px;
+    border-top-width: 1px;
+    border-right-width: 1px;
+    border-left-width: 0;
+    border-bottom-width: 0;
+}
+
+.hud__corner--bl {
+    left: 16px;
+    bottom: 16px;
+    border-bottom-width: 1px;
+    border-left-width: 1px;
+    border-right-width: 0;
+    border-top-width: 0;
+}
+
+.hud__corner--br {
+    right: 16px;
+    bottom: 16px;
+    border-bottom-width: 1px;
+    border-right-width: 1px;
+    border-left-width: 0;
+    border-top-width: 0;
+}
+
+/* === TOP ROW === */
+.hud__top-row {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+/* === SYSTEM INFO (top-left) === */
+.hud__sys-info {
+    opacity: var(--hud-opacity-ambient);
+    flex-direction: column;
+}
+
+.hud__sys-tag {
+    flex-direction: row;
+    align-items: center;
+}
+
+.hud__sys-dot {
+    width: 6px;
+    height: 6px;
+    background-color: var(--secondary);
+    margin-right: 8px;
+}
+
+.hud__sys-version {
+    font-size: 9px;
+    color: var(--on-surface);
+    -unity-text-align: middle-left;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+
+.hud__sys-meta {
+    font-size: 8px;
+    color: var(--on-surface-variant);
+    margin-left: 14px;
+    margin-top: 2px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+
+/* === PLAYER PANEL (top-right) === */
+.hud__player-panel {
+    width: 280px;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+/* === SELF STATUS === */
+.hud__self-status {
+    width: 100%;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.hud__self-header {
+    flex-direction: column;
+    align-items: flex-end;
+    margin-bottom: 6px;
+}
+
+.hud__self-label {
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: var(--on-surface-variant);
+    -unity-text-align: middle-right;
+    text-transform: uppercase;
+}
+
+.hud__self-name {
+    font-size: 13px;
+    -unity-font-style: bold;
+    color: var(--primary);
+    letter-spacing: -0.5px;
+    -unity-text-align: middle-right;
+    text-shadow: 0 0 8px rgba(143, 245, 255, 0.6);
+}
+
+.hud__hp-bar-track {
+    width: 100%;
+    height: 6px;
+    background-color: var(--surface-container-highest);
+    flex-direction: row;
+    justify-content: flex-end;
+}
+
+.hud__hp-bar-fill {
+    height: 100%;
+    width: 100%;
+    background-color: var(--hud-hp-color);
+    transition: width 0.2s ease-out;
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+}
+
+.hud__hp-bar-fill--low {
+    background-color: var(--hud-hp-low);
+}
+
+.hud__hp-bar-fill--critical {
+    background-color: var(--hud-hp-critical);
+}
+
+.hud__self-substats {
+    flex-direction: row;
+    margin-top: 4px;
+}
+
+.hud__self-substats > * {
+    margin-right: 12px;
+}
+
+.hud__substat {
+    font-size: 8px;
+    letter-spacing: 2px;
+    color: rgba(143, 245, 255, 0.5);
+    text-transform: uppercase;
+}
+
+/* === SQUAD SECTION === */
+.hud__squad-section {
+    margin-top: 20px;
+    border-right-width: 2px;
+    border-right-color: rgba(143, 245, 255, 0.15);
+    padding-right: 8px;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.hud__squad-header {
+    font-size: 8px;
+    letter-spacing: 4px;
+    color: var(--on-surface-variant);
+    opacity: 0.5;
+    -unity-text-align: middle-right;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+}
+
+.hud__squad-feed {
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+/* === SQUAD ROW === */
+.hud__squad-row {
+    flex-direction: column;
+    align-items: flex-end;
+    margin-bottom: 10px;
+    width: 100%;
+}
+
+.hud__squad-row--disconnected {
+    opacity: 0.4;
+}
+
+.hud__squad-row-header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 180px;
+    margin-bottom: 3px;
+}
+
+.hud__squad-name {
+    font-size: 9px;
+    color: var(--on-surface);
+    -unity-text-align: middle-right;
+    letter-spacing: 1px;
+}
+
+.hud__squad-hp-track {
+    width: 180px;
+    height: 2px;
+    background-color: var(--surface-container-highest);
+}
+
+.hud__squad-hp-fill {
+    height: 100%;
+    width: 100%;
+    background-color: rgba(143, 245, 255, 0.6);
+    transition: width 0.2s ease-out;
+}
+
+.hud__hp-bar-fill--low {
+    background-color: var(--hud-hp-low);
+}
+
+.hud__hp-bar-fill--critical {
+    background-color: var(--hud-hp-critical);
+}
+
+/* === BOTTOM ROW === */
+.hud__bottom-row {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+/* === EVENT LOG (bottom-left) === */
+.hud__log-section {
+    max-width: 240px;
+    flex-direction: column;
+}
+
+.hud__log-header {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.hud__log-icon {
+    font-size: 8px;
+    color: var(--primary);
+    opacity: 0.4;
+    margin-right: 6px;
+}
+
+.hud__log-title {
+    font-size: 8px;
+    color: var(--primary);
+    opacity: 0.4;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+
+.hud__event-log {
+    flex-direction: column;
+}
+
+.hud__log-entry {
+    font-size: 7px;
+    color: var(--on-surface-variant);
+    opacity: var(--hud-opacity-log);
+    margin-bottom: 1px;
+}
+

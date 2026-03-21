@@ -54,6 +54,9 @@ namespace AIWE.Network
 
                 await _lobbyManager.CreateLobby("AIWE Game", maxPlayers, RelayJoinCode);
 
+                NetworkManager.Singleton.NetworkConfig.ConnectionApproval = true;
+                NetworkManager.Singleton.ConnectionApprovalCallback += ApprovalCallback;
+
                 NetworkManager.Singleton.StartHost();
                 Debug.Log($"[NetworkBootstrap] Host started. Lobby code: {LobbyCode}");
 
@@ -82,6 +85,9 @@ namespace AIWE.Network
 
                 await RelayManager.JoinRelay(relayCode);
 
+                NetworkManager.Singleton.NetworkConfig.ConnectionApproval = true;
+                NetworkManager.Singleton.ConnectionApprovalCallback += ApprovalCallback;
+
                 NetworkManager.Singleton.StartClient();
                 Debug.Log($"[NetworkBootstrap] Client started. Joined lobby: {lobbyCode}");
 
@@ -96,9 +102,23 @@ namespace AIWE.Network
 
         public async void Disconnect()
         {
+            NetworkManager.Singleton.ConnectionApprovalCallback -= ApprovalCallback;
             NetworkManager.Singleton.Shutdown();
             await _lobbyManager.LeaveLobby();
             Debug.Log("[NetworkBootstrap] Disconnected");
+        }
+
+        private void ApprovalCallback(
+            NetworkManager.ConnectionApprovalRequest request,
+            NetworkManager.ConnectionApprovalResponse response)
+        {
+            var spawnManager = FindAnyObjectByType<PlayerSpawnManager>();
+            var pos = spawnManager != null ? spawnManager.GetNextSpawnPosition() : new Vector3(16, 1, 4);
+
+            response.Approved = true;
+            response.CreatePlayerObject = true;
+            response.Position = pos;
+            response.Rotation = Quaternion.identity;
         }
 
         private void OnDestroy()

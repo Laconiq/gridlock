@@ -5091,7 +5091,7 @@ Light:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3785678646733113147}
   m_Enabled: 1
-  serializedVersion: 12
+  serializedVersion: 13
   m_Type: 2
   m_Color: {r: 1, g: 0.85, b: 0.4, a: 1}
   m_Intensity: 0
@@ -5143,7 +5143,7 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ForceVisible: 0
-  m_ShadowRadius: 0
+  m_ShapeRadius: 0
   m_ShadowAngle: 0
   m_LightUnit: 1
   m_LuxAtDistance: 1
@@ -10477,6 +10477,9 @@ GameObject:
   - component: {fileID: 2391153678999310061}
   - component: {fileID: 3694259310363427128}
   - component: {fileID: 8950197660525573764}
+  - component: {fileID: 4547999608076497695}
+  - component: {fileID: 7330101752806071179}
+  - component: {fileID: 2384165349057553258}
   m_Layer: 0
   m_Name: PlayerPrefab
   m_TagString: Untagged
@@ -10635,6 +10638,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AIWE.Player.PlayerInteraction
   ShowTopMostFoldoutHeaderGroup: 1
   interactionRange: 3
+  holdDuration: 0.4
   interactionMask:
     serializedVersion: 2
     m_Bits: 4294967295
@@ -10798,6 +10802,54 @@ MonoBehaviour:
   impactSource: {fileID: 2865351933765385360}
   landingClip: {fileID: 8300000, guid: 28366cc8ca549ad44ac7c69f110acb3d, type: 3}
   landingVolume: 0.5
+--- !u!114 &4547999608076497695
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7362235884474108154}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f62298bc698eff64ebab8c8e18fb073b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AIWE.Player.PlayerGameplayActivator
+  ShowTopMostFoldoutHeaderGroup: 1
+  weaponHolder: {fileID: 2418068130571341917}
+  weaponViewModel: {fileID: 3788406640947891279}
+  weaponFireFeedback: {fileID: 9211019894541790470}
+  headBobController: {fileID: 4526654350607618733}
+  speedLinesController: {fileID: 75217991118020878}
+  landingImpactController: {fileID: 3694259310363427128}
+  movementAudio: {fileID: 8950197660525573764}
+  hitFeedback: {fileID: 0}
+--- !u!114 &7330101752806071179
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7362235884474108154}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af72b569e42825f49b7e3e3c348d6808, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AIWE.Player.PlayerHealth
+  ShowTopMostFoldoutHeaderGroup: 1
+  _maxHP: 100
+--- !u!114 &2384165349057553258
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7362235884474108154}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2009894e271498f4683907cc3dd36b47, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AIWE.Network.PlayerData
+  ShowTopMostFoldoutHeaderGroup: 1
 --- !u!1 &8724841465568502037
 GameObject:
   m_ObjectHideFlags: 0

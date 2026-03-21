@@ -1,85 +1,67 @@
 using System.Collections.Generic;
 using AIWE.Modules;
 using AIWE.NodeEditor.Data;
-using TMPro;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.UI;
+using UnityEngine.UIElements;
 
 namespace AIWE.NodeEditor.UI
 {
-    public class NodeWidget : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHandler, IPointerClickHandler
+    public class NodeWidget
     {
-        [Header("UI References")]
-        [SerializeField] private Image headerImage;
-        [SerializeField] private TextMeshProUGUI titleText;
-        [SerializeField] private Image iconImage;
-        [SerializeField] private RectTransform inputPortsContainer;
-        [SerializeField] private RectTransform outputPortsContainer;
-        [SerializeField] private PortWidget portPrefab;
-
-        [Header("Colors")]
-        [SerializeField] private Color triggerColor = new(1f, 0.6f, 0.2f);
-        [SerializeField] private Color zoneColor = new(0.3f, 0.5f, 1f);
-        [SerializeField] private Color effectColor = new(0.3f, 0.85f, 0.4f);
-
-        private static readonly Color ChainColor = new(0.3f, 0.5f, 1f);
-        private static readonly Color EffectPortColor = new(0.3f, 0.85f, 0.4f);
-
-        private NodeData _nodeData;
-        private NodeEditorCanvas _canvas;
-        private RectTransform _rectTransform;
-        private readonly List<PortWidget> _inputPorts = new();
-        private readonly List<PortWidget> _outputPorts = new();
-        private bool _isDragging;
-
+        public VisualElement Root { get; }
         public string NodeId => _nodeData?.nodeId;
         public NodeData Data => _nodeData;
+        public Vector2 Position => _position;
+        public IReadOnlyList<PortWidget> AllPorts => _ports;
 
-        public void Initialize(NodeData nodeData, NodeEditorCanvas canvas, ModuleRegistry registry = null)
+        private readonly NodeData _nodeData;
+        private readonly NodeEditorCanvas _canvas;
+        private readonly List<PortWidget> _ports = new();
+        private readonly List<PortWidget> _inputPorts = new();
+        private readonly List<PortWidget> _outputPorts = new();
+
+        private Vector2 _position;
+
+        private static Color ChainColor => DesignConstants.PortChain;
+        private static Color EffectPortColor => DesignConstants.PortEffect;
+
+        public NodeWidget(NodeData nodeData, NodeEditorCanvas canvas, ModuleRegistry registry)
         {
             _nodeData = nodeData;
             _canvas = canvas;
-            _rectTransform = GetComponent<RectTransform>();
 
-            var moduleDef = registry != null ? registry.GetById(nodeData.moduleDefId) : null;
+            var moduleDef = registry?.GetById(nodeData.moduleDefId);
+            var displayName = moduleDef != null ? moduleDef.displayName : nodeData.moduleDefId;
 
-            if (titleText != null)
-                titleText.text = moduleDef != null ? moduleDef.displayName : nodeData.moduleDefId;
-
-            if (iconImage != null && moduleDef != null && moduleDef.icon != null)
-                iconImage.sprite = moduleDef.icon;
-
-            var color = nodeData.category switch
+            Root = ModuleElement.Create(displayName, nodeData.category);
+            if (Root == null)
             {
-                ModuleCategory.Trigger => triggerColor,
-                ModuleCategory.Zone => zoneColor,
-                ModuleCategory.Effect => effectColor,
-                _ => Color.gray
-            };
+                Root = new VisualElement();
+                Root.AddToClassList("node");
+                return;
+            }
 
-            if (headerImage != null)
-                headerImage.color = color;
+            if (nodeData.isFixed) Root.AddToClassList("node--fixed");
 
-            SetupPorts();
+            SetupInteractivePorts();
+            Root.RegisterCallback<PointerDownEvent>(OnPointerDown);
         }
 
-        private void SetupPorts()
+        private void SetupInteractivePorts()
         {
-            if (portPrefab == null) return;
+            var moduleEl = Root as ModuleElement;
+            if (moduleEl == null) return;
 
             switch (_nodeData.category)
             {
                 case ModuleCategory.Trigger:
-                    CreateSidePort(outputPortsContainer, 0, false, ChainColor);
+                    CreatePort(moduleEl.RightPorts, 0, false, ChainColor, "OUT");
                     break;
-
                 case ModuleCategory.Zone:
-                    CreateSidePort(inputPortsContainer, 0, true, ChainColor);
-                    CreateSidePort(outputPortsContainer, 0, false, ChainColor);
+                    CreatePort(moduleEl.LeftPorts, 0, true, ChainColor, "IN");
+                    CreatePort(moduleEl.RightPorts, 0, false, ChainColor, "OUT");
                     CreateVerticalPort(1, false, EffectPortColor);
                     break;
-
                 case ModuleCategory.Effect:
                     CreateVerticalPort(0, true, EffectPortColor);
                     CreateVerticalPort(0, false, EffectPortColor);
@@ -87,96 +69,110 @@ namespace AIWE.NodeEditor.UI
             }
         }
 
-        private void CreateSidePort(RectTransform container, int index, bool isInput, Color color)
+        private void CreatePort(VisualElement container, int index, bool isInput, Color color, string label)
         {
-            if (container == null) return;
-            var port = Instantiate(portPrefab, container);
-            port.Initialize(this, index, isInput, _canvas, color);
+            var portGroup = new VisualElement();
+            portGroup.style.flexDirection = FlexDirection.Row;
+            portGroup.style.alignItems = Align.Center;
+
+            var port = new PortWidget(this, index, isInput, color, _canvas);
+            _ports.Add(port);
             if (isInput) _inputPorts.Add(port);
             else _outputPorts.Add(port);
+
+            if (isInput)
+            {
+                portGroup.Add(port.Element);
+                var lbl = new Label(label);
+                lbl.AddToClassList("port__label");
+                portGroup.Add(lbl);
+            }
+            else
+            {
+                var lbl = new Label(label);
+                lbl.AddToClassList("port__label");
+                portGroup.Add(lbl);
+                portGroup.Add(port.Element);
+            }
+
+            container.Add(portGroup);
         }
 
         private void CreateVerticalPort(int index, bool isInput, Color color)
         {
-            var port = Instantiate(portPrefab, _rectTransform);
-            port.Initialize(this, index, isInput, _canvas, color);
+            var port = new PortWidget(this, index, isInput, color, _canvas);
+            _ports.Add(port);
+            if (isInput) _inputPorts.Add(port);
+            else _outputPorts.Add(port);
 
-            var portRt = port.GetComponent<RectTransform>();
-            if (isInput)
+            port.Element.AddToClassList(isInput ? "node__port-vertical-top" : "node__port-vertical-bottom");
+            Root.Add(port.Element);
+        }
+
+        public PortWidget GetInputPort(int index)
+        {
+            return index < _inputPorts.Count ? _inputPorts[index] : null;
+        }
+
+        public PortWidget GetOutputPort(int index)
+        {
+            return index < _outputPorts.Count ? _outputPorts[index] : null;
+        }
+
+        public void SetPosition(Vector2 pos)
+        {
+            _position = pos;
+            Root.style.left = pos.x;
+            Root.style.top = pos.y;
+        }
+
+        public void UpdatePositionSilent(Vector2 contentPos)
+        {
+            _position = contentPos;
+            if (_nodeData != null)
+                _nodeData.editorPosition = contentPos;
+        }
+
+        public void RemoveFromCanvas()
+        {
+            Root.RemoveFromHierarchy();
+        }
+
+        public void PlaySpawnAnimation()
+        {
+            Root.AddToClassList("node--spawn-line");
+            Root.schedule.Execute(() =>
             {
-                portRt.anchorMin = new Vector2(0.5f, 1f);
-                portRt.anchorMax = new Vector2(0.5f, 1f);
-                portRt.pivot = new Vector2(0.5f, 0.5f);
-                portRt.anchoredPosition = new Vector2(0, 10);
-                _inputPorts.Add(port);
-            }
-            else
+                Root.RemoveFromClassList("node--spawn-line");
+            }).ExecuteLater(16);
+        }
+
+        public void PlayDespawnAnimation(System.Action onComplete)
+        {
+            Root.AddToClassList("node--despawning");
+            Root.schedule.Execute(() =>
             {
-                portRt.anchorMin = new Vector2(0.5f, 0f);
-                portRt.anchorMax = new Vector2(0.5f, 0f);
-                portRt.pivot = new Vector2(0.5f, 0.5f);
-                portRt.anchoredPosition = new Vector2(0, -10);
-                _outputPorts.Add(port);
-            }
+                onComplete?.Invoke();
+            }).ExecuteLater(200);
         }
 
-        public RectTransform GetInputPort(int index)
+        public void EndSpawnDrag()
         {
-            if (index < _inputPorts.Count)
-                return _inputPorts[index].GetComponent<RectTransform>();
-            return _rectTransform;
+            Root.RemoveFromClassList("node--dragging");
         }
 
-        public RectTransform GetOutputPort(int index)
+        private void OnPointerDown(PointerDownEvent evt)
         {
-            if (index < _outputPorts.Count)
-                return _outputPorts[index].GetComponent<RectTransform>();
-            return _rectTransform;
-        }
-
-        public Color GetOutputPortColor(int index)
-        {
-            if (index < _outputPorts.Count)
-                return _outputPorts[index].PortColor;
-            return Color.white;
-        }
-
-        public void OnBeginDrag(PointerEventData eventData)
-        {
-            if (eventData.button != PointerEventData.InputButton.Left) return;
+            if (evt.button != 0) return;
             if (PortWidget.IsDraggingPort) return;
-            transform.SetAsLastSibling();
-            _isDragging = true;
+
+            _canvas.BeginNodeDrag(this, evt);
+            evt.StopPropagation();
         }
 
-        public void OnDrag(PointerEventData eventData)
+        public static VisualElement CreateDisplayNode(string displayName, ModuleCategory category)
         {
-            if (eventData.button != PointerEventData.InputButton.Left) return;
-            if (!_isDragging) return;
-
-            var parentScale = _rectTransform.parent != null
-                ? _rectTransform.parent.lossyScale.x
-                : 1f;
-
-            _rectTransform.anchoredPosition += eventData.delta / parentScale;
-        }
-
-        public void OnEndDrag(PointerEventData eventData)
-        {
-            if (_isDragging && _nodeData != null)
-            {
-                _nodeData.editorPosition = _rectTransform.anchoredPosition;
-            }
-            _isDragging = false;
-        }
-
-        public void OnPointerClick(PointerEventData eventData)
-        {
-            if (eventData.button == PointerEventData.InputButton.Right)
-            {
-                if (_nodeData.isFixed) return;
-                _canvas?.RemoveNode(NodeId);
-            }
+            return ModuleElement.CreateDisplay(displayName, category);
         }
     }
 }

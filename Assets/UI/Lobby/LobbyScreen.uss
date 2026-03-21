@@ -1,0 +1,493 @@
+/* ============================================================
+   VOID_PROTOCOL — Lobby Screen
+   All colors reference design tokens via var(--token).
+   ============================================================ */
+
+.lobby-root {
+    /* === SURFACES === */
+    --surface:                  #0e0e0f;
+    --surface-container-low:    #131314;
+    --surface-container:        #19191b;
+    --surface-container-high:   #201f21;
+    --surface-container-highest:#262627;
+    --surface-bright:           #2c2c2d;
+
+    /* === PRIMARY (Cyan) === */
+    --primary:                  #8ff5ff;
+    --primary-dim:              #00deec;
+    --primary-container:        #00eefc;
+    --on-primary:               #005d63;
+
+    /* === SECONDARY (Green) === */
+    --secondary:                #2ff801;
+    --secondary-container:      #106e00;
+
+    /* === TERTIARY (Orange) === */
+    --tertiary:                 #ff7948;
+
+    /* === ERROR === */
+    --error:                    #ff716c;
+
+    /* === ON-COLORS === */
+    --on-surface:               #ffffff;
+    --on-surface-variant:       #adaaab;
+    --outline:                  #767576;
+    --outline-variant:          #484849;
+
+    /* === FONT === */
+    -unity-font-definition: url("project://database/Assets/UI/NodeEditor/Fonts/SpaceGrotesk-Variable.ttf");
+
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--surface);
+    color: var(--on-surface);
+    align-items: center;
+    justify-content: center;
+}
+
+/* === GRID OVERLAY (Painter2D injected by C#) === */
+.lobby__grid-overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+}
+
+/* === CENTRAL PANEL === */
+.lobby__panel {
+    width: 520px;
+    background-color: var(--surface-container);
+    border-left-width: 4px;
+    border-left-color: var(--primary);
+    padding: 40px;
+    flex-direction: column;
+    overflow: visible;
+}
+
+/* === PANEL HEADER DECORATION (tag above panel) === */
+.lobby__panel-tag {
+    position: absolute;
+    top: -24px;
+    left: 0;
+    flex-direction: row;
+    align-items: center;
+}
+
+.lobby__panel-tag-line {
+    width: 48px;
+    height: 2px;
+    background-color: var(--primary);
+    margin-right: 16px;
+}
+
+.lobby__panel-tag-label {
+    font-size: 8px;
+    -unity-font-style: bold;
+    letter-spacing: 5px;
+    color: var(--primary);
+}
+
+/* === TITLE SECTION === */
+.lobby__title-section {
+    margin-bottom: 40px;
+}
+
+.lobby__title {
+    font-size: 32px;
+    -unity-font-style: bold;
+    color: var(--on-surface);
+    letter-spacing: -1px;
+    margin-bottom: 8px;
+}
+
+.lobby__subtitle {
+    font-size: 11px;
+    color: var(--on-surface-variant);
+    letter-spacing: 2px;
+    -unity-font-style: normal;
+}
+
+/* === ACTION BLOCK === */
+.lobby__actions {
+    flex-direction: column;
+    position: relative;
+}
+
+/* === HOST BUTTON === */
+.lobby__host-btn {
+    height: 64px;
+    padding: 0 20px;
+    background-color: var(--primary);
+    border-width: 0;
+    border-radius: 0;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 32px;
+    overflow: visible;
+    transition: opacity 0.075s ease-out;
+}
+
+.lobby__host-btn:hover {
+    opacity: 0.85;
+}
+
+.lobby__host-btn:active {
+    opacity: 0.7;
+}
+
+.lobby__host-btn:disabled {
+    opacity: 0.4;
+}
+
+.lobby__host-btn-label {
+    font-size: 18px;
+    -unity-font-style: bold;
+    color: var(--on-primary);
+    letter-spacing: 6px;
+}
+
+.lobby__host-btn-icon {
+    font-size: 9px;
+    color: var(--on-primary);
+    letter-spacing: 2px;
+    -unity-font-style: bold;
+}
+
+.lobby__host-btn-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background-color: var(--primary-container);
+}
+
+/* === SEPARATOR === */
+.lobby__separator {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 32px;
+}
+
+.lobby__separator-line {
+    flex-grow: 1;
+    height: 1px;
+    background-color: var(--outline-variant);
+    opacity: 0.3;
+}
+
+.lobby__separator-icon {
+    font-size: 14px;
+    color: var(--outline);
+    margin-left: 16px;
+    margin-right: 16px;
+    -unity-text-align: middle-center;
+}
+
+/* === JOIN SECTION === */
+.lobby__join-section {
+    flex-direction: column;
+}
+
+/* === INPUT FIELD === */
+.lobby__input-wrapper {
+    margin-bottom: 16px;
+    overflow: visible;
+}
+
+.lobby__input-label {
+    position: absolute;
+    top: -8px;
+    left: 16px;
+    z-index: 1;
+    font-size: 8px;
+    -unity-font-style: bold;
+    color: var(--primary);
+    letter-spacing: 4px;
+    background-color: var(--surface-container);
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+.lobby__input {
+    background-color: var(--surface-container-low);
+    border-width: 0;
+    border-bottom-width: 2px;
+    border-bottom-color: var(--outline-variant);
+    border-radius: 0;
+    padding: 20px 24px;
+    font-size: 14px;
+    color: var(--primary);
+    letter-spacing: 4px;
+    -unity-font-style: normal;
+    transition: border-bottom-color 0.15s ease-out;
+}
+
+.lobby__input:focus {
+    border-bottom-color: var(--secondary);
+}
+
+.lobby__input:disabled {
+    opacity: 0.4;
+}
+
+.lobby__input > .unity-text-element {
+    color: var(--primary);
+    padding: 0;
+    margin: 0;
+}
+
+.lobby__input > .unity-base-field__input {
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+    padding: 0;
+    margin: 0;
+}
+
+/* === JOIN BUTTON === */
+.lobby__join-btn {
+    height: 64px;
+    padding: 0 20px;
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 2px;
+    border-color: rgba(47, 248, 1, 0.4);
+    border-radius: 0;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.075s ease-out, opacity 0.075s ease-out;
+}
+
+.lobby__join-btn:hover {
+    border-color: var(--secondary);
+}
+
+.lobby__join-btn:active {
+    opacity: 0.7;
+}
+
+.lobby__join-btn:disabled {
+    opacity: 0.4;
+}
+
+.lobby__join-btn-label {
+    font-size: 14px;
+    -unity-font-style: bold;
+    color: var(--secondary);
+    letter-spacing: 6px;
+    -unity-text-align: middle-center;
+}
+
+/* === STATUS TEXT === */
+.lobby__status {
+    margin-top: 16px;
+    font-size: 9px;
+    letter-spacing: 2px;
+    -unity-text-align: middle-center;
+    opacity: 0;
+    transition: opacity 0.15s ease-out;
+}
+
+.lobby__status--visible {
+    opacity: 1;
+}
+
+.lobby__status--error {
+    color: var(--error);
+}
+
+.lobby__status--info {
+    color: var(--on-surface-variant);
+}
+
+/* === CONNECTING OVERLAY === */
+.lobby__connecting-overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(14, 14, 15, 0.85);
+    align-items: center;
+    justify-content: center;
+    display: none;
+}
+
+.lobby__connecting-overlay--visible {
+    display: flex;
+}
+
+.lobby__connecting-status {
+    font-size: 11px;
+    color: var(--primary);
+    letter-spacing: 4px;
+    -unity-font-style: bold;
+}
+
+/* === METADATA FOOTER === */
+.lobby__footer {
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top-width: 1px;
+    border-top-color: rgba(72, 72, 73, 0.1);
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.lobby__footer-left {
+    flex-direction: column;
+}
+
+.lobby__footer-meta {
+    font-size: 7px;
+    color: var(--outline);
+    letter-spacing: 1px;
+    margin-bottom: 2px;
+}
+
+.lobby__footer-right {
+    align-items: flex-end;
+}
+
+.lobby__footer-signal-bars {
+    flex-direction: row;
+    justify-content: flex-end;
+    margin-bottom: 4px;
+}
+
+.lobby__footer-signal-bar {
+    width: 3px;
+    height: 10px;
+    background-color: var(--secondary);
+    margin-left: 2px;
+}
+
+.lobby__footer-signal-bar--dim {
+    opacity: 0.3;
+}
+
+.lobby__footer-signal-label {
+    font-size: 7px;
+    -unity-font-style: bold;
+    color: var(--secondary);
+    letter-spacing: 2px;
+    -unity-text-align: middle-right;
+}
+
+/* === CORNER DECORATION === */
+.lobby__corner-deco {
+    position: absolute;
+    bottom: -8px;
+    right: -8px;
+    width: 48px;
+    height: 48px;
+    border-bottom-width: 2px;
+    border-right-width: 2px;
+    border-bottom-color: var(--primary-container);
+    border-right-color: var(--primary-container);
+}
+
+/* === LOBBY (post-connect) SECTION === */
+.lobby__connected-section {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+}
+
+.lobby__connected-section--visible {
+    display: flex;
+}
+
+.lobby__lobby-code-label {
+    font-size: 8px;
+    -unity-font-style: bold;
+    color: var(--on-surface-variant);
+    letter-spacing: 4px;
+    margin-bottom: 8px;
+}
+
+.lobby__lobby-code {
+    font-size: 28px;
+    -unity-font-style: bold;
+    color: var(--primary);
+    letter-spacing: 8px;
+    margin-bottom: 24px;
+    -unity-text-align: middle-center;
+}
+
+.lobby__player-count {
+    font-size: 11px;
+    color: var(--on-surface-variant);
+    letter-spacing: 3px;
+    margin-bottom: 32px;
+}
+
+.lobby__start-btn {
+    height: 64px;
+    padding: 0 40px;
+    background-color: var(--secondary);
+    border-width: 0;
+    border-radius: 0;
+    margin-bottom: 16px;
+    align-items: center;
+    justify-content: center;
+    align-self: stretch;
+    transition: opacity 0.075s ease-out;
+}
+
+.lobby__start-btn:hover {
+    opacity: 0.85;
+}
+
+.lobby__start-btn:active {
+    opacity: 0.7;
+}
+
+.lobby__start-btn:disabled {
+    opacity: 0.4;
+}
+
+.lobby__start-btn-label {
+    font-size: 16px;
+    -unity-font-style: bold;
+    color: var(--surface);
+    letter-spacing: 6px;
+    -unity-text-align: middle-center;
+}
+
+.lobby__disconnect-btn {
+    height: 44px;
+    padding: 0 24px;
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 1px;
+    border-color: var(--outline-variant);
+    border-radius: 0;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.075s ease-out, opacity 0.075s ease-out;
+}
+
+.lobby__disconnect-btn:hover {
+    border-color: var(--error);
+}
+
+.lobby__disconnect-btn:active {
+    opacity: 0.7;
+}
+
+.lobby__disconnect-btn-label {
+    font-size: 9px;
+    color: var(--on-surface-variant);
+    letter-spacing: 4px;
+    -unity-text-align: middle-center;
+    transition: color 0.075s ease-out;
+}
+
+.lobby__disconnect-btn:hover .lobby__disconnect-btn-label {
+    color: var(--error);
+}
