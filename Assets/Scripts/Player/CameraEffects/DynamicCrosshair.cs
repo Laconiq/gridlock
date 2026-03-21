@@ -28,6 +28,7 @@ namespace AIWE.Player.CameraEffects
         {
             _uiDocument = GetComponent<UIDocument>();
             _currentSpread = baseSpread;
+            enabled = false;
         }
 
         private void OnEnable()
