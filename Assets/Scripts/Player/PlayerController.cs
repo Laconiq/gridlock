@@ -51,6 +51,13 @@ namespace AIWE.Player
                 return;
             }
 
+            var cc = GetComponent<CharacterController>();
+            if (cc != null)
+            {
+                cc.enabled = false;
+                cc.enabled = true;
+            }
+
             _controls.Player.Jump.performed += _ => OnJumpInput();
 
             SetPlayerInputActive(false);
