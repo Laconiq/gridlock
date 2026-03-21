@@ -27,7 +27,9 @@ namespace AIWE.Modules.Effects
             {
                 if (target == null || !target.IsAlive || target.Transform == null) continue;
 
-                var direction = (target.Position - origin).normalized;
+                var direction = Owner?.FirePoint != null
+                    ? Owner.FirePoint.forward
+                    : (target.Position - origin).normalized;
                 var go = Object.Instantiate(projectilePrefab, origin, Quaternion.LookRotation(direction));
 
                 var netObj = go.GetComponent<NetworkObject>();

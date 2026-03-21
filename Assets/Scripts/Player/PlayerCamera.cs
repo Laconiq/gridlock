@@ -88,6 +88,7 @@ namespace AIWE.Player
             _pitch = Mathf.Clamp(_pitch + _recoilPitch, minPitch, maxPitch);
 
             transform.parent.rotation = Quaternion.Euler(0f, _yaw, 0f);
+            transform.localRotation = Quaternion.Euler(_pitch, 0f, 0f);
 
             if (panTilt != null)
             {
