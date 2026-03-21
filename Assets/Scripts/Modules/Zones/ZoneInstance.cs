@@ -8,6 +8,8 @@ namespace AIWE.Modules.Zones
     [Serializable]
     public abstract class ZoneInstance
     {
+        protected static readonly Collider[] SharedOverlapBuffer = new Collider[64];
+
         [NonSerialized] public ZoneDefinition Definition;
         [NonSerialized] public IChassis Owner;
 

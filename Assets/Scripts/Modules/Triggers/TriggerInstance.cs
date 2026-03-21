@@ -7,6 +7,8 @@ namespace AIWE.Modules.Triggers
     [Serializable]
     public abstract class TriggerInstance
     {
+        protected static readonly Collider[] SharedOverlapBuffer = new Collider[64];
+
         [NonSerialized] public TriggerDefinition Definition;
         [NonSerialized] public IChassis Owner;
         [NonSerialized] protected float CooldownTimer;

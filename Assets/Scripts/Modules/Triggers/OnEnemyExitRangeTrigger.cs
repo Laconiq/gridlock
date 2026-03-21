@@ -19,11 +19,11 @@ namespace AIWE.Modules.Triggers
 
             if (Owner?.FirePoint == null) return;
 
-            var colliders = Physics.OverlapSphere(Owner.FirePoint.position, range);
+            int count = Physics.OverlapSphereNonAlloc(Owner.FirePoint.position, range, SharedOverlapBuffer);
             int enemyCount = 0;
-            foreach (var col in colliders)
+            for (int i = 0; i < count; i++)
             {
-                if (col.GetComponentInParent<ITargetable>() is { IsAlive: true })
+                if (SharedOverlapBuffer[i].GetComponentInParent<ITargetable>() is { IsAlive: true })
                     enemyCount++;
             }
 

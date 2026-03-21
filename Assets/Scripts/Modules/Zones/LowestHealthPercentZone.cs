@@ -12,17 +12,17 @@ namespace AIWE.Modules.Zones
         public override List<ITargetable> SelectTargets(Vector3 origin, float range)
         {
             var result = new List<ITargetable>();
-            var colliders = Physics.OverlapSphere(origin, range);
+            int count = Physics.OverlapSphereNonAlloc(origin, range, SharedOverlapBuffer);
 
             ITargetable lowest = null;
             float lowestPercent = float.MaxValue;
 
-            foreach (var col in colliders)
+            for (int i = 0; i < count; i++)
             {
-                var target = col.GetComponentInParent<ITargetable>();
+                var target = SharedOverlapBuffer[i].GetComponentInParent<ITargetable>();
                 if (target == null || !target.IsAlive) continue;
 
-                var health = col.GetComponentInParent<EnemyHealth>();
+                var health = SharedOverlapBuffer[i].GetComponentInParent<EnemyHealth>();
                 if (health == null || health.MaxHP <= 0f) continue;
 
                 float percent = health.CurrentHP / health.MaxHP;

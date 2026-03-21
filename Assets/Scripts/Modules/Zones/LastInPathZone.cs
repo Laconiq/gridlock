@@ -23,14 +23,14 @@ namespace AIWE.Modules.Zones
                 _objectiveCached = true;
             }
 
-            var colliders = Physics.OverlapSphere(origin, range);
+            int count = Physics.OverlapSphereNonAlloc(origin, range, SharedOverlapBuffer);
 
             ITargetable last = null;
             float furthestFromObjective = float.MinValue;
 
-            foreach (var col in colliders)
+            for (int i = 0; i < count; i++)
             {
-                var target = col.GetComponentInParent<ITargetable>();
+                var target = SharedOverlapBuffer[i].GetComponentInParent<ITargetable>();
                 if (target == null || !target.IsAlive) continue;
 
                 var dist = Vector3.Distance(target.Position, _objectivePosition);

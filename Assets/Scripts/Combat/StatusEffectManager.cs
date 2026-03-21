@@ -7,8 +7,14 @@ namespace AIWE.Combat
     public class StatusEffectManager : MonoBehaviour
     {
         private readonly List<ActiveStatusEffect> _activeEffects = new();
+        private IDamageable _damageable;
 
         public float SpeedMultiplier { get; private set; } = 1f;
+
+        private void Awake()
+        {
+            _damageable = GetComponent<IDamageable>();
+        }
 
         public void ApplyEffect(StatusEffectData data)
         {
@@ -37,8 +43,7 @@ namespace AIWE.Combat
                     if (effect.TickTimer >= effect.Data.TickInterval)
                     {
                         effect.TickTimer = 0f;
-                        var damageable = GetComponent<IDamageable>();
-                        damageable?.TakeDamage(new DamageInfo(
+                        _damageable?.TakeDamage(new DamageInfo(
                             effect.Data.Value, 0, DamageType.DamageOverTime));
                     }
                 }

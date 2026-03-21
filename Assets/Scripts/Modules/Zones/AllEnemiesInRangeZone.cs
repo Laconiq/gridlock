@@ -12,11 +12,11 @@ namespace AIWE.Modules.Zones
         {
             var result = new List<ITargetable>();
             var seen = new HashSet<ITargetable>();
-            var colliders = Physics.OverlapSphere(origin, range);
+            int count = Physics.OverlapSphereNonAlloc(origin, range, SharedOverlapBuffer);
 
-            foreach (var col in colliders)
+            for (int i = 0; i < count; i++)
             {
-                var target = col.GetComponentInParent<ITargetable>();
+                var target = SharedOverlapBuffer[i].GetComponentInParent<ITargetable>();
                 if (target != null && target.IsAlive && seen.Add(target))
                 {
                     result.Add(target);
