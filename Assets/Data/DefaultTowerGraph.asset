@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b3969250729414740a689eeeaff38034, type: 3}
+  m_Name: DefaultTowerGraph
+  m_EditorClassIdentifier: Assembly-CSharp::AIWE.Player.DefaultWeaponGraph
+  graph:
+    nodes:
+    - nodeId: tower_timer
+      moduleDefId: on_timer
+      category: 0
+      editorPosition: {x: 200, y: 150}
+      isFixed: 0
+      paramOverrides: []
+    - nodeId: tower_zone
+      moduleDefId: nearest_enemy
+      category: 1
+      editorPosition: {x: 500, y: 150}
+      isFixed: 0
+      paramOverrides: []
+    - nodeId: tower_effect
+      moduleDefId: projectile
+      category: 2
+      editorPosition: {x: 510, y: 310}
+      isFixed: 0
+      paramOverrides: []
+    connections:
+    - fromNodeId: tower_timer
+      toNodeId: tower_zone
+      fromPort: 0
+      toPort: 0
+    - fromNodeId: tower_zone
+      toNodeId: tower_effect
+      fromPort: 1
+      toPort: 0
+  leftClickId: on_timer
+  rightClickId: on_timer
+  zoneId: nearest_enemy
+  effectId: projectile

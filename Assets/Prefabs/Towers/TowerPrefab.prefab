@@ -159,6 +159,7 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   definition: {fileID: 11400000, guid: ef449c25eadd554489bf3c3056d9f311, type: 2}
   firePoint: {fileID: 4093815563506613825}
+  defaultGraph: {fileID: 11400000, guid: bb49ace024c99024b982cac1891d4372, type: 2}
 --- !u!114 &6857266715922580223
 MonoBehaviour:
   m_ObjectHideFlags: 0

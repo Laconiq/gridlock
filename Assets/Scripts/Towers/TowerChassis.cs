@@ -1,5 +1,6 @@
 using AIWE.Interfaces;
 using AIWE.NodeEditor.Data;
+using AIWE.Player;
 using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
@@ -10,6 +11,7 @@ namespace AIWE.Towers
     {
         [SerializeField] private ChassisDefinition definition;
         [SerializeField] private Transform firePoint;
+        [SerializeField] private DefaultWeaponGraph defaultGraph;
 
         private readonly NetworkVariable<FixedString4096Bytes> _serializedGraph = new(
             default,
@@ -28,9 +30,14 @@ namespace AIWE.Towers
         {
             _serializedGraph.OnValueChanged += OnGraphChanged;
 
-            if (!string.IsNullOrEmpty(_serializedGraph.Value.ToString()))
+            var graphStr = _serializedGraph.Value.ToString();
+            if (!string.IsNullOrEmpty(graphStr))
             {
-                _cachedGraph = GraphSerializer.Deserialize(_serializedGraph.Value.ToString());
+                _cachedGraph = GraphSerializer.Deserialize(graphStr);
+            }
+            else if (IsServer && defaultGraph != null && defaultGraph.graph != null)
+            {
+                SetNodeGraph(defaultGraph.graph);
             }
         }
 
