@@ -29,3 +29,5 @@ MonoBehaviour:
     count: 2
   - module: {fileID: 11400000, guid: a3f0f241c1fc2574a8e113aefa452e78, type: 2}
     count: 2
+  - module: {fileID: 11400000, guid: 8a0b8df5a91340c42965e85a35284c64, type: 2}
+    count: 2
