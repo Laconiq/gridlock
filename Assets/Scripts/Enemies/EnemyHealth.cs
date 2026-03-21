@@ -1,6 +1,7 @@
 using System;
 using AIWE.Combat;
 using AIWE.Interfaces;
+using AIWE.Loot;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -8,6 +9,9 @@ namespace AIWE.Enemies
 {
     public class EnemyHealth : NetworkBehaviour, IDamageable
     {
+        [SerializeField] private LootTable lootTable;
+        [SerializeField] private GameObject pickupPrefab;
+
         private readonly NetworkVariable<float> _currentHP = new(100f);
 
         public float CurrentHP => _currentHP.Value;
@@ -38,8 +42,25 @@ namespace AIWE.Enemies
         private void Die()
         {
             OnDeath?.Invoke();
+            SpawnDrop();
             Debug.Log($"[Enemy] {gameObject.name} died");
             NetworkObject.Despawn();
+        }
+
+        private void SpawnDrop()
+        {
+            if (!IsServer || lootTable == null || pickupPrefab == null) return;
+
+            var drop = lootTable.Roll();
+            if (drop == null) return;
+
+            var go = Instantiate(pickupPrefab, transform.position, Quaternion.identity);
+
+            var pickup = go.GetComponent<ModulePickup>();
+            pickup?.Initialize(drop.moduleId, transform.position);
+
+            var netObj = go.GetComponent<NetworkObject>();
+            if (netObj != null) netObj.Spawn();
         }
     }
 }

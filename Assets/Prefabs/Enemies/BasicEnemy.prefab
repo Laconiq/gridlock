@@ -217,6 +217,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AIWE.Enemies.EnemyHealth
   ShowTopMostFoldoutHeaderGroup: 1
+  lootTable: {fileID: 11400000, guid: 0fc11e32c2f6db043a4bde55c4006c0a, type: 2}
+  pickupPrefab: {fileID: 5586572558703307883, guid: f407f6d53a9c4e14fa603989b75f25ac, type: 3}
 --- !u!114 &3204314648888192491
 MonoBehaviour:
   m_ObjectHideFlags: 0
