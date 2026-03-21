@@ -30,7 +30,7 @@ namespace AIWE.NodeEditor.UI
             var catClass = definition.category switch
             {
                 ModuleCategory.Trigger => "palette-item--trigger",
-                ModuleCategory.Zone => "palette-item--zone",
+                ModuleCategory.Zone => "palette-item--target",
                 ModuleCategory.Effect => "palette-item--effect",
                 _ => ""
             };

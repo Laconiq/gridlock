@@ -27,9 +27,9 @@
                         <ui:VisualElement class="sidebar__tab-icon" style="background-image: resource('UI/NodeEditor/Icons/icon_trigger')" />
                         <ui:Label text="TRIGGERS" />
                     </ui:Button>
-                    <ui:Button name="tab-zones" class="sidebar__tab sidebar__tab--zones">
+                    <ui:Button name="tab-targets" class="sidebar__tab sidebar__tab--targets">
                         <ui:VisualElement class="sidebar__tab-icon" style="background-image: resource('UI/NodeEditor/Icons/icon_zone')" />
-                        <ui:Label text="ZONES" />
+                        <ui:Label text="TARGETS" />
                     </ui:Button>
                     <ui:Button name="tab-effects" class="sidebar__tab sidebar__tab--effects">
                         <ui:VisualElement class="sidebar__tab-icon" style="background-image: resource('UI/NodeEditor/Icons/icon_effect')" />

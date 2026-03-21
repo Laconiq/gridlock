@@ -22,13 +22,13 @@ namespace AIWE.NodeEditor.UI
                 },
                 "ON_TIMER", ModuleCategory.Trigger));
             popup.AddPage(BuildModulePage(
-                "WHERE / WHO", DesignConstants.HexZone, "ZONE_MODULES",
-                "Zones select WHERE and WHO is affected. They filter targets from the game world based on spatial rules.\n\n" +
-                "Zones can chain horizontally into other zones for filtering. They connect downward (vertical port) to effects.",
+                "WHERE / WHO", DesignConstants.HexTarget, "TARGET_MODULES",
+                "Targets select WHERE and WHO is affected. They filter targets from the game world based on spatial rules.\n\n" +
+                "Targets can chain horizontally into other targets for filtering. They connect downward (vertical port) to effects.",
                 new[] {
                     "\u25b6 Input + output horizontal ports",
                     "\u25b6 Vertical output to Effect modules",
-                    "\u25b6 Can chain: Zone \u25b6 Zone for filtering"
+                    "\u25b6 Can chain: Target \u25b6 Target for filtering"
                 },
                 "ALL_IN_RANGE", ModuleCategory.Zone));
             popup.AddPage(BuildModulePage(

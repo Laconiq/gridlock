@@ -125,7 +125,7 @@ namespace AIWE.RadialMenu
                 _layerLabel.text = layer switch
                 {
                     0 => "TRIGGERS",
-                    1 => "ZONES",
+                    1 => "TARGETS",
                     2 => "EFFECTS",
                     _ => ""
                 };
