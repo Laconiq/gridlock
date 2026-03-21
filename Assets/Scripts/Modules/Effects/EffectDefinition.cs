@@ -11,6 +11,8 @@ namespace AIWE.Modules.Effects
         [SerializeReference, ListDrawerSettings(ShowFoldout = true), InlineProperty]
         public List<EffectInstance> effects = new();
 
+        public override float GetCooldown() => effects.Count > 0 ? effects[0].Cooldown : 0f;
+
         private void OnValidate()
         {
             category = ModuleCategory.Effect;

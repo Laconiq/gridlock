@@ -43,6 +43,7 @@ namespace AIWE.NodeEditor.UI
 
             if (nodeData.isFixed) Root.AddToClassList("node--fixed");
 
+            AddCooldownLabel(moduleDef);
             SetupInteractivePorts();
             Root.RegisterCallback<PointerDownEvent>(OnPointerDown);
         }
@@ -96,6 +97,20 @@ namespace AIWE.NodeEditor.UI
             }
 
             container.Add(portGroup);
+        }
+
+        private void AddCooldownLabel(ModuleDefinition moduleDef)
+        {
+            if (moduleDef == null) return;
+            float cd = moduleDef.GetCooldown();
+            if (cd <= 0f) return;
+
+            var body = Root.Q(className: "node__body");
+            if (body == null) return;
+
+            var label = new Label($"CD: {cd:F1}s");
+            label.AddToClassList("node__cooldown-label");
+            body.Add(label);
         }
 
         private void CreateVerticalPort(int index, bool isInput, Color color)

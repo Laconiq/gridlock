@@ -11,5 +11,7 @@ namespace AIWE.Modules
         public ModuleCategory category;
         public Color nodeColor = Color.gray;
         [TextArea] public string description;
+
+        public virtual float GetCooldown() => 0f;
     }
 }

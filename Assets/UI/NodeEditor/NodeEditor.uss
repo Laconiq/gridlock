@@ -374,6 +374,15 @@
     -unity-text-align: middle-center;
 }
 
+.node__cooldown-label {
+    font-size: 7px;
+    letter-spacing: 1px;
+    color: var(--on-surface-variant, #adaaab);
+    opacity: 0.6;
+    margin-top: 4px;
+    -unity-text-align: middle-right;
+}
+
 /* === BOTTOM BAR === */
 .bottom-bar {
     height: 32px;

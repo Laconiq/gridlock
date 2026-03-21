@@ -13,6 +13,8 @@ namespace AIWE.Modules.Zones
 
         public float defaultRange = 10f;
 
+        public override float GetCooldown() => zones.Count > 0 ? zones[0].Cooldown : 0f;
+
         private void OnValidate()
         {
             category = ModuleCategory.Zone;
