@@ -1,3 +1,4 @@
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -52,7 +53,7 @@ namespace AIWE.Player.CameraEffects
         {
             if (_player == null)
             {
-                _player = FindAnyObjectByType<PlayerController>();
+                _player = FindLocalPlayer();
                 if (_player == null) return;
             }
 
@@ -68,6 +69,13 @@ namespace AIWE.Player.CameraEffects
 
             if (Mathf.Abs(_currentSpread - prev) > 0.01f)
                 _canvas?.MarkDirtyRepaint();
+        }
+
+        private PlayerController FindLocalPlayer()
+        {
+            var nm = NetworkManager.Singleton;
+            if (nm == null || nm.LocalClient?.PlayerObject == null) return null;
+            return nm.LocalClient.PlayerObject.GetComponent<PlayerController>();
         }
 
         private void OnGenerateVisualContent(MeshGenerationContext mgc)

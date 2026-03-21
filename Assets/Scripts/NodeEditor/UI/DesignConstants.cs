@@ -6,7 +6,7 @@ namespace AIWE.NodeEditor.UI
     {
         // === Module category colors ===
         public static readonly Color Trigger = new(1f, 0.47f, 0.28f);        // #ff7948
-        public static readonly Color Zone = new(0.56f, 0.96f, 1f);           // #8ff5ff
+        public static readonly Color Target = new(0.56f, 0.96f, 1f);         // #8ff5ff
         public static readonly Color Effect = new(0.18f, 0.97f, 0f);         // #2ff801
 
         // === Port colors ===
@@ -27,7 +27,7 @@ namespace AIWE.NodeEditor.UI
 
         // === Hex strings (for ColorUtility.TryParseHtmlString) ===
         public const string HexTrigger = "#ff7948";
-        public const string HexZone = "#8ff5ff";
+        public const string HexTarget = "#8ff5ff";
         public const string HexEffect = "#2ff801";
         public const string HexPrimary = "#00F0FF";
         public const string HexError = "#ff716c";
@@ -40,14 +40,14 @@ namespace AIWE.NodeEditor.UI
 
         // === Icon resource paths ===
         public const string IconTrigger = "UI/NodeEditor/Icons/icon_trigger";
-        public const string IconZone = "UI/NodeEditor/Icons/icon_zone";
+        public const string IconTarget = "UI/NodeEditor/Icons/icon_zone";
         public const string IconEffect = "UI/NodeEditor/Icons/icon_effect";
         public const string IconHelp = "UI/NodeEditor/Icons/icon_help";
 
         public static string GetIconPath(string cssClass) => cssClass switch
         {
             "trigger" => IconTrigger,
-            "zone" => IconZone,
+            "zone" => IconTarget,
             "effect" => IconEffect,
             _ => null
         };
@@ -55,7 +55,7 @@ namespace AIWE.NodeEditor.UI
         public static Color GetCategoryColor(Data.ModuleCategory category) => category switch
         {
             Data.ModuleCategory.Trigger => Trigger,
-            Data.ModuleCategory.Zone => Zone,
+            Data.ModuleCategory.Zone => Target,
             Data.ModuleCategory.Effect => Effect,
             _ => Color.gray
         };

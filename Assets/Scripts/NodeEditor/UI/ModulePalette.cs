@@ -26,7 +26,7 @@ namespace AIWE.NodeEditor.UI
 
             _scrollView = root.Q<ScrollView>("palette-scroll");
             _tabTriggers = root.Q<Button>("tab-triggers");
-            _tabZones = root.Q<Button>("tab-zones");
+            _tabZones = root.Q<Button>("tab-targets");
             _tabEffects = root.Q<Button>("tab-effects");
 
             _tabTriggers?.RegisterCallback<ClickEvent>(_ => SetCategory(ModuleCategory.Trigger));

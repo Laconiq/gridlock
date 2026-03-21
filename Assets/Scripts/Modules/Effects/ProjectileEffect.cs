@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
-using AIWE.Combat;
 using AIWE.Interfaces;
-using Unity.Netcode;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -15,13 +13,12 @@ namespace AIWE.Modules.Effects
         [SerializeField] private float speed = 20f;
         [SerializeField] private GameObject projectilePrefab;
 
+        public float Speed => speed;
+        public GameObject ProjectilePrefab => projectilePrefab;
+
         public override void Execute(List<ITargetable> targets, Vector3 origin)
         {
-            if (projectilePrefab == null)
-            {
-                Debug.LogWarning("[ProjectileEffect] No projectile prefab assigned");
-                return;
-            }
+            if (projectilePrefab == null) return;
 
             foreach (var target in targets)
             {
@@ -30,16 +27,24 @@ namespace AIWE.Modules.Effects
                 var direction = Owner?.FirePoint != null
                     ? Owner.FirePoint.forward
                     : (target.Position - origin).normalized;
+
                 var go = Object.Instantiate(projectilePrefab, origin, Quaternion.LookRotation(direction));
 
-                var netObj = go.GetComponent<NetworkObject>();
-                if (netObj != null && NetworkManager.Singleton.IsServer)
-                    netObj.Spawn();
-
-                var projectile = go.GetComponent<Projectile>();
+                var projectile = go.GetComponent<Combat.Projectile>();
                 if (projectile != null)
-                    projectile.Initialize(direction, speed, damage, 0);
+                    projectile.Initialize(direction, speed, damage, true);
             }
+        }
+
+        public static void SpawnVisual(GameObject prefab, Vector3 origin, Vector3 direction, float speed)
+        {
+            if (prefab == null) return;
+
+            var go = Object.Instantiate(prefab, origin, Quaternion.LookRotation(direction));
+
+            var projectile = go.GetComponent<Combat.Projectile>();
+            if (projectile != null)
+                projectile.Initialize(direction, speed, 0f, false);
         }
 
         public override EffectInstance CreateInstance()

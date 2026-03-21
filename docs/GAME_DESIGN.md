@@ -13,10 +13,10 @@ Les tourelles et armes sont des **châssis vides** configurables via un **édite
 | Type | Rôle | Position dans l'éditeur |
 |---|---|---|
 | **Trigger** | QUAND ça se déclenche | Colonne de gauche, empilés verticalement |
-| **Zone** | OÙ / QUI est ciblé | Chaîne horizontale, de gauche à droite |
-| **Effet** | CE QUE ça fait | Rack vertical sous chaque Zone |
+| **Target** | OÙ / QUI est ciblé | Chaîne horizontale, de gauche à droite |
+| **Effet** | CE QUE ça fait | Rack vertical sous chaque Target |
 
-Les mêmes modules Zone et Effet marchent sur les tourelles et les armes du joueur.
+Les mêmes modules Target et Effet marchent sur les tourelles et les armes du joueur.
 
 ---
 
@@ -26,8 +26,8 @@ Les mêmes modules Zone et Effet marchent sur les tourelles et les armes du joue
 
 L'éditeur se lit dans 3 directions :
 - **↓ Vertical gauche** : les triggers (QUAND)
-- **→ Horizontal** : les zones (OÙ/QUI)
-- **↓ Vertical sous chaque zone** : les effets (CE QUE ÇA FAIT)
+- **→ Horizontal** : les targets (OÙ/QUI)
+- **↓ Vertical sous chaque target** : les effets (CE QUE ÇA FAIT)
 
 ```
   TRIGGERS                ZONES ──────────────────────────────────────▶
@@ -84,22 +84,22 @@ L'éditeur se lit dans 3 directions :
 
 ```
 ⚡ = Trigger   (QUAND)     — colonne de gauche, empilés verticalement
-🎯 = Zone      (OÙ/QUI)    — chaîne horizontale vers la droite
-✦  = Effet    (FAIT QUOI)  — rack vertical sous chaque zone
+🎯 = Target      (OÙ/QUI)    — chaîne horizontale vers la droite
+✦  = Effet    (FAIT QUOI)  — rack vertical sous chaque target
 ```
 
 ### Flux d'exécution
 
 1. Un **trigger** se déclenche (ex: un ennemi entre dans le rayon)
-2. Les **zones** se résolvent de gauche à droite, chacune sélectionne sa cible
+2. Les **targets** se résolvent de gauche à droite, chacune sélectionne sa cible
 3. Pour chaque zone, le **rack d'effets** s'exécute de haut en bas sur la cible sélectionnée
-4. Ordre : Zone A (effet ↓↓↓), puis Zone B (effet ↓↓↓), puis Zone C (effet ↓↓↓)...
+4. Ordre : Target A (effet ↓↓↓), puis Target B (effet ↓↓↓), puis Target C (effet ↓↓↓)...
 
 ### Règles
 
 - Les **triggers** s'empilent verticalement à gauche (limité par le châssis)
-- Les **zones** se chaînent horizontalement depuis chaque trigger (pas de limite)
-- Les **effets** s'empilent verticalement sous chaque zone (pas de limite)
+- Les **targets** se chaînent horizontalement depuis chaque trigger (pas de limite)
+- Les **effets** s'empilent verticalement sous chaque target (pas de limite)
 - Chaque châssis a un **nombre max de triggers**
 
 ---
@@ -138,13 +138,13 @@ Le trigger répond à **QUAND** — quel événement déclenche la chaîne.
 
 ---
 
-## Modules : Zones
+## Modules : Targets
 
-La zone répond à **OÙ / QUI** — quelle cible ou quelle zone est affectée. Les effets branchés en dessous s'appliquent à la sélection de cette zone.
+La target répond à **OÙ / QUI** — quelle cible ou quelle zone est affectée. Les effets branchés en dessous s'appliquent à la sélection de cette target.
 
-### Zones ennemis
+### Targets ennemis
 
-| Zone | Sélection |
+| Target | Sélection |
 |---|---|
 | `Nearest Enemy` | L'ennemi le plus proche |
 | `Farthest Enemy` | L'ennemi le plus loin dans le rayon |
@@ -157,9 +157,9 @@ La zone répond à **OÙ / QUI** — quelle cible ou quelle zone est affectée. 
 | `Random Enemy` | Un ennemi aléatoire dans le rayon |
 | `All Enemies In Range` | Tous les ennemis dans le rayon (AoE) |
 
-### Zones alliés
+### Targets alliés
 
-| Zone | Sélection |
+| Target | Sélection |
 |---|---|
 | `Self` | La tourelle/joueur source |
 | `Nearest Ally Turret` | La tourelle alliée la plus proche |
@@ -168,9 +168,9 @@ La zone répond à **OÙ / QUI** — quelle cible ou quelle zone est affectée. 
 | `All Players In Range` | Tous les joueurs alliés dans le rayon |
 | `Linked Turret` | La tourelle liée (via effet `Link`) |
 
-### Zones spéciales
+### Targets spéciales
 
-| Zone | Sélection |
+| Target | Sélection |
 |---|---|
 | `Same As Previous` | La même cible que la zone précédente dans la chaîne |
 | `Ground Area` | Une zone au sol (placement d'un champ persistant) |
@@ -195,7 +195,7 @@ L'effet répond à **CE QUE ÇA FAIT** — l'action concrète. Les effets s'exé
 | `Lightning Arc` | Décharge qui saute entre X ennemis proches |
 | `Laser Burst` | Salve de 3 rayons rapides |
 | `Explosion` | Dégâts AoE instantanés centrés sur la cible |
-| `DoT Field` | Zone de dégâts persistante au sol (nécessite zone `Ground Area`) |
+| `DoT Field` | Zone de dégâts persistante au sol (nécessite target `Ground Area`) |
 
 ### Mouvement
 
@@ -434,14 +434,42 @@ TOURELLE C (fond du couloir)
 - Les tourelles coûtent des ressources pour être posées
 - Pas de limite stricte — limité par les ressources disponibles
 - Ressources : kill, bonus de fin de vague, ramassage sur la map
-- Les modules s'achètent / se droppent — inventaire partagé entre joueurs
 - L'éditeur de nodes est accessible **tout le temps**
+
+### Système de drop (Loot Table)
+
+Les modules s'obtiennent via des **drops sur les ennemis tués**. Chaque type d'ennemi possède sa propre **Loot Table** (ScriptableObject).
+
+**Fonctionnement en 2 étapes :**
+
+1. **Roll de rareté** — On tire d'abord quelle rareté tombe (Common, Uncommon, Rare, Epic). Chaque rareté a un **poids** configurable. Le drop rate se règle au niveau de la rareté, pas de l'item individuel.
+
+2. **Roll de module** — Une fois la rareté tirée, on pioche **un module au hasard** parmi le pool de cette rareté. Tous les modules d'un même tier ont la même probabilité entre eux.
+
+```
+Exemple avec une Loot Table :
+  Common (50%)   → [Projectile, Hitscan, ForwardAim]  → 1/3 chacun
+  Uncommon (30%) → [NearestEnemy, Slow]                → 1/2 chacun
+  Rare (15%)     → [AllInRange, DOT]                   → 1/2 chacun
+  Epic (5%)      → [ChainLightning]                    → 100%
+```
+
+**Paramètres par Loot Table :**
+- `dropChance` (0-100%) — chance qu'un ennemi drop quelque chose (vs rien)
+- Poids par rareté — répartition des tiers
+- Pool de modules — assignation rareté par module
+
+**Outil de balancing :**
+- Le ScriptableObject utilise Odin Inspector comme dashboard (tableur, barres de probabilité, simulation Monte Carlo)
+- Double-clic sur l'asset ouvre une fenêtre dédiée pour l'équilibrage
+
+À la mort de l'ennemi, le module droppé apparaît au sol comme un **pickup 3D** (quad flottant + icône). Le premier joueur qui marche dessus l'ajoute à son inventaire.
 
 ---
 
 ## Synergie joueur/tourelle
 
-L'arme du joueur = châssis mobile avec `Primary Fire` et `Secondary Fire`, mêmes modules Zone et Effet.
+L'arme du joueur = châssis mobile avec `Primary Fire` et `Secondary Fire`, mêmes modules Target et Effet.
 
 ### Interactions
 
@@ -478,7 +506,7 @@ L'arme du joueur = châssis mobile avec `Primary Fire` et `Secondary Fire`, mêm
 
 ## Questions ouvertes
 
-- Comment le joueur obtient les modules ? (drop sur les ennemis, achat avec ressources, les deux ?)
+- ~~Comment le joueur obtient les modules ?~~ → **Résolu : drop sur les ennemis via Loot Tables par rareté**
 - Coût des tourelles : fixe par châssis ? Scaling ?
 - Limite de cooldown / activation stock pour éviter les boucles infinies de Signal/Repeat ?
 - Limite de modules par rack d'effets, ou illimité ?

@@ -71,7 +71,7 @@ namespace AIWE.NodeEditor.UI
                 var catClass = w.Data.category switch
                 {
                     ModuleCategory.Trigger => "viewport-nav__node-dot--trigger",
-                    ModuleCategory.Zone => "viewport-nav__node-dot--zone",
+                    ModuleCategory.Zone => "viewport-nav__node-dot--target",
                     ModuleCategory.Effect => "viewport-nav__node-dot--effect",
                     _ => ""
                 };

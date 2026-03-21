@@ -24,21 +24,21 @@
 
 ---
 
-## ZONES (Where / Who)
+## TARGETS (Where / Who)
 
 | Module | Status | ID | Description |
 |--------|--------|----|-------------|
 | Nearest Enemy | ✅ | `nearest_enemy` | Selects the closest enemy in range (OverlapSphere) |
 | All Enemies In Range | ✅ | `all_enemies_in_range` | Selects all enemies in range (OverlapSphere) |
 | Forward Aim | ✅ | `forward_aim` | Creates aim target along FirePoint.forward (FPS aiming) |
-| Cone Zone | 📋 | — | Selects enemies in a forward cone (angle + range) |
-| Line Zone | 📋 | — | Selects enemies along a line/ray (piercing) |
-| Self Zone | 📋 | — | Selects the owning player (for self-buffs) |
+| Cone Target | 📋 | — | Selects enemies in a forward cone (angle + range) |
+| Line Target | 📋 | — | Selects enemies along a line/ray (piercing) |
+| Self Target | 📋 | — | Selects the owning player (for self-buffs) |
 | Allies In Range | 📋 | — | Selects allied players in range |
 | Lowest HP Enemy | 💡 | — | Selects the enemy with lowest HP% |
 | Highest HP Enemy | 💡 | — | Selects the enemy with highest HP% |
 | Random Enemy | 💡 | — | Selects a random enemy in range |
-| AoE Around Target | 💡 | — | Takes targets from previous zone, expands selection around each |
+| AoE Around Target | 💡 | — | Takes targets from previous target, expands selection around each |
 
 ---
 
@@ -55,7 +55,7 @@
 | Knockback | 📋 | — | Pushes targets away from origin |
 | Chain Lightning | 📋 | — | Damage bounces between nearby enemies |
 | Freeze | 📋 | — | Immobilizes target for duration (0 speed) |
-| Burn (AoE DoT) | 📋 | — | Creates a ground zone that damages enemies over time |
+| Burn (AoE DoT) | 📋 | — | Creates a ground area that damages enemies over time |
 | Speed Boost | 💡 | — | Increases ally move speed |
 | Teleport | 💡 | — | Instantly moves target to a position |
 | Mark Target | 💡 | — | Marks enemy to take increased damage |
@@ -75,9 +75,9 @@ These illustrate how chaining creates emergent gameplay:
 On Timer → All In Range → Slow        → DOT          (crowd control tower)
 On Timer → Nearest Enemy → Projectile → Explosion    (single target + splash)
 On Left Click → Forward Aim → Hitscan → Chain Lightning (FPS chain damage)
-On Enemy Enter → Cone Zone → Knockback               (area denial)
-On Kill → Self Zone → Shield                          (reward on kill)
-On Player Damaged → Self Zone → Heal                  (reactive defense)
+On Enemy Enter → Cone → Knockback               (area denial)
+On Kill → Self → Shield                          (reward on kill)
+On Player Damaged → Self → Heal                  (reactive defense)
 On Timer → Lowest HP → Mark Target → Hitscan          (focus fire)
 ```
 
@@ -86,10 +86,10 @@ On Timer → Lowest HP → Mark Target → Hitscan          (focus fire)
 ## Implementation Priority
 
 ### Phase 1 — Core (done)
-Basic trigger/zone/effect for both player weapon and tower.
+Basic trigger/target/effect for both player weapon and tower.
 
 ### Phase 2 — Variety
-Cone Zone, Heal, Knockback, Freeze — enough diversity for interesting builds.
+Cone, Heal, Knockback, Freeze — enough diversity for interesting builds.
 
 ### Phase 3 — Advanced
 Chain Lightning, Explosion, Mark Target — combo enablers.

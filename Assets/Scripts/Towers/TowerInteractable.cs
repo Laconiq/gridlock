@@ -24,7 +24,7 @@ namespace AIWE.Towers
             {
                 return "Tower editor in use";
             }
-            return "E - Edit Tower";
+            return "E - Edit Tower | R - Quick Edit";
         }
 
         public bool CanInteract(ulong clientId)

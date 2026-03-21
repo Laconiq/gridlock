@@ -129,7 +129,8 @@ namespace AIWE.HUD
             var gm = GameManager.Instance;
             bool preparing = gm != null && gm.CurrentState.Value == GameState.Preparing;
 
-            if (!preparing)
+            var radial = RadialMenu.RadialMenuScreen.Instance;
+            if (!preparing || (radial != null && radial.IsOpen))
             {
                 _readyPrompt.style.display = DisplayStyle.None;
                 return;

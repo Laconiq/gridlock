@@ -147,6 +147,7 @@ namespace AIWE.Player
 
             if (_holdTimer >= holdDuration)
             {
+                AIWE.NodeEditor.NodeEditorController.WaitingForLock = true;
                 _currentInteractable.Interact(OwnerClientId);
                 _isHolding = false;
                 _holdTimer = 0f;

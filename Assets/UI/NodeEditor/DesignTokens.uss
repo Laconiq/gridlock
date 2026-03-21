@@ -44,7 +44,7 @@
 
     /* === MODULE CATEGORY COLORS === */
     --color-trigger:            #ff7948;
-    --color-zone:               #8ff5ff;
+    --color-target:               #8ff5ff;
     --color-effect:             #2ff801;
 
     /* === SPACING === */

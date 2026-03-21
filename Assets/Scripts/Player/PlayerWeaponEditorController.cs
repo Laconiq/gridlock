@@ -74,7 +74,10 @@ namespace AIWE.Player
             var screen = NodeEditorScreen.Instance;
             if (screen != null && screen.IsOpen) return;
 
-            _executor?.FireLeftClickRpc();
+            var aim = GetAimDirection();
+            var origin = GetFireOrigin();
+            _executor?.SpawnLocalProjectile(origin, aim, false);
+            _executor?.FireLeftClickRpc(origin, aim);
         }
 
         private void OnAltAttack()
@@ -83,7 +86,21 @@ namespace AIWE.Player
             var screen = NodeEditorScreen.Instance;
             if (screen != null && screen.IsOpen) return;
 
-            _executor?.FireRightClickRpc();
+            var aim = GetAimDirection();
+            var origin = GetFireOrigin();
+            _executor?.SpawnLocalProjectile(origin, aim, true);
+            _executor?.FireRightClickRpc(origin, aim);
+        }
+
+        private Vector3 GetAimDirection()
+        {
+            var cam = Camera.main;
+            return cam != null ? cam.transform.forward : transform.forward;
+        }
+
+        private Vector3 GetFireOrigin()
+        {
+            return _chassis?.FirePoint != null ? _chassis.FirePoint.position : transform.position;
         }
 
         public override void OnDestroy()

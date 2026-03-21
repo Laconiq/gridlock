@@ -1,0 +1,213 @@
+.radial-root {
+    --surface: #0e0e0f;
+    --primary: #8ff5ff;
+    --secondary: #2ff801;
+    --tertiary: #ff7948;
+    --on-surface: #ffffff;
+    --on-surface-variant: #adaaab;
+    --outline-variant: #484849;
+    --surface-container: #19191b;
+    --surface-container-high: #201f21;
+
+    -unity-font-definition: url("project://database/Assets/UI/NodeEditor/Fonts/SpaceGrotesk-Variable.ttf");
+
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.radial-overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-color: transparent;
+    align-items: center;
+    justify-content: center;
+    display: none;
+}
+
+.radial-container {
+    width: 400px;
+    height: 400px;
+    position: relative;
+    background-color: rgba(10, 10, 12, 0.92);
+    border-radius: 9999px;
+}
+
+.radial-center {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    translate: -50% -50%;
+    width: 100px;
+    height: 100px;
+    border-radius: 9999px;
+    background-color: var(--surface-container);
+    border-width: 2px;
+    border-color: var(--outline-variant);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.radial-center__label {
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--on-surface);
+    -unity-text-transform: uppercase;
+}
+
+.radial-center__back {
+    font-size: 8px;
+    letter-spacing: 2px;
+    color: var(--on-surface-variant);
+    background-color: transparent;
+    border-width: 0;
+    margin-top: 4px;
+    display: none;
+}
+
+.radial-center__back:hover {
+    color: var(--primary);
+}
+
+.radial-segments {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.radial-segment {
+    position: absolute;
+    width: 110px;
+    height: 70px;
+    background-color: var(--surface-container-high);
+    border-width: 1px;
+    border-color: var(--outline-variant);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    cursor: link;
+    transition: scale 0.15s ease-out;
+}
+
+.radial-segment:hover {
+    scale: 1.08;
+    border-color: var(--primary);
+}
+
+.radial-segment--trigger {
+    border-left-width: 3px;
+    border-left-color: var(--tertiary);
+}
+
+.radial-segment--zone {
+    border-left-width: 3px;
+    border-left-color: var(--primary);
+}
+
+.radial-segment--effect {
+    border-left-width: 3px;
+    border-left-color: var(--secondary);
+}
+
+.radial-segment__icon {
+    width: 20px;
+    height: 20px;
+    margin-bottom: 4px;
+}
+
+.radial-segment__name {
+    font-size: 8px;
+    letter-spacing: 1px;
+    color: var(--on-surface);
+    -unity-text-align: middle-center;
+    white-space: normal;
+    overflow: hidden;
+}
+
+.radial-add-btn {
+    position: absolute;
+    left: 50%;
+    top: 10%;
+    translate: -50% -50%;
+    width: 44px;
+    height: 44px;
+    border-radius: 9999px;
+    background-color: transparent;
+    border-width: 2px;
+    border-style: dashed;
+    border-color: var(--on-surface-variant);
+    font-size: 22px;
+    color: var(--on-surface-variant);
+    transition: border-color 0.15s, color 0.15s, scale 0.15s;
+}
+
+.radial-add-btn:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    scale: 1.1;
+}
+
+.radial-exit-hint {
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: var(--on-surface-variant);
+    margin-bottom: 12px;
+    -unity-text-align: middle-center;
+    background-color: rgba(10, 10, 12, 0.92);
+    padding: 6px 16px;
+}
+
+.radial-add-popup {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    translate: -50% -50%;
+    width: 280px;
+    max-height: 400px;
+    background-color: var(--surface-container);
+    border-width: 1px;
+    border-color: var(--outline-variant);
+    padding: 16px;
+    display: none;
+    border-left-width: 3px;
+}
+
+.radial-add-popup__title {
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: var(--on-surface-variant);
+    margin-bottom: 12px;
+}
+
+.radial-add-popup__list {
+    flex-direction: column;
+}
+
+.radial-add-popup__item {
+    padding: 8px 12px;
+    margin-bottom: 2px;
+    background-color: transparent;
+    border-width: 0;
+    color: var(--on-surface);
+    font-size: 10px;
+    letter-spacing: 1px;
+    -unity-text-align: middle-left;
+    transition: background-color 0.1s;
+}
+
+.radial-add-popup__item:hover {
+    background-color: var(--surface-container-high);
+}
+
+.radial-add-popup__item--unavailable {
+    opacity: 0.3;
+}

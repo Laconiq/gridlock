@@ -133,7 +133,7 @@ namespace AIWE.NodeEditor.UI
     public class ZoneModuleElement : ModuleElement
     {
         public ZoneModuleElement(string displayName)
-            : base(displayName, "ZONE", "zone")
+            : base(displayName, "TARGET", "zone")
         {
         }
 
