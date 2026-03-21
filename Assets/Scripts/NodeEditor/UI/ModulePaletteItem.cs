@@ -96,8 +96,8 @@ namespace AIWE.NodeEditor.UI
             if (_hasInventory && _count <= 0) return;
             if (_canvas == null || _definition == null) return;
 
-            var screenPos = new Vector2(evt.position.x, evt.position.y);
-            var canvasPos = _canvas.ScreenToCanvasPosition(screenPos);
+            var panelPos = new Vector2(evt.position.x, evt.position.y);
+            var canvasPos = _canvas.PanelToCanvasPosition(panelPos);
             canvasPos.x -= 96f;
             canvasPos.y -= 20f;
 

@@ -171,8 +171,7 @@ namespace AIWE.NodeEditor.UI
             _isDraggingNode = true;
             _nodeDragPointerId = evt.pointerId;
 
-            var cursorPanel = RuntimePanelUtils.ScreenToPanel(
-                _viewport.panel, new Vector2(evt.position.x, evt.position.y));
+            var cursorPanel = (Vector2)evt.position;
 
             var bounds = widget.Root.worldBound;
             bool hasLayout = bounds.width > 1f && bounds.height > 1f;
@@ -206,8 +205,7 @@ namespace AIWE.NodeEditor.UI
         {
             if (!_isDraggingNode || _draggedNode == null) return;
 
-            var cursorPanel = RuntimePanelUtils.ScreenToPanel(
-                _viewport.panel, new Vector2(evt.position.x, evt.position.y));
+            var cursorPanel = (Vector2)evt.position;
             var targetPanel = cursorPanel + _nodeDragOffset;
             var overlayPos = _dragOverlay.WorldToLocal(targetPanel);
 
@@ -233,8 +231,7 @@ namespace AIWE.NodeEditor.UI
             _viewport.ReleasePointer(evt.pointerId);
             _draggedNode.Root.RemoveFromClassList("node--dragging");
 
-            var cursorPanel = RuntimePanelUtils.ScreenToPanel(
-                _viewport.panel, new Vector2(evt.position.x, evt.position.y));
+            var cursorPanel = (Vector2)evt.position;
 
             bool overSidebar = _sidebar != null && _sidebar.worldBound.Contains(cursorPanel);
 
@@ -371,9 +368,7 @@ namespace AIWE.NodeEditor.UI
         {
             if (!_isDraggingPort || _dragSourcePort == null) return;
 
-            var panelPos = RuntimePanelUtils.ScreenToPanel(
-                _viewport.panel, new Vector2(evt.position.x, evt.position.y));
-            var connLocal = _connectionLayer.WorldToLocal(panelPos);
+            var connLocal = _connectionLayer.WorldToLocal(evt.position);
 
             _connectionLayer.SetTempConnection(_dragSourcePort.Element, connLocal, _dragSourcePort.PortColor);
         }
@@ -385,9 +380,7 @@ namespace AIWE.NodeEditor.UI
             _viewport.ReleasePointer(evt.pointerId);
             _connectionLayer.ClearTempConnection();
 
-            var panelPos = RuntimePanelUtils.ScreenToPanel(
-                _viewport.panel, new Vector2(evt.position.x, evt.position.y));
-            var targetPort = FindPortAtPanelPosition(panelPos);
+            var targetPort = FindPortAtPanelPosition(evt.position);
 
             if (targetPort != null && targetPort != _dragSourcePort &&
                 targetPort.ParentNode != _dragSourcePort.ParentNode)
@@ -522,9 +515,8 @@ namespace AIWE.NodeEditor.UI
             evt.StopPropagation();
         }
 
-        public Vector2 ScreenToCanvasPosition(Vector2 screenPos)
+        public Vector2 PanelToCanvasPosition(Vector2 panelPos)
         {
-            var panelPos = RuntimePanelUtils.ScreenToPanel(_viewport.panel, screenPos);
             return _content.WorldToLocal(panelPos);
         }
 
