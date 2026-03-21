@@ -24,9 +24,7 @@ namespace AIWE.Modules.Effects
             {
                 if (target == null || !target.IsAlive || target.Transform == null) continue;
 
-                var direction = Owner?.FirePoint != null
-                    ? Owner.FirePoint.forward
-                    : (target.Position - origin).normalized;
+                var direction = (target.Position - origin).normalized;
 
                 var go = Object.Instantiate(projectilePrefab, origin, Quaternion.LookRotation(direction));
 
@@ -53,7 +51,8 @@ namespace AIWE.Modules.Effects
             {
                 damage = damage,
                 speed = speed,
-                projectilePrefab = projectilePrefab
+                projectilePrefab = projectilePrefab,
+                cooldown = cooldown
             };
         }
     }

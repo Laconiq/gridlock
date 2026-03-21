@@ -116,9 +116,22 @@ namespace AIWE.Towers
         {
             if (!IsServer || !_initialized) return;
 
+            float dt = Time.deltaTime;
             foreach (var chain in _triggerChains)
             {
-                chain.Trigger.Tick(Time.deltaTime);
+                chain.Trigger.Tick(dt);
+                TickCooldowns(chain.ZoneChains, dt);
+            }
+        }
+
+        private void TickCooldowns(List<ZoneChain> zoneChains, float dt)
+        {
+            foreach (var zc in zoneChains)
+            {
+                zc.Zone.TickCooldown(dt);
+                foreach (var eff in zc.Effects)
+                    eff.TickCooldown(dt);
+                TickCooldowns(zc.ChainedZones, dt);
             }
         }
 
@@ -137,11 +150,23 @@ namespace AIWE.Towers
 
         private void ExecuteZoneChain(ZoneChain zoneChain, Vector3 origin, float range)
         {
+            if (!zoneChain.Zone.IsReady) return;
+
             var targets = zoneChain.Zone.SelectTargets(origin, range);
+            zoneChain.Zone.StartCooldown();
+
+            if (targets.Count > 0 && _chassis?.FirePoint != null)
+            {
+                var lookDir = (targets[0].Position - origin).normalized;
+                if (lookDir.sqrMagnitude > 0.01f)
+                    _chassis.FirePoint.rotation = Quaternion.LookRotation(lookDir);
+            }
 
             foreach (var effect in zoneChain.Effects)
             {
+                if (!effect.IsReady) continue;
                 effect.Execute(targets, origin);
+                effect.StartCooldown();
             }
 
             foreach (var chained in zoneChain.ChainedZones)
