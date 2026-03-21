@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using AIWE.Modules;
 using AIWE.NodeEditor.Data;
+using AIWE.UI;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -58,7 +59,9 @@ namespace AIWE.NodeEditor.UI
                 canvasArea.Add(_content);
             }
 
-            _gridBackground = new GridBackground();
+            var gridColor = DesignConstants.Primary;
+            gridColor.a = 0.05f;
+            _gridBackground = new GridBackground(color: gridColor);
             canvasArea.Insert(0, _gridBackground);
 
             _connectionLayer = new ConnectionLayer();
@@ -560,68 +563,5 @@ namespace AIWE.NodeEditor.UI
             _minimap?.Refresh(_nodeWidgets, _panOffset, _viewport.contentRect, _zoomLevel);
         }
 
-        // === Grid Background ===
-
-        public class GridBackground : VisualElement
-        {
-            private const float GridSize = 40f;
-            private Vector2 _offset;
-            private float _zoom = 1f;
-
-            public GridBackground()
-            {
-                generateVisualContent += OnGenerateVisualContent;
-                style.position = Position.Absolute;
-                style.left = 0;
-                style.top = 0;
-                style.right = 0;
-                style.bottom = 0;
-                pickingMode = PickingMode.Ignore;
-            }
-
-            public void UpdateTransform(Vector2 offset, float zoom = 1f)
-            {
-                _offset = offset;
-                _zoom = zoom;
-                MarkDirtyRepaint();
-            }
-
-            private void OnGenerateVisualContent(MeshGenerationContext mgc)
-            {
-                var rect = contentRect;
-                if (rect.width <= 0 || rect.height <= 0) return;
-
-                var painter = mgc.painter2D;
-                var gridColor = DesignConstants.Primary;
-                gridColor.a = 0.05f;
-                painter.strokeColor = gridColor;
-                painter.lineWidth = 1f;
-
-                float scaledGrid = GridSize * _zoom;
-                if (scaledGrid < 4f) return;
-
-                float startX = _offset.x % scaledGrid;
-                if (startX < 0) startX += scaledGrid;
-
-                float startY = _offset.y % scaledGrid;
-                if (startY < 0) startY += scaledGrid;
-
-                for (float x = startX; x < rect.width; x += scaledGrid)
-                {
-                    painter.BeginPath();
-                    painter.MoveTo(new Vector2(x, 0));
-                    painter.LineTo(new Vector2(x, rect.height));
-                    painter.Stroke();
-                }
-
-                for (float y = startY; y < rect.height; y += scaledGrid)
-                {
-                    painter.BeginPath();
-                    painter.MoveTo(new Vector2(0, y));
-                    painter.LineTo(new Vector2(rect.width, y));
-                    painter.Stroke();
-                }
-            }
-        }
     }
 }
