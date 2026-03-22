@@ -42,6 +42,11 @@ namespace AIWE.LevelDesign
             }
         }
 
+        public void ResetBuiltState()
+        {
+            _built = false;
+        }
+
         private void BuildLevel()
         {
             SpawnTowers();

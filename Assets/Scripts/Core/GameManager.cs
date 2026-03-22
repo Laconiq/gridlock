@@ -1,6 +1,9 @@
 using AIWE.Enemies;
+using AIWE.LevelDesign;
 using AIWE.Loot;
+using AIWE.Network;
 using AIWE.Player;
+using AIWE.Towers;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -89,6 +92,29 @@ namespace AIWE.Core
                 if (pickup.NetworkObject != null && pickup.NetworkObject.IsSpawned)
                     pickup.NetworkObject.Despawn(true);
             }
+
+            foreach (var tower in FindObjectsByType<TowerChassis>(FindObjectsInactive.Exclude))
+            {
+                if (tower.NetworkObject != null && tower.NetworkObject.IsSpawned)
+                    tower.NetworkObject.Despawn(true);
+            }
+
+            var linker = FindAnyObjectByType<LDtkLevelLinker>();
+            if (linker != null) linker.ResetBuiltState();
+
+            foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
+            {
+                if (client.PlayerObject == null) continue;
+
+                var inventory = client.PlayerObject.GetComponent<PlayerInventory>();
+                if (inventory != null) inventory.ResetToDefault();
+
+                var weapon = client.PlayerObject.GetComponent<PlayerWeaponChassis>();
+                if (weapon != null) weapon.ResetToDefault();
+            }
+
+            var lockManager = ServiceLocator.Get<EditorLockManager>();
+            if (lockManager != null) lockManager.ForceReleaseLock();
 
             var wm = FindAnyObjectByType<WaveManager>();
             wm?.ResetWaves();
