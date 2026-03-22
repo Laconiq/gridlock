@@ -13,7 +13,7 @@ namespace AIWE.AI
         [OnOpenAsset]
         private static bool OnOpenAsset(int instanceID, int line)
         {
-            var obj = EditorUtility.EntityIdToObject(instanceID);
+            var obj = EditorUtility.EntityIdToObject(EntityId.FromULong((ulong)instanceID));
             if (obj is ThreatCalculatorConfig config)
             {
                 Open(config);
