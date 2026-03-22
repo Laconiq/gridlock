@@ -1,8 +1,10 @@
 using System;
+using AIWE.AI;
 using AIWE.Combat;
 using AIWE.Interfaces;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.AI;
 
 namespace AIWE.Enemies
 {
@@ -10,48 +12,87 @@ namespace AIWE.Enemies
     {
         [SerializeField] private float moveSpeed = 3f;
 
-        private readonly NetworkVariable<Vector3> _targetPosition = new();
+        private readonly NetworkVariable<byte> _aiState = new();
         private EnemyHealth _health;
         private StatusEffectManager _statusEffects;
+        private NavMeshAgent _agent;
 
         public event Action OnReachedObjective;
 
         public Vector3 Position => transform.position;
         public bool IsAlive => _health != null && _health.IsAlive;
         public Transform Transform => transform;
+        public float MoveSpeed => moveSpeed;
+        public EnemyAIState AIState => (EnemyAIState)_aiState.Value;
 
         private void Awake()
         {
             _health = GetComponent<EnemyHealth>();
             _statusEffects = GetComponent<StatusEffectManager>();
+            _agent = GetComponent<NavMeshAgent>();
         }
 
-        public void Setup(EnemyDefinition definition, Vector3 target)
+        public override void OnNetworkSpawn()
+        {
+            base.OnNetworkSpawn();
+
+            if (!IsServer && _agent != null)
+                _agent.enabled = false;
+        }
+
+        public void Setup(EnemyDefinition definition)
         {
             if (!IsServer) return;
 
             moveSpeed = definition.moveSpeed;
-            _targetPosition.Value = target;
             transform.localScale = Vector3.one * definition.scale;
+
+            if (_agent != null)
+            {
+                _agent.speed = moveSpeed;
+                _agent.updateRotation = true;
+            }
         }
 
         private void Update()
         {
-            if (!IsServer) return;
-            if (!IsAlive) return;
+            if (!IsServer || !IsAlive || _agent == null || !_agent.enabled) return;
 
-            var speed = moveSpeed;
+            float speed = moveSpeed;
             if (_statusEffects != null)
                 speed *= _statusEffects.SpeedMultiplier;
 
-            var direction = (_targetPosition.Value - transform.position).normalized;
-            transform.position += direction * (speed * Time.deltaTime);
+            _agent.speed = speed;
+        }
 
-            if (Vector3.Distance(transform.position, _targetPosition.Value) < 0.5f)
-            {
-                OnReachedObjective?.Invoke();
-                NetworkObject.Despawn();
-            }
+        public void SetDestination(Vector3 destination)
+        {
+            if (_agent != null && _agent.enabled && _agent.isOnNavMesh)
+                _agent.SetDestination(destination);
+        }
+
+        public void StopMovement()
+        {
+            if (_agent != null && _agent.enabled && _agent.isOnNavMesh)
+                _agent.ResetPath();
+        }
+
+        public bool HasReachedDestination(float threshold = 0.5f)
+        {
+            if (_agent == null || !_agent.enabled || !_agent.isOnNavMesh) return false;
+            return !_agent.pathPending && _agent.remainingDistance <= threshold;
+        }
+
+        public void SetAIState(EnemyAIState state)
+        {
+            if (IsServer)
+                _aiState.Value = (byte)state;
+        }
+
+        public void NotifyReachedObjective()
+        {
+            OnReachedObjective?.Invoke();
+            NetworkObject.Despawn();
         }
     }
 }

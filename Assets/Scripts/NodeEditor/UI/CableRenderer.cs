@@ -59,7 +59,7 @@ namespace AIWE.NodeEditor.UI
             MarkDirtyRepaint();
         }
 
-        public void Clear()
+        public new void Clear()
         {
             _cables.Clear();
             MarkDirtyRepaint();

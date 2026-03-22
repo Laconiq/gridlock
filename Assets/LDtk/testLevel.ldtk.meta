@@ -44,6 +44,8 @@ ScriptedImporter:
   _enumNamespace: 
   _useLayerCustomSortingOrders: 0
   _layerCustomSortingOrders:
+  - _ldtkLayerName: EnemyRoute
+    _ldtkLayerOrder: 0
   - _ldtkLayerName: Entities
     _ldtkLayerOrder: -1
   - _ldtkLayerName: Terrain

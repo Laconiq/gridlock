@@ -24,7 +24,7 @@ namespace AIWE.LevelDesign.EditorScripts
                 if (mapping != null)
                     BuildTerrain(level, mapping);
 
-                SwizzleEntities(level);
+                SwizzleEntities(level, mapping);
                 CleanUpVisuals(level);
             }
         }
@@ -197,24 +197,48 @@ namespace AIWE.LevelDesign.EditorScripts
             }
         }
 
-        private void SwizzleEntities(LDtkComponentLevel level)
+        private void SwizzleEntities(LDtkComponentLevel level, TerrainMapping mapping)
         {
+            LDtkComponentLayerIntGridValues intGrid = null;
+            int gridW = 0, gridH = 0;
+
+            foreach (var layer in level.GetComponentsInChildren<LDtkComponentLayer>())
+            {
+                if (layer.Identifier != TerrainLayerName) continue;
+                intGrid = layer.IntGrid;
+                gridW = layer.CSize.x;
+                gridH = layer.CSize.y;
+                break;
+            }
+
             int count = 0;
             foreach (var entity in level.GetComponentsInChildren<LDtkComponentEntity>())
             {
-                // Entities were placed by LDtkToUnity in 2D: (x, y, 0).
-                // We've flattened the hierarchy, so localPosition = the 2D position.
-                // Transpose: X→X, Y→Z, set Y to floor height.
-                // Snap to grid center (nearest integer + 0.5) for clean alignment.
                 var pos = entity.transform.localPosition;
                 float snappedX = Mathf.Floor(pos.x) + 0.5f;
                 float snappedZ = Mathf.Floor(pos.y) + 0.5f;
-                entity.transform.localPosition = new Vector3(snappedX, 0.5f, snappedZ);
+
+                float entityY = 0.5f;
+
+                if (intGrid != null && mapping != null)
+                {
+                    int gx = Mathf.FloorToInt(pos.x);
+                    int gy = Mathf.FloorToInt(pos.y);
+                    if (gx >= 0 && gx < gridW && gy >= 0 && gy < gridH)
+                    {
+                        int value = intGrid.GetValue(new Vector3Int(gx, gy, 0));
+                        var entry = mapping.GetEntry(value);
+                        if (entry != null)
+                            entityY = entry.Value.yOffset + entry.Value.scale.y + 0.5f;
+                    }
+                }
+
+                entity.transform.localPosition = new Vector3(snappedX, entityY, snappedZ);
                 count++;
             }
 
             if (count > 0)
-                Debug.Log($"[LDtkPostprocessor] Swizzled {count} entities XY→XZ");
+                Debug.Log($"[LDtkPostprocessor] Swizzled {count} entities XY→XZ with terrain height");
         }
 
         private void CleanUpVisuals(LDtkComponentLevel level)

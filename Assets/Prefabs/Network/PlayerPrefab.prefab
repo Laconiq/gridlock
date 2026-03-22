@@ -10482,6 +10482,8 @@ GameObject:
   - component: {fileID: 2384165349057553258}
   - component: {fileID: 7190159804927531575}
   - component: {fileID: 644552361602483174}
+  - component: {fileID: 8960615023472413983}
+  - component: {fileID: 4561592705923709995}
   m_Layer: 0
   m_Name: PlayerPrefab
   m_TagString: Untagged
@@ -10879,6 +10881,31 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AIWE.RadialMenu.RadialMenuController
   ShowTopMostFoldoutHeaderGroup: 1
+--- !u!114 &8960615023472413983
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7362235884474108154}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 423eb650ba1ce01409ac64cccdba5e9e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AIWE.Player.PlayerTargetable
+--- !u!114 &4561592705923709995
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7362235884474108154}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5e19c250e048cec4693cb52ca877ac1c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AIWE.AI.ThreatSource
+  decayFactor: 0.85
 --- !u!1 &8724841465568502037
 GameObject:
   m_ObjectHideFlags: 0

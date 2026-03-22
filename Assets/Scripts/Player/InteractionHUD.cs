@@ -14,7 +14,6 @@ namespace AIWE.Player
         private Label _actionText;
         private Label _holdHint;
 
-        private bool _isShowing;
         private bool _canInteract;
 
         private void Awake()
@@ -40,7 +39,6 @@ namespace AIWE.Player
 
         public void Show(string text, bool canInteract)
         {
-            _isShowing = true;
             _canInteract = canInteract;
 
             _prompt?.AddToClassList("interaction__prompt--visible");
@@ -71,7 +69,6 @@ namespace AIWE.Player
 
         public void Hide()
         {
-            _isShowing = false;
             _prompt?.RemoveFromClassList("interaction__prompt--visible");
             _holdHint?.RemoveFromClassList("interaction__hold-hint--visible");
             SetProgress(0f);

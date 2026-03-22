@@ -17,6 +17,8 @@ GameObject:
   - component: {fileID: 3204314648888192491}
   - component: {fileID: 1850341928324409245}
   - component: {fileID: 7300075218918751568}
+  - component: {fileID: 4987562410803711187}
+  - component: {fileID: 8011745337953390265}
   m_Layer: 0
   m_Name: BasicEnemy
   m_TagString: Untagged
@@ -509,6 +511,50 @@ MonoBehaviour:
         AllowAdditivePlays: 0
         DetermineScaleOnPlay: 0
         DestinationScale: 2
+--- !u!195 &4987562410803711187
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2552856530296388220}
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 0.5
+  m_Speed: 0
+  m_Acceleration: 40
+  avoidancePriority: 50
+  m_AngularSpeed: 720
+  m_StoppingDistance: 0.3
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 0
+  m_AutoRepath: 1
+  m_Height: 2
+  m_BaseOffset: 1
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 4
+--- !u!114 &8011745337953390265
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2552856530296388220}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4bf22a04e49dd15499809aad9709f4b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AIWE.AI.EnemyAI
+  detectionRadius: 12
+  threatEvalInterval: 0.5
+  leashRadius: 15
+  maxRouteDistance: 20
+  combatTimeout: 5
+  waypointReachDistance: 1.5
+  meleeRange: 1.5
+  attackCooldown: 1
+  attackDamage: 10
+  threatConfig: {fileID: 11400000, guid: 358b6e8b14307d2479f01f1c3b271b77, type: 2}
 --- !u!1001 &427881115079842295
 PrefabInstance:
   m_ObjectHideFlags: 0

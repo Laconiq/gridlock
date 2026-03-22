@@ -495,10 +495,91 @@ L'arme du joueur = châssis mobile avec `Primary Fire` et `Secondary Fire`, mêm
 - La progression = les modules acquis pendant la run et leur agencement
 - À la mort → reset
 
+## IA ennemie et système d'aggro
+
+### Comportement de base
+
+Chaque ennemi suit une **state machine** à 4 états :
+
+```
+FollowRoute → ChaseTarget → Attack → ReturnToRoute
+     ↑              ↓           ↓           │
+     └──────────────┴───────────┴───────────┘
+                  (de-aggro)
+```
+
+| État | Comportement |
+|------|-------------|
+| **FollowRoute** | Suit les waypoints de sa route vers l'objectif. Évalue les menaces périodiquement. |
+| **ChaseTarget** | Poursuit la cible la plus menaçante. Réévalue pour potentiellement switch de cible. |
+| **Attack** | Au corps-à-corps. Frappe à intervalle régulier. Repasse en chase si la cible s'éloigne. |
+| **ReturnToRoute** | Retourne au waypoint le plus proche de sa route. Peut re-aggro en chemin. |
+
+### Système de menace (Threat)
+
+L'ennemi ne cible pas le joueur le plus proche ni le premier vu — il évalue un **score de menace** pondéré pour chaque cible potentielle (joueurs et tours avec `ThreatSource`).
+
+**Facteurs du score :**
+
+| Facteur | Poids par défaut | Description |
+|---------|-----------------|-------------|
+| **Distance** | 1.0 | Plus la cible est proche, plus le score est élevé |
+| **Ligne de vue** | 0.5 | Score plein si visible, réduit si obstrué |
+| **DPS récent** | 0.8 | Les cibles qui font beaucoup de dégâts attirent plus l'aggro |
+| **Crowd** | 0.3 | Les cibles déjà ciblées par d'autres ennemis ont un score réduit (répartition naturelle) |
+
+Le score final est la moyenne pondérée de ces 4 facteurs. Si le meilleur score dépasse le **seuil d'aggro** (défaut : 0.3), l'ennemi engage la cible.
+
+**Implications gameplay :**
+- Un joueur qui fait beaucoup de DPS attire l'aggro → risque/récompense
+- Les ennemis se répartissent naturellement entre les cibles (crowd factor)
+- Se cacher derrière un mur réduit le score LoS → positionnement compte
+- Les tours avec `ThreatSource` attirent aussi l'aggro si elles font des dégâts
+
+### Changement de cible en combat
+
+Pendant la poursuite, l'ennemi **réévalue ses cibles** toutes les 1.5 secondes (plus lent qu'en route pour éviter le flip-flop). Il ne switch que si le nouveau candidat score **+0.3 au-dessus** de la cible actuelle.
+
+**Exemples de switch :**
+- Le joueur A arrête de tirer → son score DPS chute → l'ennemi switch sur le joueur B qui tire
+- Un joueur se rapproche pour heal un teammate → la proximité fait monter son score → l'ennemi switch
+- Deux joueurs font le même DPS mais l'un est déjà ciblé par 3 ennemis → le crowd factor favorise l'autre
+
+### De-aggro
+
+L'ennemi abandonne sa cible et retourne à sa route si :
+- La cible meurt
+- La cible sort du **rayon de leash** (défaut : 15m)
+- L'ennemi est trop loin de sa route (défaut : 20m)
+- L'ennemi n'a pas touché sa cible depuis **5 secondes** (combat timeout)
+
+### Pathing
+
+Les ennemis suivent des routes prédéfinies (waypoints LDtk). Chaque spawner est lié à une route via son `wave_group` (mapping 1:1 avec `route_id`).
+
+- **NavMesh** bakée au runtime (serveur uniquement)
+- Le NavMeshAgent est désactivé côté client (pas d'AI sur les clients)
+- Toutes les décisions d'aggro sont **server-authoritative**
+
+### Paramètres par type d'ennemi (`EnemyDefinition`)
+
+| Paramètre | Rôle |
+|-----------|------|
+| `detectionRadius` | Rayon de détection des menaces |
+| `leashRadius` | Distance max avant de-aggro |
+| `moveSpeed` | Vitesse de déplacement |
+| `attackDamage` | Dégâts par coup |
+| `attackCooldown` | Temps entre deux coups |
+| `attackRange` | Portée melee |
+| `maxHP` | Points de vie |
+| `scale` | Taille visuelle |
+
 ## Décisions prises
 
 - Les ennemis ne peuvent pas endommager/désactiver les modules d'une tourelle
-- Pas d'IA adaptative
+- L'aggro est basé sur un score de menace pondéré (pas de table de haine fixe)
+- Les ennemis peuvent switch de cible en combat si une menace significativement plus haute apparaît
+- Toutes les décisions d'IA sont server-authoritative
 - L'éditeur de nodes est accessible tout le temps
 - Pas de limite stricte de tourelles, limitée par le coût en ressources
 - Pas de roguelite / pas de meta-progression

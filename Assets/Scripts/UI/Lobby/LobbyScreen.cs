@@ -65,7 +65,6 @@ namespace AIWE.UI.Lobby
             {
                 if (evt.keyCode == KeyCode.Return || evt.keyCode == KeyCode.KeypadEnter)
                 {
-                    evt.PreventDefault();
                     evt.StopPropagation();
                     OnJoinClicked();
                 }

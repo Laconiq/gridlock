@@ -200,7 +200,7 @@ namespace AIWE.NodeEditor.UI
 
             widget.Root.style.transformOrigin = new StyleTransformOrigin(new TransformOrigin(0, 0, 0));
             float dragScale = _zoomLevel * 1.04f;
-            widget.Root.transform.scale = new Vector3(dragScale, dragScale, 1f);
+            widget.Root.style.scale = new StyleScale(new Scale(new Vector3(dragScale, dragScale, 1f)));
 
             var overlayPos = _dragOverlay.WorldToLocal(targetPanel);
             widget.Root.style.left = overlayPos.x;
@@ -289,7 +289,7 @@ namespace AIWE.NodeEditor.UI
             if (_draggedNode == null) return;
             var nodeWorldPos = cursorPanel + _nodeDragOffset;
             _draggedNode.Root.RemoveFromHierarchy();
-            _draggedNode.Root.transform.scale = Vector3.one;
+            _draggedNode.Root.style.scale = new StyleScale(new Scale(Vector3.one));
             _draggedNode.Root.style.transformOrigin = StyleKeyword.Null;
             _content.Add(_draggedNode.Root);
             var contentPos = _content.WorldToLocal(nodeWorldPos);
@@ -554,8 +554,8 @@ namespace AIWE.NodeEditor.UI
 
         private void ApplyContentTransform()
         {
-            _content.transform.position = new Vector3(_panOffset.x, _panOffset.y, 0);
-            _content.transform.scale = new Vector3(_zoomLevel, _zoomLevel, 1f);
+            _content.style.translate = new StyleTranslate(new Translate(_panOffset.x, _panOffset.y, 0));
+            _content.style.scale = new StyleScale(new Scale(new Vector3(_zoomLevel, _zoomLevel, 1f)));
         }
 
         public Vector2 PanelToCanvasPosition(Vector2 panelPos)

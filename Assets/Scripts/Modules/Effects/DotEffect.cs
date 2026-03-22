@@ -27,7 +27,8 @@ namespace AIWE.Modules.Effects
                         Type = StatusEffectType.DamageOverTime,
                         Value = damagePerTick,
                         Duration = duration,
-                        TickInterval = tickInterval
+                        TickInterval = tickInterval,
+                        SourceId = OwnerNetworkObjectId
                     });
                 }
             }
