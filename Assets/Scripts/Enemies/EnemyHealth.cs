@@ -1,4 +1,5 @@
 using System;
+using AIWE.AI;
 using AIWE.Combat;
 using AIWE.Interfaces;
 using AIWE.Loot;
@@ -59,6 +60,8 @@ namespace AIWE.Enemies
                 amount *= _statusEffects.VulnerabilityMultiplier;
 
             _currentHP.Value = Mathf.Max(0f, _currentHP.Value - amount);
+
+            ThreatSource.ReportDamageFromSource(damage.SourceId, amount);
 
             if (_currentHP.Value <= 0f)
             {
