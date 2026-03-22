@@ -23,8 +23,11 @@ namespace AIWE.HUD
         private HUDSquadFeed _squadFeed;
         private HUDEventLog _eventLog;
         private HUDSystemInfo _systemInfo;
+        private HUDWaveInfo _waveInfo;
 
         private Label _readyPrompt;
+        private VisualElement _spectateOverlay;
+        private Label _spectateTarget;
         private int _frameCounter;
 
         private void Awake()
@@ -65,6 +68,16 @@ namespace AIWE.HUD
                 _root.Q<Label>("sys-version"),
                 _root.Q<Label>("sys-meta")
             );
+
+            _waveInfo = new HUDWaveInfo(
+                _root.Q<Label>("wave-label"),
+                _root.Q<Label>("wave-enemies"),
+                _root.Q("objective-hp-fill"),
+                _root.Q<Label>("objective-hp-pct")
+            );
+
+            _spectateOverlay = _root.Q("spectate-overlay");
+            _spectateTarget = _root.Q<Label>("spectate-target");
 
             StartCoroutine(WaitForLocalPlayer());
         }
@@ -109,13 +122,14 @@ namespace AIWE.HUD
 
         private void Update()
         {
-            int phase = _frameCounter % 3;
+            int phase = _frameCounter % 4;
 
             switch (phase)
             {
                 case 0: _playerStatus?.Refresh(); break;
                 case 1: _squadFeed?.Refresh(); break;
                 case 2: _systemInfo?.Refresh(); break;
+                case 3: _waveInfo?.Refresh(); break;
             }
 
             UpdateReadyPrompt();
@@ -142,6 +156,25 @@ namespace AIWE.HUD
 
             _readyPrompt.style.display = DisplayStyle.Flex;
             _readyPrompt.text = selfReady ? "WAITING FOR SQUAD..." : "PRESS [F] TO READY UP";
+        }
+
+        public void ShowSpectateOverlay(string playerName)
+        {
+            if (_spectateOverlay == null) return;
+            _spectateOverlay.style.display = DisplayStyle.Flex;
+            UpdateSpectateTarget(playerName);
+        }
+
+        public void HideSpectateOverlay()
+        {
+            if (_spectateOverlay != null)
+                _spectateOverlay.style.display = DisplayStyle.None;
+        }
+
+        public void UpdateSpectateTarget(string name)
+        {
+            if (_spectateTarget != null)
+                _spectateTarget.text = $"SPECTATING: {name}";
         }
 
         public void SetVisible(bool visible)

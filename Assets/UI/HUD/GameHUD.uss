@@ -74,6 +74,125 @@
     border-top-width: 0;
 }
 
+/* === WAVE INFO (top-center) === */
+.hud__wave-info {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 32px;
+    align-items: center;
+    flex-direction: column;
+}
+
+.hud__wave-label {
+    font-size: 14px;
+    -unity-font-style: bold;
+    letter-spacing: 6px;
+    color: var(--primary);
+    text-shadow: 0 0 8px rgba(143, 245, 255, 0.6);
+    -unity-text-align: middle-center;
+    text-transform: uppercase;
+}
+
+.hud__wave-enemies {
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: var(--on-surface-variant);
+    -unity-text-align: middle-center;
+    margin-top: 2px;
+    text-transform: uppercase;
+}
+
+.hud__objective-section {
+    margin-top: 8px;
+    align-items: center;
+    flex-direction: column;
+}
+
+.hud__objective-title {
+    font-size: 7px;
+    letter-spacing: 3px;
+    color: var(--on-surface-variant);
+    opacity: 0.5;
+    -unity-text-align: middle-center;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+}
+
+.hud__objective-bar-track {
+    width: 160px;
+    height: 4px;
+    background-color: var(--surface-container-highest);
+}
+
+.hud__objective-bar-fill {
+    height: 100%;
+    width: 100%;
+    background-color: var(--hud-hp-color);
+    transition: width 0.2s ease-out;
+}
+
+.hud__objective-bar-fill--low {
+    background-color: var(--hud-hp-low);
+}
+
+.hud__objective-bar-fill--critical {
+    background-color: var(--hud-hp-critical);
+}
+
+.hud__objective-pct {
+    font-size: 8px;
+    letter-spacing: 2px;
+    color: var(--on-surface-variant);
+    -unity-text-align: middle-center;
+    margin-top: 2px;
+    text-transform: uppercase;
+}
+
+/* === SPECTATE OVERLAY (bottom-center) === */
+.hud__spectate-overlay {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 64px;
+    align-items: center;
+    flex-direction: column;
+    background-color: rgba(14, 14, 15, 0.6);
+    padding: 16px 24px;
+    align-self: center;
+    max-width: 360px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.hud__spectate-target {
+    font-size: 12px;
+    -unity-font-style: bold;
+    letter-spacing: 4px;
+    color: var(--primary);
+    -unity-text-align: middle-center;
+    text-transform: uppercase;
+}
+
+.hud__spectate-respawn {
+    font-size: 8px;
+    letter-spacing: 3px;
+    color: var(--on-surface-variant);
+    -unity-text-align: middle-center;
+    margin-top: 6px;
+    text-transform: uppercase;
+}
+
+.hud__spectate-hint {
+    font-size: 8px;
+    letter-spacing: 2px;
+    color: var(--on-surface-variant);
+    opacity: 0.5;
+    -unity-text-align: middle-center;
+    margin-top: 4px;
+    text-transform: uppercase;
+}
+
 /* === TOP ROW === */
 .hud__top-row {
     flex-direction: row;
