@@ -64,6 +64,9 @@
             <ui:Label name="ready-prompt" text="PRESS [F] TO READY UP" class="hud__ready-prompt" picking-mode="Ignore" />
         </ui:VisualElement>
 
+        <!-- Center: wave announcement -->
+        <ui:Label name="announcement-label" class="hud__announcement" picking-mode="Ignore" style="display: none;" />
+
         <!-- Bottom row -->
         <ui:VisualElement class="hud__bottom-row" picking-mode="Ignore">
 

@@ -467,3 +467,19 @@
     opacity: 0.5;
 }
 
+/* === WAVE ANNOUNCEMENT (center) === */
+.hud__announcement {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 40%;
+    translate: 0 -50%;
+    font-size: 48px;
+    color: var(--primary);
+    letter-spacing: 8px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    text-shadow: 0 0 16px rgba(143, 245, 255, 0.8);
+    text-transform: uppercase;
+}
+

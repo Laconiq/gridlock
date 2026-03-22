@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using AIWE.HUD;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -8,9 +10,13 @@ namespace AIWE.Core
     {
         public static ReadyManager Instance { get; private set; }
 
+        [SerializeField] private float countdownDuration = 3f;
+
         private readonly NetworkVariable<int> _readyBitmask = new(0);
+        private bool _countingDown;
 
         public event Action OnReadyStateChanged;
+        public bool IsCountingDown => _countingDown;
 
         private void Awake()
         {
@@ -59,6 +65,7 @@ namespace AIWE.Core
         public void ToggleReadyServerRpc(RpcParams rpcParams = default)
         {
             if (GameManager.Instance?.CurrentState.Value != GameState.Preparing) return;
+            if (_countingDown) return;
 
             var clientId = rpcParams.Receive.SenderClientId;
             var index = GetClientIndex(clientId);
@@ -67,7 +74,38 @@ namespace AIWE.Core
             _readyBitmask.Value ^= 1 << index;
 
             if (AreAllPlayersReady())
-                GameManager.Instance.SetState(GameState.Wave);
+                StartCoroutine(CountdownAndStartWave());
+        }
+
+        private IEnumerator CountdownAndStartWave()
+        {
+            _countingDown = true;
+            var remaining = Mathf.CeilToInt(countdownDuration);
+
+            for (var i = remaining; i > 0; i--)
+            {
+                ShowAnnouncementClientRpc($"DEPLOYING_IN::{i}");
+                yield return new WaitForSeconds(1f);
+            }
+
+            ShowAnnouncementClientRpc("ENGAGE");
+            yield return new WaitForSeconds(0.5f);
+            HideAnnouncementClientRpc();
+
+            GameManager.Instance.SetState(GameState.Wave);
+            _countingDown = false;
+        }
+
+        [Rpc(SendTo.ClientsAndHost)]
+        private void ShowAnnouncementClientRpc(string text)
+        {
+            GameHUD.Instance?.ShowAnnouncement(text);
+        }
+
+        [Rpc(SendTo.ClientsAndHost)]
+        private void HideAnnouncementClientRpc()
+        {
+            GameHUD.Instance?.HideAnnouncement();
         }
 
         public bool IsPlayerReady(ulong clientId)
