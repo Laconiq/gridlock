@@ -27,7 +27,7 @@ AIWE is a **cooperative FPS Tower Defense** (2-4 players) built in Unity 6 (6000
 ## Code Style
 
 - **No superfluous comments.** Only comment to explain *why* something non-obvious is done. The code should be self-documenting.
-- **No Editor scripts.** Do not create scripts under `Assets/Scripts/Editor/`. Use ScriptableObjects, assets, or MCP tooling instead.
+- **No custom Inspector scripts.** Do not create custom editors, property drawers, or Inspector scripts — use Odin attributes and ScriptableObjects instead. Exceptions: import postprocessors (`LDtkLevelPostprocessor`) and `#if UNITY_EDITOR`-guarded editor tools (`ThreatScenarioWindow`) are allowed when they serve the pipeline.
 - **Module system uses `[SerializeReference]` + Odin.** Module definitions use `[SerializeReference, ListDrawerSettings, InlineProperty] List<T>` for concrete implementations (DarkTales pattern). The SO holds templates, `CreateInstance()` clones them at runtime. No string-based factory dispatch.
 - **All gameplay values are `[SerializeField]`** for live Inspector tuning. No magic numbers in code.
 - **UI colors use design tokens.** USS uses `var(--token)` from `DesignTokens.uss`. C# uses `DesignConstants` static fields. Never hardcode hex colors.
@@ -206,13 +206,47 @@ PlayerInteraction (raycast) → IInteractable found (TowerInteractable)
 
 ### ServiceLocator
 
-Static dictionary for global singletons. Registered: `GameManager`, `NetworkBootstrap`, `EditorLockManager`.
+Static dictionary for global singletons. Registered: `GameManager`, `NetworkBootstrap`, `EditorLockManager`, `RouteManager`.
 
 ```csharp
 ServiceLocator.Register<T>(instance);  // in Awake
 ServiceLocator.Get<T>();               // anywhere
 ServiceLocator.Unregister<T>();        // in OnDestroy
 ```
+
+### Enemy AI system
+
+Server-only state machine (`EnemyAI`) with threat-based aggro. All decisions run on the server; clients just receive `NetworkVariable<byte> _aiState`.
+
+**State machine:** `FollowRoute → ChaseTarget → Attack → ReturnToRoute`
+
+**Threat evaluation** (in `ThreatCalculator`, called from `EnemyAI`):
+- `ThreatSource` components on players/towers track recent DPS (exponential decay)
+- Static `ThreatSource.All` registry (HashSet) for O(1) lookup — no `FindObjectsByType`
+- Score = weighted average of distance, line-of-sight, DPS, crowd factor (how many enemies already target this)
+- Config via `ThreatCalculatorConfig` ScriptableObject (weights, thresholds, LoS layer mask)
+- `EnemyTargetRegistry` tracks how many enemies target each `ITargetable` (crowd avoidance)
+
+**Pathing:**
+- `RouteManager` (ServiceLocator singleton) builds routes from `EnemyPathMarker` waypoints at Awake
+- `EnemyController` wraps `NavMeshAgent` — disabled on clients, speed modulated by `StatusEffectManager`
+- `RuntimeNavMeshBaker` bakes NavMesh at Start, server-only
+
+### Level design pipeline (LDtk)
+
+Levels are designed in LDtk and auto-imported. See `docs/LEVEL_DESIGN_GUIDE.md` for design best practices.
+
+**Import pipeline:**
+1. LDtk file saved → `LDtkToUnity` ScriptedImporter creates GameObjects
+2. `LDtkLevelPostprocessor` (Editor postprocessor) runs:
+   - Flattens hierarchy, builds 3D blockout from IntGrid via `TerrainMapping` SO
+   - Swizzles entity positions XY→XZ with **automatic terrain height** (queries IntGrid under each entity)
+   - Cleans up 2D renderers
+3. At runtime: `RuntimeNavMeshBaker` bakes NavMesh, `LDtkLevelLinker` spawns tower prefabs at `TowerSlotMarker` positions
+
+**IntGrid values:** 0=empty, 1=Floor (0.2h), 2=Wall (3h), 3=Ramp (auto-stairs), 5=HighGround (2h)
+
+**Entity markers** (all implement `ILDtkImportedFields`): `PlayerSpawnMarker`, `EnemySpawnerMarker`, `EnemyPathMarker`, `TowerSlotMarker`, `ObjectiveMarker`
 
 ### Key interfaces
 
@@ -239,6 +273,11 @@ ServiceLocator.Unregister<T>();        // in OnDestroy
 - `Assets/Scripts/NodeEditor/UI/DesignConstants.cs` — **C# design constants** (must stay in sync with DesignTokens.uss)
 - `Assets/UI/NodeEditor/NodeEditorScreen.uxml` — Node editor main layout
 - `Assets/UI/NodeEditor/NodeEditorPanelSettings.asset` — UI Toolkit PanelSettings (1920×1080 ref, scale with screen)
+- `Assets/LDtk/testLevel.ldtk` — LDtk level project (current level: "Foundry")
+- `Assets/Data/LevelDesign/TerrainMapping.asset` — IntGrid value → 3D blockout mapping
+- `Assets/Scripts/LevelDesign/Editor/LDtkLevelPostprocessor.cs` — Import postprocessor (blockout + entity swizzle)
+- `Assets/Scripts/AI/ThreatCalculatorConfig` — Threat evaluation weights (ScriptableObject)
+- `docs/LEVEL_DESIGN_GUIDE.md` — Level design best practices and checklist
 
 ### Player prefab component map (`Assets/Prefabs/Network/PlayerPrefab.prefab`)
 
