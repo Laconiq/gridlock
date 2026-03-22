@@ -10,6 +10,7 @@ namespace AIWE.Enemies
         private TMPro.TextMeshPro _tmp;
         private Color _startColor;
         private float _elapsed;
+        private Camera _cachedCamera;
 
         private void Awake()
         {
@@ -22,8 +23,9 @@ namespace AIWE.Enemies
         {
             transform.position += Vector3.up * (riseSpeed * Time.deltaTime);
 
-            if (Camera.main != null)
-                transform.forward = Camera.main.transform.forward;
+            if (_cachedCamera == null) _cachedCamera = Camera.main;
+            if (_cachedCamera != null)
+                transform.forward = _cachedCamera.transform.forward;
 
             _elapsed += Time.deltaTime;
             if (_tmp != null)

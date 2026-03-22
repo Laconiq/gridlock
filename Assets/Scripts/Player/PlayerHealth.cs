@@ -43,6 +43,12 @@ namespace AIWE.Player
             if (_currentHP.Value <= 0f) Die();
         }
 
+        public void Heal(float amount)
+        {
+            if (!IsServer || !IsAlive) return;
+            _currentHP.Value = Mathf.Min(_maxHP, _currentHP.Value + amount);
+        }
+
         private void Die()
         {
             OnDeath?.Invoke();

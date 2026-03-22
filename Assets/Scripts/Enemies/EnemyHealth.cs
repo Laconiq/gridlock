@@ -13,6 +13,7 @@ namespace AIWE.Enemies
         [SerializeField] private GameObject pickupPrefab;
 
         private readonly NetworkVariable<float> _currentHP = new(100f);
+        private StatusEffectManager _statusEffects;
 
         public float CurrentHP => _currentHP.Value;
         public float MaxHP { get; private set; } = 100f;
@@ -20,6 +21,11 @@ namespace AIWE.Enemies
 
         public event Action OnDeath;
         public event Action<float> _currentHPChanged;
+
+        private void Awake()
+        {
+            _statusEffects = GetComponent<StatusEffectManager>();
+        }
 
         public override void OnNetworkSpawn()
         {
@@ -48,7 +54,11 @@ namespace AIWE.Enemies
         {
             if (!IsServer || !IsAlive) return;
 
-            _currentHP.Value = Mathf.Max(0f, _currentHP.Value - damage.Amount);
+            float amount = damage.Amount;
+            if (_statusEffects != null)
+                amount *= _statusEffects.VulnerabilityMultiplier;
+
+            _currentHP.Value = Mathf.Max(0f, _currentHP.Value - amount);
 
             if (_currentHP.Value <= 0f)
             {

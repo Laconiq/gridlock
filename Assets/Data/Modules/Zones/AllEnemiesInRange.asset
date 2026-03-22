@@ -17,7 +17,7 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: f12aca0f73883004a88d0b4dbcc23c4e, type: 3}
   category: 1
   nodeColor: {r: 0.2, g: 0.4, b: 0.9, a: 1}
-  description:
+  description: 
   zones:
   - rid: 684771300558454788
   defaultRange: 12
@@ -26,4 +26,5 @@ MonoBehaviour:
     RefIds:
     - rid: 684771300558454788
       type: {class: AllEnemiesInRangeZone, ns: AIWE.Modules.Zones, asm: Assembly-CSharp}
-      data: {}
+      data:
+        cooldown: 1

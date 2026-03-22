@@ -7,8 +7,16 @@ namespace AIWE.Combat
     public class StatusEffectManager : MonoBehaviour
     {
         private readonly List<ActiveStatusEffect> _activeEffects = new();
+        private IDamageable _damageable;
 
         public float SpeedMultiplier { get; private set; } = 1f;
+        public float DamageMultiplier { get; private set; } = 1f;
+        public float VulnerabilityMultiplier { get; private set; } = 1f;
+
+        private void Awake()
+        {
+            _damageable = GetComponent<IDamageable>();
+        }
 
         public void ApplyEffect(StatusEffectData data)
         {
@@ -37,8 +45,7 @@ namespace AIWE.Combat
                     if (effect.TickTimer >= effect.Data.TickInterval)
                     {
                         effect.TickTimer = 0f;
-                        var damageable = GetComponent<IDamageable>();
-                        damageable?.TakeDamage(new DamageInfo(
+                        _damageable?.TakeDamage(new DamageInfo(
                             effect.Data.Value, 0, DamageType.DamageOverTime));
                     }
                 }
@@ -56,12 +63,24 @@ namespace AIWE.Combat
         private void RecalculateModifiers()
         {
             SpeedMultiplier = 1f;
+            DamageMultiplier = 1f;
+            VulnerabilityMultiplier = 1f;
 
             foreach (var effect in _activeEffects)
             {
-                if (effect.Data.Type == StatusEffectType.Slow)
+                switch (effect.Data.Type)
                 {
-                    SpeedMultiplier *= effect.Data.Value;
+                    case StatusEffectType.Slow:
+                    case StatusEffectType.SpeedBoost:
+                        SpeedMultiplier *= effect.Data.Value;
+                        break;
+                    case StatusEffectType.Weaken:
+                    case StatusEffectType.DamageBoost:
+                        DamageMultiplier *= effect.Data.Value;
+                        break;
+                    case StatusEffectType.Vulnerability:
+                        VulnerabilityMultiplier *= effect.Data.Value;
+                        break;
                 }
             }
         }
@@ -85,6 +104,10 @@ namespace AIWE.Combat
     public enum StatusEffectType
     {
         Slow,
-        DamageOverTime
+        DamageOverTime,
+        Weaken,
+        Vulnerability,
+        SpeedBoost,
+        DamageBoost
     }
 }

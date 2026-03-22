@@ -20,7 +20,7 @@ namespace AIWE.Modules.Zones
 
         public override ZoneInstance CreateInstance()
         {
-            return new ForwardAimZone();
+            return new ForwardAimZone { cooldown = cooldown };
         }
 
         private class AimTarget : ITargetable

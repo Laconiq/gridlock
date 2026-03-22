@@ -33,7 +33,7 @@ namespace AIWE.Modules.Effects
 
         public override EffectInstance CreateInstance()
         {
-            return new SlowEffect { slowFactor = slowFactor, duration = duration };
+            return new SlowEffect { slowFactor = slowFactor, duration = duration, cooldown = cooldown };
         }
     }
 }

@@ -27,4 +27,4 @@ MonoBehaviour:
     - rid: 100000000000000001
       type: {class: ForwardAimZone, ns: AIWE.Modules.Zones, asm: Assembly-CSharp}
       data:
-        radius: 0.3
+        cooldown: 0.15

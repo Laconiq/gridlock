@@ -1,9 +1,7 @@
 using System.Collections.Generic;
-using AIWE.Interfaces;
 using AIWE.Modules;
 using AIWE.Modules.Effects;
 using AIWE.Modules.Triggers;
-using AIWE.Modules.Zones;
 using AIWE.NodeEditor.Data;
 using Unity.Netcode;
 using UnityEngine;
@@ -61,7 +59,7 @@ namespace AIWE.Player
                 foreach (var triggerInstance in triggers)
                 {
                     var chain = new TriggerChain { Trigger = triggerInstance };
-                    BuildZoneChain(graph, node.nodeId, chain.ZoneChains);
+                    ChainBuilder.BuildZoneChains(graph, node.nodeId, chain.ZoneChains, moduleRegistry, _chassis);
                     triggerInstance.OnTriggered += () => ExecuteChain(chain);
 
                     if (triggerInstance is OnLeftClickTrigger)
@@ -77,62 +75,32 @@ namespace AIWE.Player
             Debug.Log($"[PlayerWeaponExecutor] Rebuilt: L={_leftClickChains.Count} R={_rightClickChains.Count} T={_timerChains.Count}");
         }
 
-        private const int MaxChainDepth = 8;
-
-        private void BuildZoneChain(NodeGraphData graph, string fromNodeId, List<ZoneChain> zoneChains, int depth = 0)
-        {
-            if (depth >= MaxChainDepth) return;
-
-            foreach (var conn in graph.connections)
-            {
-                if (conn.fromNodeId != fromNodeId) continue;
-
-                var targetNode = graph.nodes.Find(n => n.nodeId == conn.toNodeId);
-                if (targetNode == null) continue;
-
-                if (targetNode.category == ModuleCategory.Zone)
-                {
-                    var zoneDef = moduleRegistry.GetById(targetNode.moduleDefId) as ZoneDefinition;
-                    if (zoneDef == null) continue;
-
-                    var zones = ModuleFactory.CreateZones(zoneDef, _chassis);
-                    if (zones.Count == 0) continue;
-
-                    var zoneChain = new ZoneChain { Zone = zones[0] };
-                    CollectEffects(graph, targetNode.nodeId, zoneChain.Effects);
-                    BuildZoneChain(graph, targetNode.nodeId, zoneChain.ChainedZones, depth + 1);
-                    zoneChains.Add(zoneChain);
-                }
-            }
-        }
-
-        private void CollectEffects(NodeGraphData graph, string fromNodeId, List<EffectInstance> effects, int depth = 0)
-        {
-            if (depth >= MaxChainDepth) return;
-
-            foreach (var conn in graph.connections)
-            {
-                if (conn.fromNodeId != fromNodeId) continue;
-                var effNode = graph.nodes.Find(n => n.nodeId == conn.toNodeId);
-                if (effNode?.category != ModuleCategory.Effect) continue;
-
-                var effDef = moduleRegistry.GetById(effNode.moduleDefId) as EffectDefinition;
-                if (effDef == null) continue;
-
-                var effInstances = ModuleFactory.CreateEffects(effDef, _chassis);
-                effects.AddRange(effInstances);
-                CollectEffects(graph, effNode.nodeId, effects, depth + 1);
-            }
-        }
-
         private void Update()
         {
-            if (!IsServer || !_initialized) return;
+            if (!_initialized) return;
 
-            foreach (var chain in _timerChains)
+            float dt = Time.deltaTime;
+
+            if (IsServer)
             {
-                chain.Trigger.Tick(Time.deltaTime);
+                foreach (var chain in _timerChains)
+                    chain.Trigger.Tick(dt);
             }
+
+            TickAllCooldowns(dt);
+        }
+
+        private void TickAllCooldowns(float dt)
+        {
+            void TickChains(List<TriggerChain> chains)
+            {
+                foreach (var chain in chains)
+                    ChainBuilder.TickCooldowns(chain.ZoneChains, dt);
+            }
+
+            TickChains(_leftClickChains);
+            TickChains(_rightClickChains);
+            TickChains(_timerChains);
         }
 
         private Vector3 _serverOrigin;
@@ -143,18 +111,41 @@ namespace AIWE.Player
         public void FireLeftClickRpc(Vector3 origin, Vector3 aimDirection)
         {
             SetServerAim(origin, aimDirection);
-            foreach (var chain in _leftClickChains)
-                chain.Trigger.ExternalFire();
-            BroadcastVisualProjectileRpc(origin, aimDirection, false);
+            bool fired = TryFireChains(_leftClickChains);
+            if (fired) BroadcastVisualProjectileRpc(origin, aimDirection, false);
         }
 
         [Rpc(SendTo.Server)]
         public void FireRightClickRpc(Vector3 origin, Vector3 aimDirection)
         {
             SetServerAim(origin, aimDirection);
-            foreach (var chain in _rightClickChains)
-                chain.Trigger.ExternalFire();
-            BroadcastVisualProjectileRpc(origin, aimDirection, true);
+            bool fired = TryFireChains(_rightClickChains);
+            if (fired) BroadcastVisualProjectileRpc(origin, aimDirection, true);
+        }
+
+        private bool TryFireChains(List<TriggerChain> chains)
+        {
+            bool anyFired = false;
+            foreach (var chain in chains)
+            {
+                if (HasReadyEffects(chain))
+                {
+                    chain.Trigger.ExternalFire();
+                    anyFired = true;
+                }
+            }
+            return anyFired;
+        }
+
+        private bool HasReadyEffects(TriggerChain chain)
+        {
+            foreach (var zc in chain.ZoneChains)
+            {
+                if (!zc.Zone.IsReady) continue;
+                foreach (var eff in zc.Effects)
+                    if (eff.IsReady) return true;
+            }
+            return false;
         }
 
         private void SetServerAim(Vector3 origin, Vector3 aimDirection)
@@ -167,8 +158,18 @@ namespace AIWE.Player
 
         public void SpawnLocalProjectile(Vector3 origin, Vector3 direction, bool rightClick = false)
         {
+            var chains = rightClick ? _rightClickChains : _leftClickChains;
+            if (!HasAnyReady(chains)) return;
+
             _ownerAlreadySpawnedVisual = true;
             SpawnVisualFromChains(origin, direction, rightClick);
+        }
+
+        private bool HasAnyReady(List<TriggerChain> chains)
+        {
+            foreach (var chain in chains)
+                if (HasReadyEffects(chain)) return true;
+            return false;
         }
 
         [Rpc(SendTo.ClientsAndHost)]
@@ -207,36 +208,8 @@ namespace AIWE.Player
 
             foreach (var zoneChain in chain.ZoneChains)
             {
-                ExecuteZoneChain(zoneChain, origin, range);
+                ChainBuilder.ExecuteZoneChain(zoneChain, origin, range);
             }
-        }
-
-        private void ExecuteZoneChain(ZoneChain zoneChain, Vector3 origin, float range)
-        {
-            var targets = zoneChain.Zone.SelectTargets(origin, range);
-
-            foreach (var effect in zoneChain.Effects)
-            {
-                effect.Execute(targets, origin);
-            }
-
-            foreach (var chained in zoneChain.ChainedZones)
-            {
-                ExecuteZoneChain(chained, origin, range);
-            }
-        }
-
-        private class TriggerChain
-        {
-            public TriggerInstance Trigger;
-            public readonly List<ZoneChain> ZoneChains = new();
-        }
-
-        private class ZoneChain
-        {
-            public ZoneInstance Zone;
-            public readonly List<EffectInstance> Effects = new();
-            public readonly List<ZoneChain> ChainedZones = new();
         }
     }
 }

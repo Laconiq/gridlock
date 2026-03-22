@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Linq;
-using AIWE.Combat;
 using AIWE.LevelDesign;
 using Unity.Netcode;
 using UnityEngine;
@@ -129,9 +128,6 @@ namespace AIWE.Enemies
                 if (controller != null) controller.OnReachedObjective += () => OnEnemyDespawned?.Invoke();
                 if (health != null) health.OnDeath += () => OnEnemyDespawned?.Invoke();
             }
-
-            if (go.GetComponent<StatusEffectManager>() == null)
-                go.AddComponent<StatusEffectManager>();
         }
     }
 }

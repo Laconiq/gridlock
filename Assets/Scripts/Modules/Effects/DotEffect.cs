@@ -39,7 +39,8 @@ namespace AIWE.Modules.Effects
             {
                 damagePerTick = damagePerTick,
                 duration = duration,
-                tickInterval = tickInterval
+                tickInterval = tickInterval,
+                cooldown = cooldown
             };
         }
     }
