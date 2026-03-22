@@ -300,6 +300,7 @@ GameObject:
   - component: {fileID: 31284982}
   - component: {fileID: 31284983}
   - component: {fileID: 31284984}
+  - component: {fileID: 31284985}
   m_Layer: 0
   m_Name: EnemySpawner
   m_TagString: Untagged
@@ -362,10 +363,21 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   enemyPrefab: {fileID: 2552856530296388220, guid: f14ee77fe58bcea43abac29152e482df, type: 3}
   spawnPoint: {fileID: 0}
-  targetPosition: {x: 0, y: 0, z: -20}
   testMode: 1
   testEnemy: {fileID: 11400000, guid: cd57b41af6a3db14cae76432139233f8, type: 2}
   testInterval: 5
+--- !u!114 &31284985
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 31284981}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01d3e6f6d542a394fb3f1c617cad0a18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AIWE.AI.RouteManager
 --- !u!1 &50785969
 GameObject:
   m_ObjectHideFlags: 0
@@ -646,13 +658,53 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 430940395436986220, guid: 049e1992a3eb2284c9033eb73829ec6b, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 332298742}
   m_SourcePrefab: {fileID: -5765183769023986340, guid: 049e1992a3eb2284c9033eb73829ec6b, type: 3}
 --- !u!19719996 &332298740 stripped
 TilemapCollider2D:
   m_CorrespondingSourceObject: {fileID: 2724361573096375186, guid: 049e1992a3eb2284c9033eb73829ec6b, type: 3}
   m_PrefabInstance: {fileID: 332298739}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &332298741 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 430940395436986220, guid: 049e1992a3eb2284c9033eb73829ec6b, type: 3}
+  m_PrefabInstance: {fileID: 332298739}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &332298742
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 332298741}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a5ac11cc976e418e8d13136b07e1f52, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.AI.Navigation::Unity.AI.Navigation.NavMeshSurface
+  m_SerializedVersion: 0
+  m_AgentTypeID: 0
+  m_CollectObjects: 0
+  m_Size: {x: 10, y: 10, z: 10}
+  m_Center: {x: 0, y: 2, z: 0}
+  m_LayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_UseGeometry: 0
+  m_DefaultArea: 0
+  m_GenerateLinks: 0
+  m_IgnoreNavMeshAgent: 1
+  m_IgnoreNavMeshObstacle: 1
+  m_OverrideTileSize: 0
+  m_TileSize: 256
+  m_OverrideVoxelSize: 0
+  m_VoxelSize: 0.16666667
+  m_MinRegionArea: 2
+  m_NavMeshData: {fileID: 23800000, guid: 658b887b89fc2ff44a91f0e9f67e1ae0, type: 2}
+  m_BuildHeightMesh: 0
 --- !u!1 &355264374
 GameObject:
   m_ObjectHideFlags: 0
