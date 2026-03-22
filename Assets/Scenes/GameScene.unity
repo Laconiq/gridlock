@@ -364,9 +364,6 @@ MonoBehaviour:
   enemyPrefab: {fileID: 2552856530296388220, guid: f14ee77fe58bcea43abac29152e482df, type: 3}
   spawnPoint: {fileID: 0}
   minSpawnHeight: 1.25
-  testMode: 1
-  testEnemy: {fileID: 11400000, guid: cd57b41af6a3db14cae76432139233f8, type: 2}
-  testInterval: 5
 --- !u!114 &31284985
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1291,7 +1288,8 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   waves:
   - {fileID: 11400000, guid: 74097913572c44b4c94d3aa8a9a3b097, type: 2}
-  spawner: {fileID: 0}
+  spawner: {fileID: 31284984}
+  waveClearedDuration: 2
 --- !u!1 &1205560537
 GameObject:
   m_ObjectHideFlags: 0
@@ -1853,6 +1851,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AIWE.Core.ReadyManager
   ShowTopMostFoldoutHeaderGroup: 1
+  countdownDuration: 3
 --- !u!114 &1884937637
 MonoBehaviour:
   m_ObjectHideFlags: 0

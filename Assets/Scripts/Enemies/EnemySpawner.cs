@@ -19,14 +19,8 @@ namespace AIWE.Enemies
         [Header("Spawn")]
         [SerializeField] private float minSpawnHeight = 1.25f;
 
-        [Header("Test Mode")]
-        [SerializeField] private bool testMode;
-        [SerializeField] private EnemyDefinition testEnemy;
-        [SerializeField] private float testInterval = 5f;
-
         private EnemySpawnerMarker[] _spawnPoints;
         private int _nextSpawnIndex;
-        private float _testTimer;
         private RouteManager _routeManager;
 
         public override void OnNetworkSpawn()
@@ -67,22 +61,6 @@ namespace AIWE.Enemies
         {
             if (marker != null) return marker.transform.position;
             return spawnPoint != null ? spawnPoint.position : transform.position;
-        }
-
-        private void Update()
-        {
-            if (!testMode || !IsServer || testEnemy == null) return;
-
-            var state = GameManager.Instance?.CurrentState.Value;
-            if (state != GameState.Wave) return;
-
-            _testTimer -= Time.deltaTime;
-            if (_testTimer <= 0f)
-            {
-                _testTimer = testInterval;
-                var marker = GetNextSpawnMarker();
-                SpawnEnemy(testEnemy, marker: marker);
-            }
         }
 
         public void SpawnWave(WaveDefinition wave)

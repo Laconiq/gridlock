@@ -69,6 +69,8 @@ namespace AIWE.Core
             _spawningComplete = false;
             _enemiesRemaining.Value = total;
 
+            spawner.OnEnemyDespawned -= HandleEnemyDespawned;
+            spawner.OnSpawningComplete -= HandleSpawningComplete;
             spawner.OnEnemyDespawned += HandleEnemyDespawned;
             spawner.OnSpawningComplete += HandleSpawningComplete;
 
