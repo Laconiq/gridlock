@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections;
 using AIWE.Core;
 using Unity.Netcode;
 using UnityEngine;
@@ -57,7 +56,7 @@ namespace AIWE.LevelDesign
                 return;
             }
 
-            var markers = FindObjectsByType<TowerSlotMarker>(FindObjectsSortMode.None);
+            var markers = FindObjectsByType<TowerSlotMarker>();
             foreach (var marker in markers)
             {
                 var pos = marker.transform.position;

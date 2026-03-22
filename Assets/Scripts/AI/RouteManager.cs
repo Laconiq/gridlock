@@ -23,7 +23,7 @@ namespace AIWE.AI
 
         private void BuildRoutes()
         {
-            var markers = FindObjectsByType<EnemyPathMarker>(FindObjectsSortMode.None);
+            var markers = FindObjectsByType<EnemyPathMarker>();
             var grouped = markers.GroupBy(m => m.RouteId);
 
             foreach (var group in grouped)

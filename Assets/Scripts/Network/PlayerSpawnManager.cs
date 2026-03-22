@@ -19,7 +19,7 @@ namespace AIWE.Network
 
         private void FindLDtkSpawnPoints()
         {
-            var markers = FindObjectsByType<PlayerSpawnMarker>(FindObjectsSortMode.None)
+            var markers = FindObjectsByType<PlayerSpawnMarker>()
                 .OrderBy(m => m.PlayerIndex)
                 .ToArray();
 
