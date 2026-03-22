@@ -31,6 +31,7 @@ namespace AIWE.AI
 
         private EnemyController _controller;
         private ThreatCalculator _threatCalc;
+        private RouteManager _routeManager;
 
         private EnemyAIState _state;
         private Vector3[] _route;
@@ -81,12 +82,15 @@ namespace AIWE.AI
             attackCooldown = definition.attackCooldown;
             meleeRange = definition.attackRange;
 
-            var routeManager = ServiceLocator.Get<RouteManager>();
-            if (routeManager != null)
+            _routeManager = ServiceLocator.Get<RouteManager>();
+            if (_routeManager != null)
             {
-                _route = routeManager.GetRoute(routeId);
-                _currentWaypointIndex = routeManager.GetNearestWaypointIndex(routeId, transform.position);
+                _route = _routeManager.GetRoute(routeId);
+                _currentWaypointIndex = _routeManager.GetNearestWaypointIndex(routeId, transform.position);
             }
+
+            if (_route != null && _route.Length > 0)
+                _currentWaypointIndex = Mathf.Clamp(_currentWaypointIndex, 0, _route.Length - 1);
 
             if (threatConfig != null)
                 _threatCalc = new ThreatCalculator(threatConfig);
@@ -222,10 +226,10 @@ namespace AIWE.AI
                 return;
             }
 
-            var routeManager = ServiceLocator.Get<RouteManager>();
-            if (routeManager != null)
-                _currentWaypointIndex = routeManager.GetNearestWaypointIndex(_routeId, transform.position);
+            if (_routeManager != null)
+                _currentWaypointIndex = _routeManager.GetNearestWaypointIndex(_routeId, transform.position);
 
+            _currentWaypointIndex = Mathf.Clamp(_currentWaypointIndex, 0, _route.Length - 1);
             _controller.SetDestination(_route[_currentWaypointIndex]);
 
             TryEvaluateThreats();
@@ -263,10 +267,9 @@ namespace AIWE.AI
             if (_combatTimer >= combatTimeout)
                 return true;
 
-            var routeManager = ServiceLocator.Get<RouteManager>();
-            if (routeManager != null)
+            if (_routeManager != null)
             {
-                float distToRoute = routeManager.GetDistanceToRoute(_routeId, transform.position);
+                float distToRoute = _routeManager.GetDistanceToRoute(_routeId, transform.position);
                 if (distToRoute > maxRouteDistance)
                     return true;
             }

@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using System.Linq;
 using AIWE.AI;
 using AIWE.Core;
 using AIWE.LevelDesign;
@@ -25,7 +24,7 @@ namespace AIWE.Enemies
         [SerializeField] private EnemyDefinition testEnemy;
         [SerializeField] private float testInterval = 5f;
 
-        private Transform[] _spawnPoints;
+        private EnemySpawnerMarker[] _spawnPoints;
         private int _nextSpawnIndex;
         private float _testTimer;
         private RouteManager _routeManager;
@@ -47,20 +46,26 @@ namespace AIWE.Enemies
             var markers = FindObjectsByType<EnemySpawnerMarker>();
             if (markers.Length > 0)
             {
-                _spawnPoints = markers.Select(m => m.transform).ToArray();
-                spawnPoint = _spawnPoints[0];
+                _spawnPoints = markers;
+                spawnPoint = _spawnPoints[0].transform;
                 Debug.Log($"[EnemySpawner] Found {_spawnPoints.Length} LDtk spawn points");
             }
         }
 
-        private Vector3 GetSpawnPosition()
+        private EnemySpawnerMarker GetNextSpawnMarker()
         {
             if (_spawnPoints != null && _spawnPoints.Length > 0)
             {
-                var pos = _spawnPoints[_nextSpawnIndex].position;
+                var marker = _spawnPoints[_nextSpawnIndex];
                 _nextSpawnIndex = (_nextSpawnIndex + 1) % _spawnPoints.Length;
-                return pos;
+                return marker;
             }
+            return null;
+        }
+
+        private Vector3 GetSpawnPosition(EnemySpawnerMarker marker)
+        {
+            if (marker != null) return marker.transform.position;
             return spawnPoint != null ? spawnPoint.position : transform.position;
         }
 
@@ -75,7 +80,8 @@ namespace AIWE.Enemies
             if (_testTimer <= 0f)
             {
                 _testTimer = testInterval;
-                SpawnEnemy(testEnemy);
+                var marker = GetNextSpawnMarker();
+                SpawnEnemy(testEnemy, marker: marker);
             }
         }
 
@@ -94,7 +100,8 @@ namespace AIWE.Enemies
 
                 for (int i = 0; i < entry.count; i++)
                 {
-                    SpawnEnemy(entry.enemy, tracked: true);
+                    var marker = GetNextSpawnMarker();
+                    SpawnEnemy(entry.enemy, tracked: true, marker: marker);
                     yield return new WaitForSeconds(entry.spawnInterval);
                 }
             }
@@ -102,11 +109,12 @@ namespace AIWE.Enemies
             OnSpawningComplete?.Invoke();
         }
 
-        private void SpawnEnemy(EnemyDefinition definition, bool tracked = false, int routeId = 0)
+        private void SpawnEnemy(EnemyDefinition definition, bool tracked = false, EnemySpawnerMarker marker = null)
         {
             if (enemyPrefab == null || !IsServer) return;
 
-            var pos = GetSpawnPosition();
+            int routeId = marker != null ? marker.WaveGroup : 0;
+            var pos = GetSpawnPosition(marker);
             pos.y = Mathf.Max(pos.y, minSpawnHeight);
             var go = Instantiate(enemyPrefab, pos, Quaternion.identity);
 
