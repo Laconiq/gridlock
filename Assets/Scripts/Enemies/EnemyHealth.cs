@@ -3,6 +3,7 @@ using AIWE.AI;
 using AIWE.Combat;
 using AIWE.Interfaces;
 using AIWE.Loot;
+using AIWE.Network;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -15,6 +16,7 @@ namespace AIWE.Enemies
 
         private readonly NetworkVariable<float> _currentHP = new(100f);
         private StatusEffectManager _statusEffects;
+        private ulong _lastDamageSourceId;
 
         public float CurrentHP => _currentHP.Value;
         public float MaxHP { get; private set; } = 100f;
@@ -55,6 +57,8 @@ namespace AIWE.Enemies
         {
             if (!IsServer || !IsAlive) return;
 
+            _lastDamageSourceId = damage.SourceId;
+
             float amount = damage.Amount;
             if (_statusEffects != null)
                 amount *= _statusEffects.VulnerabilityMultiplier;
@@ -71,10 +75,21 @@ namespace AIWE.Enemies
 
         private void Die()
         {
+            AttributeKill(_lastDamageSourceId);
             OnDeath?.Invoke();
             SpawnDrop();
-            Debug.Log($"[Enemy] {gameObject.name} died");
             NetworkObject.Despawn();
+        }
+
+        private void AttributeKill(ulong sourceId)
+        {
+            if (sourceId == 0) return;
+            if (NetworkManager.Singleton?.SpawnManager?.SpawnedObjects
+                    .TryGetValue(sourceId, out var netObj) == true)
+            {
+                var playerData = netObj.GetComponent<PlayerData>();
+                playerData?.AddKill();
+            }
         }
 
         private void SpawnDrop()
