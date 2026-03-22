@@ -42,6 +42,14 @@ namespace AIWE.AI
             return (bestTarget, bestScore);
         }
 
+        public float ScoreTarget(Vector3 position, float detectionRadius, ITargetable target, Transform enemyTransform)
+        {
+            if (target == null || !target.IsAlive) return 0f;
+            var source = target.Transform.GetComponent<ThreatSource>();
+            if (source == null) return 0f;
+            return CalculateScore(position, detectionRadius, target, source, enemyTransform);
+        }
+
         private float CalculateScore(Vector3 enemyPos, float radius, ITargetable target, ThreatSource source, Transform enemyTransform)
         {
             float score = 0f;

@@ -18,6 +18,10 @@ namespace AIWE.AI
         [SerializeField] private float maxRouteDistance = 20f;
         [SerializeField] private float combatTimeout = 5f;
 
+        [Header("Target Switching")]
+        [SerializeField] private float targetSwitchThreshold = 0.3f;
+        [SerializeField] private float combatReevalInterval = 1.5f;
+
         [Header("Movement")]
         [SerializeField] private float waypointReachDistance = 1.5f;
 
@@ -165,6 +169,8 @@ namespace AIWE.AI
                 return;
             }
 
+            TryReevaluateTarget();
+
             _controller.SetDestination(_currentTarget.Position);
 
             float dist = Vector3.Distance(transform.position, _currentTarget.Position);
@@ -252,6 +258,22 @@ namespace AIWE.AI
                 SetTarget(target);
                 TransitionTo(EnemyAIState.ChaseTarget);
             }
+        }
+
+        private void TryReevaluateTarget()
+        {
+            if (_threatCalc == null) return;
+
+            _threatEvalTimer -= Time.deltaTime;
+            if (_threatEvalTimer > 0f) return;
+            _threatEvalTimer = combatReevalInterval;
+
+            var (candidate, score) = _threatCalc.Evaluate(transform.position, detectionRadius, transform);
+            if (candidate == null || candidate == _currentTarget) return;
+
+            var currentScore = _threatCalc.ScoreTarget(transform.position, detectionRadius, _currentTarget, transform);
+            if (score > currentScore + targetSwitchThreshold)
+                SetTarget(candidate);
         }
 
         private bool CheckDeAggro()
