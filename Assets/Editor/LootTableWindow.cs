@@ -13,7 +13,7 @@ namespace AIWE.Editor
         [OnOpenAsset]
         private static bool OnOpenAsset(int instanceID, int line)
         {
-            var asset = EditorUtility.InstanceIDToObject(instanceID) as LootTable;
+            var asset = EditorUtility.EntityIdToObject(EntityId.FromULong((ulong)instanceID)) as LootTable;
             if (asset == null) return false;
 
             var window = GetWindow<LootTableWindow>("Loot Table");

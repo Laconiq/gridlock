@@ -60,6 +60,13 @@ namespace AIWE.Player
 
             _controls.Player.Jump.performed += _ => OnJumpInput();
 
+            var health = GetComponent<PlayerHealth>();
+            if (health != null)
+            {
+                health.OnDeath += OnPlayerDeath;
+                health.OnRespawn += OnPlayerRespawn;
+            }
+
             SetPlayerInputActive(false);
             StartCoroutine(WaitForGameManager());
         }
@@ -68,6 +75,13 @@ namespace AIWE.Player
         {
             if (!IsOwner) return;
             _controls.Player.Disable();
+
+            var health = GetComponent<PlayerHealth>();
+            if (health != null)
+            {
+                health.OnDeath -= OnPlayerDeath;
+                health.OnRespawn -= OnPlayerRespawn;
+            }
 
             if (GameManager.Instance != null)
                 GameManager.Instance.CurrentState.OnValueChanged -= OnGameStateChanged;
@@ -90,7 +104,9 @@ namespace AIWE.Player
         private void CheckGameState(GameState state)
         {
             bool gameActive = state == GameState.Preparing || state == GameState.Wave;
-            SetPlayerInputActive(gameActive);
+            var health = GetComponent<PlayerHealth>();
+            bool alive = health == null || health.IsAlive;
+            SetPlayerInputActive(gameActive && alive);
         }
 
         public void SetPlayerInputActive(bool active)
@@ -117,6 +133,17 @@ namespace AIWE.Player
 
             var weaponEditor = GetComponent<PlayerWeaponEditorController>();
             if (weaponEditor != null) weaponEditor.InputEnabled = active;
+        }
+
+        private void OnPlayerDeath()
+        {
+            SetPlayerInputActive(false);
+        }
+
+        private void OnPlayerRespawn()
+        {
+            if (GameManager.Instance != null)
+                CheckGameState(GameManager.Instance.CurrentState.Value);
         }
 
         private void Update()

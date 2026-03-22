@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using AIWE.Enemies;
 using AIWE.Interfaces;
 using UnityEngine;
 
@@ -18,6 +19,7 @@ namespace AIWE.Modules.Zones
 
             for (int i = 0; i < count; i++)
             {
+                if (SharedOverlapBuffer[i].GetComponentInParent<EnemyController>() == null) continue;
                 var target = SharedOverlapBuffer[i].GetComponentInParent<ITargetable>();
                 if (target == null || !target.IsAlive) continue;
 

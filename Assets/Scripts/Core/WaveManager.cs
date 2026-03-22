@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using AIWE.Enemies;
+using AIWE.HUD;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -10,6 +11,7 @@ namespace AIWE.Core
     {
         [SerializeField] private List<WaveDefinition> waves = new();
         [SerializeField] private EnemySpawner spawner;
+        [SerializeField] private float waveClearedDuration = 2f;
 
         private readonly NetworkVariable<int> _currentWave = new(0);
         private readonly NetworkVariable<int> _enemiesRemaining = new(0);
@@ -18,6 +20,16 @@ namespace AIWE.Core
 
         public int CurrentWave => _currentWave.Value;
         public int EnemiesRemaining => _enemiesRemaining.Value;
+        public int TotalWaves => waves != null ? waves.Count : 0;
+
+        public void ResetWaves()
+        {
+            if (!IsServer) return;
+            _currentWave.Value = 0;
+            _aliveCount = 0;
+            _spawningComplete = false;
+            _enemiesRemaining.Value = 0;
+        }
 
         public override void OnNetworkSpawn()
         {
@@ -57,6 +69,8 @@ namespace AIWE.Core
             _spawningComplete = false;
             _enemiesRemaining.Value = total;
 
+            spawner.OnEnemyDespawned -= HandleEnemyDespawned;
+            spawner.OnSpawningComplete -= HandleSpawningComplete;
             spawner.OnEnemyDespawned += HandleEnemyDespawned;
             spawner.OnSpawningComplete += HandleSpawningComplete;
 
@@ -84,9 +98,17 @@ namespace AIWE.Core
             spawner.OnEnemyDespawned -= HandleEnemyDespawned;
             spawner.OnSpawningComplete -= HandleSpawningComplete;
 
+            var clearedWaveNumber = _currentWave.Value + 1;
             _currentWave.Value++;
+            ShowWaveClearedClientRpc(clearedWaveNumber);
             GameManager.Instance?.SetState(GameState.Preparing);
             Debug.Log("[WaveManager] Wave complete");
+        }
+
+        [Rpc(SendTo.ClientsAndHost)]
+        private void ShowWaveClearedClientRpc(int waveNumber)
+        {
+            GameHUD.Instance?.ShowAnnouncement($"WAVE_{waveNumber:D2}_CLEARED", waveClearedDuration);
         }
     }
 }

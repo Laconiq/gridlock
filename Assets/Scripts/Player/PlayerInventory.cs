@@ -50,6 +50,12 @@ namespace AIWE.Player
             }
         }
 
+        public void ResetToDefault()
+        {
+            if (!IsServer || defaultLoadout == null) return;
+            ApplyLoadout(defaultLoadout);
+        }
+
         private void ApplyLoadout(DefaultLoadout loadout)
         {
             _modules.Clear();

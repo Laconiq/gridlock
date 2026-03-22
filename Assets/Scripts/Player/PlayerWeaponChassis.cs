@@ -56,6 +56,13 @@ namespace AIWE.Player
             OnGraphUpdated?.Invoke(_cachedGraph);
         }
 
+        public void ResetToDefault()
+        {
+            if (!IsServer) return;
+            if (defaultWeaponGraph != null && defaultWeaponGraph.graph != null)
+                SetNodeGraph(defaultWeaponGraph.graph);
+        }
+
         public NodeGraphData GetNodeGraph()
         {
             return _cachedGraph ?? new NodeGraphData();

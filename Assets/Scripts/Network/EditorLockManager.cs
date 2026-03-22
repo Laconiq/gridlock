@@ -79,6 +79,12 @@ namespace AIWE.Network
             }
         }
 
+        public void ForceReleaseLock()
+        {
+            if (!IsServer) return;
+            _currentEditorClientId.Value = -1;
+        }
+
         [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
         public void ReleaseLockRpc(ulong clientId)
         {

@@ -23,8 +23,13 @@ namespace AIWE.HUD
         private HUDSquadFeed _squadFeed;
         private HUDEventLog _eventLog;
         private HUDSystemInfo _systemInfo;
+        private HUDWaveInfo _waveInfo;
 
         private Label _readyPrompt;
+        private Label _announcementLabel;
+        private Coroutine _announcementHideCoroutine;
+        private VisualElement _spectateOverlay;
+        private Label _spectateTarget;
         private int _frameCounter;
 
         private void Awake()
@@ -56,6 +61,10 @@ namespace AIWE.HUD
             if (_readyPrompt != null)
                 _readyPrompt.style.display = DisplayStyle.None;
 
+            _announcementLabel = _root.Q<Label>("announcement-label");
+            if (_announcementLabel != null)
+                _announcementLabel.style.display = DisplayStyle.None;
+
             _squadFeed = new HUDSquadFeed(_root.Q("squad-feed"));
 
             _eventLog = new HUDEventLog(_root.Q("event-log"));
@@ -65,6 +74,16 @@ namespace AIWE.HUD
                 _root.Q<Label>("sys-version"),
                 _root.Q<Label>("sys-meta")
             );
+
+            _waveInfo = new HUDWaveInfo(
+                _root.Q<Label>("wave-label"),
+                _root.Q<Label>("wave-enemies"),
+                _root.Q("objective-hp-fill"),
+                _root.Q<Label>("objective-hp-pct")
+            );
+
+            _spectateOverlay = _root.Q("spectate-overlay");
+            _spectateTarget = _root.Q<Label>("spectate-target");
 
             StartCoroutine(WaitForLocalPlayer());
         }
@@ -109,13 +128,14 @@ namespace AIWE.HUD
 
         private void Update()
         {
-            int phase = _frameCounter % 3;
+            int phase = _frameCounter % 4;
 
             switch (phase)
             {
                 case 0: _playerStatus?.Refresh(); break;
                 case 1: _squadFeed?.Refresh(); break;
                 case 2: _systemInfo?.Refresh(); break;
+                case 3: _waveInfo?.Refresh(); break;
             }
 
             UpdateReadyPrompt();
@@ -130,18 +150,75 @@ namespace AIWE.HUD
             bool preparing = gm != null && gm.CurrentState.Value == GameState.Preparing;
 
             var radial = RadialMenu.RadialMenuScreen.Instance;
-            if (!preparing || (radial != null && radial.IsOpen))
+            var rm = ReadyManager.Instance;
+            bool counting = rm != null && rm.IsCountingDown;
+
+            if (!preparing || counting || (radial != null && radial.IsOpen))
             {
                 _readyPrompt.style.display = DisplayStyle.None;
                 return;
             }
 
-            var rm = ReadyManager.Instance;
             var nm = NetworkManager.Singleton;
             bool selfReady = rm != null && nm != null && rm.IsPlayerReady(nm.LocalClientId);
 
             _readyPrompt.style.display = DisplayStyle.Flex;
             _readyPrompt.text = selfReady ? "WAITING FOR SQUAD..." : "PRESS [F] TO READY UP";
+        }
+
+        public void ShowAnnouncement(string text, float autoHideDuration = 0f)
+        {
+            if (_announcementLabel == null) return;
+
+            if (_announcementHideCoroutine != null)
+                StopCoroutine(_announcementHideCoroutine);
+
+            _announcementLabel.text = text;
+            _announcementLabel.style.display = DisplayStyle.Flex;
+
+            if (_readyPrompt != null)
+                _readyPrompt.style.display = DisplayStyle.None;
+
+            if (autoHideDuration > 0f)
+                _announcementHideCoroutine = StartCoroutine(AutoHideAnnouncement(autoHideDuration));
+        }
+
+        public void HideAnnouncement()
+        {
+            if (_announcementLabel == null) return;
+
+            if (_announcementHideCoroutine != null)
+            {
+                StopCoroutine(_announcementHideCoroutine);
+                _announcementHideCoroutine = null;
+            }
+
+            _announcementLabel.style.display = DisplayStyle.None;
+        }
+
+        private IEnumerator AutoHideAnnouncement(float duration)
+        {
+            yield return new WaitForSeconds(duration);
+            HideAnnouncement();
+        }
+
+        public void ShowSpectateOverlay(string playerName)
+        {
+            if (_spectateOverlay == null) return;
+            _spectateOverlay.style.display = DisplayStyle.Flex;
+            UpdateSpectateTarget(playerName);
+        }
+
+        public void HideSpectateOverlay()
+        {
+            if (_spectateOverlay != null)
+                _spectateOverlay.style.display = DisplayStyle.None;
+        }
+
+        public void UpdateSpectateTarget(string name)
+        {
+            if (_spectateTarget != null)
+                _spectateTarget.text = $"SPECTATING: {name}";
         }
 
         public void SetVisible(bool visible)

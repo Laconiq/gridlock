@@ -19,6 +19,9 @@ namespace AIWE.Enemies
         public float attackRange = 1.5f;
         public float attackCooldown = 1f;
 
+        [Header("Objective")]
+        public float objectiveDamage = 10f;
+
         [Header("AI")]
         public float detectionRadius = 12f;
         public float leashRadius = 15f;

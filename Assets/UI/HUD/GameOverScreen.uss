@@ -1,0 +1,263 @@
+/* ─── Root ─── */
+.go__root {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--surface);
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+/* ─── Decorative: trace route (top-right) ─── */
+.go__deco-trace {
+    position: absolute;
+    top: 80px;
+    right: 40px;
+    align-items: flex-end;
+}
+
+.go__deco-text {
+    font-size: 9px;
+    color: var(--outline);
+    letter-spacing: 2px;
+    opacity: 0.2;
+    margin-bottom: 2px;
+}
+
+.go__deco-text--right {
+    -unity-text-align: upper-right;
+}
+
+/* ─── Decorative: binary (top-left) ─── */
+.go__deco-binary {
+    position: absolute;
+    top: 80px;
+    left: 40px;
+}
+
+/* ─── Decorative: sync indicator (bottom-left) ─── */
+.go__deco-sync {
+    position: absolute;
+    bottom: 40px;
+    left: 40px;
+    flex-direction: row;
+    align-items: center;
+}
+
+.go__deco-sync-bar {
+    width: 2px;
+    height: 32px;
+    background-color: var(--primary);
+    margin-right: 8px;
+    opacity: 0.5;
+}
+
+.go__deco-sync-text {
+    font-size: 10px;
+    color: var(--primary);
+    opacity: 0.5;
+    letter-spacing: 2px;
+}
+
+/* ─── Central content ─── */
+.go__center {
+    align-items: center;
+    width: 640px;
+}
+
+/* ─── Badge ─── */
+.go__badge {
+    background-color: #9f0519;
+    padding: 4px 14px;
+    margin-bottom: 16px;
+}
+
+.go__badge-text {
+    font-size: 10px;
+    color: #ffa8a3;
+    letter-spacing: 5px;
+    -unity-font-style: bold;
+}
+
+/* ─── Title ─── */
+.go__title {
+    font-size: 72px;
+    color: var(--on-surface);
+    letter-spacing: -2px;
+    -unity-font-style: bold;
+    -unity-text-outline-width: 1px;
+    -unity-text-outline-color: rgba(255, 113, 108, 0.25);
+    margin-bottom: 8px;
+    -unity-text-align: middle-center;
+}
+
+.go__subtitle {
+    font-size: 13px;
+    color: var(--outline);
+    letter-spacing: 3px;
+    margin-bottom: 48px;
+    -unity-text-align: middle-center;
+}
+
+/* ─── Stats row (bento) ─── */
+.go__stats {
+    flex-direction: row;
+    width: 100%;
+    margin-bottom: 48px;
+}
+
+.go__stat {
+    flex-grow: 1;
+    flex-direction: row;
+    background-color: var(--surface-container);
+    margin-right: 2px;
+    overflow: hidden;
+}
+
+.go__stat-accent {
+    width: 3px;
+    align-self: stretch;
+    opacity: 0.4;
+}
+
+.go__stat-accent--cyan {
+    background-color: var(--primary);
+}
+
+.go__stat-accent--green {
+    background-color: var(--secondary);
+}
+
+.go__stat-accent--orange {
+    background-color: var(--tertiary);
+}
+
+.go__stat-body {
+    padding: 20px 24px;
+    flex-grow: 1;
+}
+
+.go__stat-label {
+    font-size: 9px;
+    color: var(--outline);
+    letter-spacing: 3px;
+    -unity-font-style: bold;
+    margin-bottom: 4px;
+}
+
+.go__stat-value {
+    font-size: 28px;
+    -unity-font-style: bold;
+    margin-bottom: 16px;
+}
+
+.go__stat-value--cyan {
+    color: var(--primary);
+}
+
+.go__stat-value--green {
+    color: var(--secondary);
+}
+
+.go__stat-value--orange {
+    color: var(--tertiary);
+}
+
+.go__stat-sub {
+    font-size: 8px;
+    color: var(--outline-variant);
+    letter-spacing: 1px;
+}
+
+/* ─── Action buttons ─── */
+.go__actions {
+    flex-direction: row;
+    justify-content: center;
+    margin-bottom: 64px;
+}
+
+.go__btn {
+    padding: 16px 40px;
+    font-size: 11px;
+    letter-spacing: 4px;
+    -unity-font-style: bold;
+    border-radius: 0;
+    transition-duration: 0.12s;
+    transition-property: opacity, border-color, color, background-color;
+}
+
+.go__btn--primary {
+    background-color: var(--primary);
+    color: #005d63;
+    border-width: 0;
+    margin-right: 16px;
+}
+
+.go__btn--primary:hover {
+    opacity: 0.85;
+}
+
+.go__btn--primary:active {
+    opacity: 0.7;
+}
+
+.go__btn--ghost {
+    background-color: rgba(0, 0, 0, 0);
+    color: var(--on-surface-variant);
+    border-width: 1px;
+    border-color: var(--outline-variant);
+}
+
+.go__btn--ghost:hover {
+    border-color: var(--error);
+    color: var(--error);
+}
+
+.go__btn--ghost:active {
+    background-color: rgba(255, 113, 108, 0.1);
+}
+
+/* ─── Footer ─── */
+.go__footer {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-end;
+    width: 100%;
+    border-top-width: 1px;
+    border-top-color: rgba(72, 72, 73, 0.25);
+    padding-top: 16px;
+}
+
+.go__footer-left {
+    flex-direction: column;
+}
+
+.go__footer-text {
+    font-size: 9px;
+    color: var(--outline-variant);
+    letter-spacing: 1px;
+    margin-bottom: 2px;
+}
+
+.go__footer-dots {
+    flex-direction: row;
+    align-items: center;
+}
+
+.go__dot {
+    width: 6px;
+    height: 6px;
+    margin-left: 6px;
+}
+
+.go__dot--red {
+    background-color: var(--error);
+}
+
+.go__dot--dim {
+    background-color: var(--outline-variant);
+    opacity: 0.2;
+}

@@ -4,6 +4,19 @@
 
     <ui:VisualElement name="hud-root" class="hud-root" picking-mode="Ignore">
 
+        <!-- Top center: wave info -->
+        <ui:VisualElement class="hud__wave-info" picking-mode="Ignore">
+            <ui:Label name="wave-label" text="WAVE 01" class="hud__wave-label" picking-mode="Ignore" />
+            <ui:Label name="wave-enemies" text="HOSTILES::0" class="hud__wave-enemies" picking-mode="Ignore" />
+            <ui:VisualElement class="hud__objective-section" picking-mode="Ignore">
+                <ui:Label text="OBJECTIVE_INTEGRITY" class="hud__objective-title" picking-mode="Ignore" />
+                <ui:VisualElement class="hud__objective-bar-track" picking-mode="Ignore">
+                    <ui:VisualElement name="objective-hp-fill" class="hud__objective-bar-fill" picking-mode="Ignore" />
+                </ui:VisualElement>
+                <ui:Label name="objective-hp-pct" text="100%" class="hud__objective-pct" picking-mode="Ignore" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
         <!-- Top row -->
         <ui:VisualElement class="hud__top-row" picking-mode="Ignore">
 
@@ -51,6 +64,9 @@
             <ui:Label name="ready-prompt" text="PRESS [F] TO READY UP" class="hud__ready-prompt" picking-mode="Ignore" />
         </ui:VisualElement>
 
+        <!-- Center: wave announcement -->
+        <ui:Label name="announcement-label" class="hud__announcement" picking-mode="Ignore" style="display: none;" />
+
         <!-- Bottom row -->
         <ui:VisualElement class="hud__bottom-row" picking-mode="Ignore">
 
@@ -65,6 +81,13 @@
                 </ui:VisualElement>
             </ui:VisualElement>
 
+        </ui:VisualElement>
+
+        <!-- Spectate overlay (hidden by default) -->
+        <ui:VisualElement name="spectate-overlay" class="hud__spectate-overlay" picking-mode="Ignore" style="display: none;">
+            <ui:Label name="spectate-target" text="SPECTATING: OPERATOR_XX" class="hud__spectate-target" picking-mode="Ignore" />
+            <ui:Label text="RESPAWN::NEXT_PREPARATION_PHASE" class="hud__spectate-respawn" picking-mode="Ignore" />
+            <ui:Label text="[SCROLL] SWITCH_TARGET" class="hud__spectate-hint" picking-mode="Ignore" />
         </ui:VisualElement>
 
     </ui:VisualElement>

@@ -1,6 +1,7 @@
 using System;
 using AIWE.AI;
 using AIWE.Combat;
+using AIWE.Core;
 using AIWE.Interfaces;
 using Unity.Netcode;
 using UnityEngine;
@@ -16,6 +17,7 @@ namespace AIWE.Enemies
         private EnemyHealth _health;
         private StatusEffectManager _statusEffects;
         private NavMeshAgent _agent;
+        private float _objectiveDamage;
 
         public event Action OnReachedObjective;
 
@@ -45,6 +47,7 @@ namespace AIWE.Enemies
             if (!IsServer) return;
 
             moveSpeed = definition.moveSpeed;
+            _objectiveDamage = definition.objectiveDamage;
             transform.localScale = Vector3.one * definition.scale;
 
             if (_agent != null)
@@ -91,6 +94,10 @@ namespace AIWE.Enemies
 
         public void NotifyReachedObjective()
         {
+            var objective = ServiceLocator.Get<ObjectiveController>();
+            if (objective != null)
+                objective.TakeDamage(new DamageInfo(_objectiveDamage, NetworkObjectId, DamageType.Direct));
+
             OnReachedObjective?.Invoke();
             NetworkObject.Despawn();
         }

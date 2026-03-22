@@ -41,20 +41,20 @@ namespace AIWE.Loot
             var bobOffset = Mathf.Sin((Time.time - _spawnTime) * bobFrequency * Mathf.PI * 2f) * bobAmplitude;
             transform.position = _startPos + Vector3.up * bobOffset;
 
-            if (IsServer && Time.time - _spawnTime > lifetime)
-                NetworkObject.Despawn();
+            if (IsServer && IsSpawned && Time.time - _spawnTime > lifetime)
+                NetworkObject.Despawn(true);
         }
 
         private void OnTriggerEnter(Collider other)
         {
-            if (!IsServer) return;
+            if (!IsServer || !IsSpawned) return;
 
             var inventory = other.GetComponentInParent<PlayerInventory>();
             if (inventory == null) return;
 
             inventory.AddModule(_moduleId.Value.ToString());
             Debug.Log($"[ModulePickup] {other.name} picked up {_moduleId.Value}");
-            NetworkObject.Despawn();
+            NetworkObject.Despawn(true);
         }
     }
 }
