@@ -228,6 +228,8 @@ namespace AIWE.AI
 
             _controller.SetDestination(_route[_currentWaypointIndex]);
 
+            TryEvaluateThreats();
+
             if (_controller.HasReachedDestination(waypointReachDistance))
                 TransitionTo(EnemyAIState.FollowRoute);
         }

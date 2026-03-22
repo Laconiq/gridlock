@@ -6,7 +6,6 @@ namespace AIWE.AI
     public class ThreatCalculator
     {
         private readonly ThreatCalculatorConfig _config;
-        private static readonly Collider[] OverlapBuffer = new Collider[32];
 
         public ThreatCalculator(ThreatCalculatorConfig config)
         {
@@ -15,20 +14,20 @@ namespace AIWE.AI
 
         public (ITargetable target, float score) Evaluate(Vector3 position, float detectionRadius, Transform enemyTransform)
         {
-            int count = Physics.OverlapSphereNonAlloc(position, detectionRadius, OverlapBuffer);
+            var sources = ThreatSource.All;
 
             ITargetable bestTarget = null;
             float bestScore = 0f;
 
-            for (int i = 0; i < count; i++)
+            foreach (var source in sources)
             {
-                var threatSource = OverlapBuffer[i].GetComponent<ThreatSource>();
-                if (threatSource == null) continue;
+                float dist = Vector3.Distance(position, source.transform.position);
+                if (dist > detectionRadius) continue;
 
-                var targetable = OverlapBuffer[i].GetComponent<ITargetable>();
+                var targetable = source.GetComponent<ITargetable>();
                 if (targetable == null || !targetable.IsAlive) continue;
 
-                float score = CalculateScore(position, detectionRadius, targetable, threatSource, enemyTransform);
+                float score = CalculateScore(position, detectionRadius, targetable, source, enemyTransform);
 
                 if (score > bestScore)
                 {
@@ -56,7 +55,8 @@ namespace AIWE.AI
             float losFactor = 0.2f;
             Vector3 eyePos = enemyTransform.position + Vector3.up * 1f;
             Vector3 targetPos = target.Position + Vector3.up * 1f;
-            if (!Physics.Linecast(eyePos, targetPos, out _, ~0, QueryTriggerInteraction.Ignore))
+            Vector3 direction = targetPos - eyePos;
+            if (!Physics.Raycast(eyePos, direction.normalized, out _, direction.magnitude, _config.losObstacleMask, QueryTriggerInteraction.Ignore))
                 losFactor = 1f;
             score += losFactor * _config.lineOfSightWeight;
             totalWeight += _config.lineOfSightWeight;

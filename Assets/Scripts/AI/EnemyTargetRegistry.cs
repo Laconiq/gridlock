@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using AIWE.Interfaces;
+using UnityEngine;
 
 namespace AIWE.AI
 {
@@ -33,6 +34,7 @@ namespace AIWE.AI
             return count;
         }
 
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         public static void Clear()
         {
             _targetCounts.Clear();
