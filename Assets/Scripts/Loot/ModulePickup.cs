@@ -42,7 +42,7 @@ namespace AIWE.Loot
             transform.position = _startPos + Vector3.up * bobOffset;
 
             if (IsServer && Time.time - _spawnTime > lifetime)
-                NetworkObject.Despawn();
+                NetworkObject.Despawn(true);
         }
 
         private void OnTriggerEnter(Collider other)
@@ -54,7 +54,7 @@ namespace AIWE.Loot
 
             inventory.AddModule(_moduleId.Value.ToString());
             Debug.Log($"[ModulePickup] {other.name} picked up {_moduleId.Value}");
-            NetworkObject.Despawn();
+            NetworkObject.Despawn(true);
         }
     }
 }

@@ -414,6 +414,7 @@ Transform:
   - {fileID: 1220503761}
   - {fileID: 1342745073}
   - {fileID: 189284389}
+  - {fileID: 1388573203}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &71655953
@@ -1492,7 +1493,7 @@ GameObject:
   - component: {fileID: 1342745072}
   - component: {fileID: 1342745071}
   m_Layer: 0
-  m_Name: GameHUD
+  m_Name: UI GameHUD
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1621,6 +1622,74 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AIWE.LevelDesign.LDtkLevelLinker
   ShowTopMostFoldoutHeaderGroup: 1
   towerPrefab: {fileID: 4165849237337852782, guid: 51cac0bad9bc51e42a1c72aa5e9830d5, type: 3}
+--- !u!1 &1388573200
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1388573203}
+  - component: {fileID: 1388573202}
+  - component: {fileID: 1388573201}
+  m_Layer: 0
+  m_Name: UI GameOverScreen
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1388573201
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1388573200}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fbec5fa8c0ae29042a11499131ce292d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AIWE.HUD.GameOverScreen
+--- !u!114 &1388573202
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1388573200}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.dll::UnityEngine.UIElements.UIDocument
+  m_PanelSettings: {fileID: 11400000, guid: 8cde52f5cec7471fabdff13a8c016a75, type: 2}
+  m_ParentUI: {fileID: 0}
+  sourceAsset: {fileID: 9197481963319205126, guid: cb7f07d5d544d4748a6153f0b4d57aa0, type: 3}
+  m_SortingOrder: 10
+  m_Position: 0
+  m_WorldSpaceSizeMode: 1
+  m_WorldSpaceWidth: 1920
+  m_WorldSpaceHeight: 1080
+  m_PivotReferenceSize: 0
+  m_Pivot: 0
+  m_WorldSpaceCollider: {fileID: 0}
+--- !u!4 &1388573203
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1388573200}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 50785970}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1543624048
 GameObject:
   m_ObjectHideFlags: 0
@@ -1710,6 +1779,7 @@ GameObject:
   - component: {fileID: 1884937635}
   - component: {fileID: 1884937634}
   - component: {fileID: 1884937636}
+  - component: {fileID: 1884937637}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -1782,6 +1852,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 360d7c4185c38a440a7203d2d5a89704, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AIWE.Core.ReadyManager
+  ShowTopMostFoldoutHeaderGroup: 1
+--- !u!114 &1884937637
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1884937632}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 859f0df6073d983409dc1a28d32a7647, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AIWE.Core.ObjectiveController
   ShowTopMostFoldoutHeaderGroup: 1
 --- !u!1001 &1058210649277131712
 PrefabInstance:
