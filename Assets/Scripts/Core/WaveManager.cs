@@ -18,6 +18,16 @@ namespace AIWE.Core
 
         public int CurrentWave => _currentWave.Value;
         public int EnemiesRemaining => _enemiesRemaining.Value;
+        public int TotalWaves => waves != null ? waves.Count : 0;
+
+        public void ResetWaves()
+        {
+            if (!IsServer) return;
+            _currentWave.Value = 0;
+            _aliveCount = 0;
+            _spawningComplete = false;
+            _enemiesRemaining.Value = 0;
+        }
 
         public override void OnNetworkSpawn()
         {
