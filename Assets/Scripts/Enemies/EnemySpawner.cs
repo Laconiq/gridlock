@@ -17,6 +17,9 @@ namespace AIWE.Enemies
         [SerializeField] private GameObject enemyPrefab;
         [SerializeField] private Transform spawnPoint;
 
+        [Header("Spawn")]
+        [SerializeField] private float minSpawnHeight = 1.25f;
+
         [Header("Test Mode")]
         [SerializeField] private bool testMode;
         [SerializeField] private EnemyDefinition testEnemy;
@@ -41,7 +44,7 @@ namespace AIWE.Enemies
 
         private void FindLDtkSpawnPoints()
         {
-            var markers = FindObjectsByType<EnemySpawnerMarker>(FindObjectsSortMode.None);
+            var markers = FindObjectsByType<EnemySpawnerMarker>();
             if (markers.Length > 0)
             {
                 _spawnPoints = markers.Select(m => m.transform).ToArray();
@@ -104,6 +107,7 @@ namespace AIWE.Enemies
             if (enemyPrefab == null || !IsServer) return;
 
             var pos = GetSpawnPosition();
+            pos.y = Mathf.Max(pos.y, minSpawnHeight);
             var go = Instantiate(enemyPrefab, pos, Quaternion.identity);
 
             var netObj = go.GetComponent<NetworkObject>();
