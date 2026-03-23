@@ -83,6 +83,7 @@ namespace AIWE.NodeEditor.UI
             _playerInventory = inventory;
             _isOpen = true;
             _isWeaponMode = chassis is PlayerWeaponChassis;
+            _canvas?.ResumeAnimations();
 
             if (_root != null)
                 _root.style.display = DisplayStyle.Flex;
@@ -150,6 +151,7 @@ namespace AIWE.NodeEditor.UI
         {
             if (!_isOpen) return;
             _isOpen = false;
+            _canvas?.PauseAnimations();
 
             if (_root != null)
                 _root.style.display = DisplayStyle.None;

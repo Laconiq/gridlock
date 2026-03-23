@@ -22,6 +22,7 @@ namespace AIWE.NodeEditor.UI
         private NodeGraphData _graph;
         private int _maxTriggers;
         private readonly List<NodeWidget> _nodeWidgets = new();
+        private readonly Dictionary<string, NodeWidget> _nodeWidgetLookup = new();
 
         private Vector2 _panOffset;
         private float _zoomLevel = 1f;
@@ -45,6 +46,9 @@ namespace AIWE.NodeEditor.UI
         private readonly MinimapWidget _minimap;
 
         public VisualElement Content => _content;
+
+        public void PauseAnimations() => _connectionLayer.PauseAnimation();
+        public void ResumeAnimations() => _connectionLayer.ResumeAnimation();
 
         public NodeEditorCanvas(VisualElement canvasArea, ModuleRegistry registry)
         {
@@ -126,6 +130,7 @@ namespace AIWE.NodeEditor.UI
             foreach (var widget in _nodeWidgets)
                 widget.RemoveFromCanvas();
             _nodeWidgets.Clear();
+            _nodeWidgetLookup.Clear();
             _connectionLayer.ClearConnections();
         }
 
@@ -139,6 +144,7 @@ namespace AIWE.NodeEditor.UI
                 _content.Add(widget.Root);
                 widget.SetPosition(nodeData.editorPosition);
                 _nodeWidgets.Add(widget);
+                _nodeWidgetLookup[widget.NodeId] = widget;
             }
         }
 
@@ -162,6 +168,7 @@ namespace AIWE.NodeEditor.UI
             _content.Add(widget.Root);
             widget.SetPosition(nodeData.editorPosition);
             _nodeWidgets.Add(widget);
+            _nodeWidgetLookup[widget.NodeId] = widget;
 
             if (animated)
                 widget.PlaySpawnAnimation();
@@ -263,6 +270,7 @@ namespace AIWE.NodeEditor.UI
                     _graph.connections.RemoveAll(c =>
                         c.fromNodeId == nodeToRemove.NodeId || c.toNodeId == nodeToRemove.NodeId);
                     _nodeWidgets.Remove(nodeToRemove);
+                    _nodeWidgetLookup.Remove(nodeToRemove.NodeId);
                     if (moduleDefId != null) OnNodeRemoved?.Invoke(moduleDefId);
                     RefreshConnections();
                 }
@@ -306,11 +314,12 @@ namespace AIWE.NodeEditor.UI
             _graph?.nodes.RemoveAll(n => n.nodeId == nodeId);
             _graph?.connections.RemoveAll(c => c.fromNodeId == nodeId || c.toNodeId == nodeId);
 
-            var widget = _nodeWidgets.Find(w => w.NodeId == nodeId);
+            _nodeWidgetLookup.TryGetValue(nodeId, out var widget);
             if (widget != null)
             {
                 widget.RemoveFromCanvas();
                 _nodeWidgets.Remove(widget);
+                _nodeWidgetLookup.Remove(nodeId);
             }
 
             if (moduleDefId != null)
@@ -344,8 +353,8 @@ namespace AIWE.NodeEditor.UI
 
             foreach (var conn in _graph.connections)
             {
-                var fromWidget = _nodeWidgets.Find(w => w.NodeId == conn.fromNodeId);
-                var toWidget = _nodeWidgets.Find(w => w.NodeId == conn.toNodeId);
+                _nodeWidgetLookup.TryGetValue(conn.fromNodeId, out var fromWidget);
+                _nodeWidgetLookup.TryGetValue(conn.toNodeId, out var toWidget);
 
                 if (fromWidget != null && toWidget != null)
                 {

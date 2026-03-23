@@ -15,6 +15,10 @@ namespace AIWE.NodeEditor.UI
 
         private float _time;
         private IVisualElementScheduledItem _animSchedule;
+        private bool _paused;
+
+        private readonly Vector2[] _pointsCache = new Vector2[FlowSamples + 1];
+        private readonly float[] _distancesCache = new float[FlowSamples + 1];
 
         const int FlowSamples = 64;
         const float DashLength = 12f;
@@ -49,8 +53,19 @@ namespace AIWE.NodeEditor.UI
             _animSchedule = null;
         }
 
+        public void PauseAnimation()
+        {
+            _paused = true;
+        }
+
+        public void ResumeAnimation()
+        {
+            _paused = false;
+        }
+
         private void AnimTick()
         {
+            if (_paused) return;
             _time += 0.016f;
             if (_connections.Count > 0 || _hasTempConnection)
                 MarkDirtyRepaint();
@@ -130,8 +145,8 @@ namespace AIWE.NodeEditor.UI
         private void DrawFlowDashes(Painter2D painter, Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3,
             Color color, float alphaMultiplier)
         {
-            var points = new Vector2[FlowSamples + 1];
-            var distances = new float[FlowSamples + 1];
+            var points = _pointsCache;
+            var distances = _distancesCache;
             float totalLength = 0f;
 
             points[0] = p0;

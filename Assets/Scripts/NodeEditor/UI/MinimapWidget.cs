@@ -9,6 +9,8 @@ namespace AIWE.NodeEditor.UI
     {
         private readonly VisualElement _canvas;
         private readonly VisualElement _viewportRect;
+        private readonly List<VisualElement> _dotPool = new();
+        private int _activeDotCount;
 
         public MinimapWidget(VisualElement canvasArea)
         {
@@ -22,18 +24,36 @@ namespace AIWE.NodeEditor.UI
 
         public bool IsValid => _canvas != null;
 
+        private VisualElement GetOrCreateDot(int index)
+        {
+            if (index < _dotPool.Count)
+            {
+                var dot = _dotPool[index];
+                dot.style.display = DisplayStyle.Flex;
+                return dot;
+            }
+
+            var newDot = new VisualElement();
+            newDot.AddToClassList("viewport-nav__node-dot");
+            _canvas.Add(newDot);
+            _dotPool.Add(newDot);
+            return newDot;
+        }
+
+        private void HideExtraDots(int usedCount)
+        {
+            for (int i = usedCount; i < _activeDotCount; i++)
+                _dotPool[i].style.display = DisplayStyle.None;
+            _activeDotCount = usedCount;
+        }
+
         public void Refresh(IReadOnlyList<NodeWidget> nodes, Vector2 panOffset, Rect viewportRect, float zoom = 1f)
         {
             if (_canvas == null) return;
 
-            for (int i = _canvas.childCount - 1; i >= 0; i--)
-            {
-                if (_canvas[i] != _viewportRect)
-                    _canvas[i].RemoveFromHierarchy();
-            }
-
             if (nodes.Count == 0)
             {
+                HideExtraDots(0);
                 _viewportRect.style.display = DisplayStyle.None;
                 return;
             }
@@ -63,10 +83,14 @@ namespace AIWE.NodeEditor.UI
 
             float scale = Mathf.Min(mapRect.width / worldW, mapRect.height / worldH);
 
-            foreach (var w in nodes)
+            for (int i = 0; i < nodes.Count; i++)
             {
-                var dot = new VisualElement();
-                dot.AddToClassList("viewport-nav__node-dot");
+                var w = nodes[i];
+                var dot = GetOrCreateDot(i);
+
+                dot.RemoveFromClassList("viewport-nav__node-dot--trigger");
+                dot.RemoveFromClassList("viewport-nav__node-dot--target");
+                dot.RemoveFromClassList("viewport-nav__node-dot--effect");
 
                 var catClass = w.Data.category switch
                 {
@@ -80,8 +104,9 @@ namespace AIWE.NodeEditor.UI
 
                 dot.style.left = (w.Position.x - minX) * scale;
                 dot.style.top = (w.Position.y - minY) * scale;
-                _canvas.Add(dot);
             }
+
+            HideExtraDots(nodes.Count);
 
             _viewportRect.style.display = DisplayStyle.Flex;
             _viewportRect.BringToFront();

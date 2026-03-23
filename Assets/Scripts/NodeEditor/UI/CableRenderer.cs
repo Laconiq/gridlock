@@ -20,6 +20,9 @@ namespace AIWE.NodeEditor.UI
         private IVisualElementScheduledItem _animSchedule;
         private bool _animated;
 
+        private readonly Vector2[] _pointsCache = new Vector2[FlowSamples + 1];
+        private readonly float[] _distancesCache = new float[FlowSamples + 1];
+
         public CableRenderer(bool animated = false)
         {
             _animated = animated;
@@ -110,8 +113,8 @@ namespace AIWE.NodeEditor.UI
 
         private void DrawFlowDashes(Painter2D painter, Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3, Color color)
         {
-            var points = new Vector2[FlowSamples + 1];
-            var distances = new float[FlowSamples + 1];
+            var points = _pointsCache;
+            var distances = _distancesCache;
             float totalLength = 0f;
 
             points[0] = p0;
