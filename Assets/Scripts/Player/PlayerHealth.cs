@@ -68,6 +68,9 @@ namespace AIWE.Player
 
             if (IsOwner)
             {
+                var controller = GetComponent<PlayerController>();
+                controller?.SetPlayerInputActive(false);
+
                 var spectate = GetComponent<SpectateController>();
                 if (spectate != null) spectate.EnterSpectate();
             }
@@ -105,6 +108,14 @@ namespace AIWE.Player
             {
                 var spectate = GetComponent<SpectateController>();
                 if (spectate != null) spectate.ExitSpectate();
+
+                var controller = GetComponent<PlayerController>();
+                if (controller != null && GameManager.Instance != null)
+                {
+                    var state = GameManager.Instance.CurrentState.Value;
+                    bool gameActive = state == GameState.Preparing || state == GameState.Wave;
+                    controller.SetPlayerInputActive(gameActive);
+                }
             }
         }
 

@@ -10,11 +10,6 @@ namespace AIWE.Player
     {
         private Controls _controls;
 
-        private void Awake()
-        {
-            _controls = new Controls();
-        }
-
         public override void OnNetworkSpawn()
         {
             if (!IsOwner)
@@ -23,15 +18,16 @@ namespace AIWE.Player
                 return;
             }
 
-            _controls.Player.Enable();
+            var provider = GetComponent<PlayerInputProvider>();
+            _controls = provider.Controls;
             _controls.Player.ReadyUp.performed += OnReadyUpPerformed;
         }
 
         public override void OnNetworkDespawn()
         {
             if (!IsOwner) return;
-            _controls.Player.ReadyUp.performed -= OnReadyUpPerformed;
-            _controls.Player.Disable();
+            if (_controls != null)
+                _controls.Player.ReadyUp.performed -= OnReadyUpPerformed;
         }
 
         private void OnReadyUpPerformed(InputAction.CallbackContext ctx)
@@ -43,10 +39,5 @@ namespace AIWE.Player
             ReadyManager.Instance?.ToggleReadyServerRpc();
         }
 
-        public override void OnDestroy()
-        {
-            _controls?.Dispose();
-            base.OnDestroy();
-        }
     }
 }

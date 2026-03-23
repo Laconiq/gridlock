@@ -10485,6 +10485,7 @@ GameObject:
   - component: {fileID: 8960615023472413983}
   - component: {fileID: 4561592705923709995}
   - component: {fileID: 3165716531027523976}
+  - component: {fileID: 4507887512255378201}
   m_Layer: 0
   m_Name: PlayerPrefab
   m_TagString: Untagged
@@ -10922,6 +10923,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AIWE.Player.SpectateController
   ShowTopMostFoldoutHeaderGroup: 1
   _spectateCameraPriority: 200
+--- !u!114 &4507887512255378201
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7362235884474108154}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfd80bbeaa3dca143bbd7f9f8d1bd2fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AIWE.Player.PlayerInputProvider
+  ShowTopMostFoldoutHeaderGroup: 1
 --- !u!1 &8724841465568502037
 GameObject:
   m_ObjectHideFlags: 0

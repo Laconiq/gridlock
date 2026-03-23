@@ -32,7 +32,6 @@ namespace AIWE.Player
 
         private void Awake()
         {
-            _controls = new Controls();
             _player = GetComponentInParent<PlayerController>();
 
             if (cinemachineCamera == null)
@@ -51,14 +50,9 @@ namespace AIWE.Player
                 return;
             }
 
-            _controls.Player.Enable();
+            var provider = GetComponentInParent<PlayerInputProvider>();
+            _controls = provider.Controls;
             cinemachineCamera.Priority.Value = 100;
-        }
-
-        public override void OnNetworkDespawn()
-        {
-            if (!IsOwner) return;
-            _controls.Player.Disable();
         }
 
         private void LateUpdate()
@@ -115,10 +109,5 @@ namespace AIWE.Player
             cinemachineCamera.Lens = lens;
         }
 
-        public override void OnDestroy()
-        {
-            _controls?.Dispose();
-            base.OnDestroy();
-        }
     }
 }

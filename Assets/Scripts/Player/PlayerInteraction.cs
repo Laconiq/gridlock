@@ -29,23 +29,14 @@ namespace AIWE.Player
             set
             {
                 _inputEnabled = value;
-                if (_controls == null) return;
-                if (value)
-                    _controls.Player.Enable();
-                else
+                if (!value)
                 {
-                    _controls.Player.Disable();
                     _currentInteractable = null;
                     _isHolding = false;
                     _holdTimer = 0f;
                     if (_interactionHUD != null) _interactionHUD.Hide();
                 }
             }
-        }
-
-        private void Awake()
-        {
-            _controls = new Controls();
         }
 
         public override void OnNetworkSpawn()
@@ -56,6 +47,8 @@ namespace AIWE.Player
                 return;
             }
 
+            var provider = GetComponent<PlayerInputProvider>();
+            _controls = provider.Controls;
             _controls.Player.Interact.started += OnInteractStarted;
             _controls.Player.Interact.canceled += OnInteractCanceled;
             StartCoroutine(WaitForHUD());
@@ -73,9 +66,11 @@ namespace AIWE.Player
         public override void OnNetworkDespawn()
         {
             if (!IsOwner) return;
-            _controls.Player.Interact.started -= OnInteractStarted;
-            _controls.Player.Interact.canceled -= OnInteractCanceled;
-            _controls.Player.Disable();
+            if (_controls != null)
+            {
+                _controls.Player.Interact.started -= OnInteractStarted;
+                _controls.Player.Interact.canceled -= OnInteractCanceled;
+            }
         }
 
         private void OnInteractStarted(InputAction.CallbackContext ctx)
@@ -170,10 +165,5 @@ namespace AIWE.Player
             }
         }
 
-        public override void OnDestroy()
-        {
-            _controls?.Dispose();
-            base.OnDestroy();
-        }
     }
 }
