@@ -10661,6 +10661,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AIWE.Player.PlayerInventory
   ShowTopMostFoldoutHeaderGroup: 1
   defaultLoadout: {fileID: 11400000, guid: 08549fe28abdd5042ad7010b462c707c, type: 2}
+  moduleRegistry: {fileID: 11400000, guid: 22193429fd66e25468601df6db58c91d, type: 2}
 --- !u!114 &3054129234856979200
 MonoBehaviour:
   m_ObjectHideFlags: 0

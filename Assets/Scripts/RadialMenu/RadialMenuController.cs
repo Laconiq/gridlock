@@ -76,7 +76,7 @@ namespace AIWE.RadialMenu
             _pendingTower = tower;
             _waitingForLock = true;
             var lockManager = ServiceLocator.Get<EditorLockManager>();
-            lockManager?.RequestLockRpc(OwnerClientId);
+            lockManager?.RequestLockRpc();
         }
 
         private void OnLockGranted()
@@ -111,7 +111,7 @@ namespace AIWE.RadialMenu
             screen?.Close();
 
             var lockManager = ServiceLocator.Get<EditorLockManager>();
-            lockManager?.ReleaseLockRpc(OwnerClientId);
+            lockManager?.ReleaseLockRpc();
 
             var playerController = GetComponent<PlayerController>();
             var camera = GetComponentInChildren<PlayerCamera>();

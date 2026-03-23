@@ -39,7 +39,7 @@ namespace AIWE.Towers
             if (!CanInteract(clientId)) return;
 
             var lockManager = ServiceLocator.Get<EditorLockManager>();
-            lockManager?.RequestLockRpc(clientId);
+            lockManager?.RequestLockRpc();
         }
     }
 }

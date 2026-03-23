@@ -84,9 +84,20 @@ namespace AIWE.Player
         }
 
         [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
-        private void UpdateGraphRpc(string json)
+        private void UpdateGraphRpc(string json, RpcParams rpcParams = default)
         {
-            if (string.IsNullOrEmpty(json) || json.Length > 4000) return;
+            if (rpcParams.Receive.SenderClientId != OwnerClientId)
+            {
+                Debug.LogWarning($"[PlayerWeapon] Graph update rejected: sender {rpcParams.Receive.SenderClientId} is not owner {OwnerClientId}");
+                return;
+            }
+
+            if (string.IsNullOrEmpty(json) || json.Length > 4000)
+            {
+                Debug.LogWarning("[PlayerWeapon] Graph data too large or empty, rejected");
+                return;
+            }
+
             var graph = GraphSerializer.Deserialize(json);
             if (graph == null) return;
             _serializedGraph.Value = new FixedString4096Bytes(json);

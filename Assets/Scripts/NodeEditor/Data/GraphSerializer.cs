@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace AIWE.NodeEditor.Data
@@ -14,7 +15,16 @@ namespace AIWE.NodeEditor.Data
         {
             if (string.IsNullOrEmpty(json) || json == "{}")
                 return new NodeGraphData();
-            return JsonUtility.FromJson<NodeGraphData>(json);
+
+            try
+            {
+                return JsonUtility.FromJson<NodeGraphData>(json);
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"[GraphSerializer] Failed to deserialize graph: {e.Message}");
+                return new NodeGraphData();
+            }
         }
     }
 }

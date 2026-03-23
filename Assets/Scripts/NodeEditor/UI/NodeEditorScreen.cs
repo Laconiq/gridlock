@@ -172,7 +172,7 @@ namespace AIWE.NodeEditor.UI
             {
                 var lockManager = ServiceLocator.Get<EditorLockManager>();
                 if (lockManager != null && NetworkManager.Singleton != null)
-                    lockManager.ReleaseLockRpc(NetworkManager.Singleton.LocalClientId);
+                    lockManager.ReleaseLockRpc();
             }
 
             _currentChassis = null;

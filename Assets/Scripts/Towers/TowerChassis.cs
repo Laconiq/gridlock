@@ -1,4 +1,6 @@
+using AIWE.Core;
 using AIWE.Interfaces;
+using AIWE.Network;
 using AIWE.NodeEditor.Data;
 using AIWE.Player;
 using Unity.Collections;
@@ -83,8 +85,16 @@ namespace AIWE.Towers
         }
 
         [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
-        private void UpdateGraphRpc(string json)
+        private void UpdateGraphRpc(string json, RpcParams rpcParams = default)
         {
+            var senderId = rpcParams.Receive.SenderClientId;
+            var lockManager = ServiceLocator.Get<EditorLockManager>();
+            if (lockManager != null && !lockManager.IsLockedBy(senderId))
+            {
+                Debug.LogWarning($"[TowerChassis] Graph update rejected: client {senderId} does not hold the lock");
+                return;
+            }
+
             if (string.IsNullOrEmpty(json) || json.Length > 4000)
             {
                 Debug.LogWarning("[TowerChassis] Invalid graph data rejected");
