@@ -20,6 +20,12 @@ namespace AIWE.Player
 
         public override void OnNetworkSpawn()
         {
+            if (!IsOwner && !IsServer)
+            {
+                enabled = false;
+                return;
+            }
+
             _chassis = GetComponent<PlayerWeaponChassis>();
             if (_chassis == null) return;
 
@@ -77,7 +83,7 @@ namespace AIWE.Player
 
         private void Update()
         {
-            if (!_initialized) return;
+            if (!_initialized || (!IsServer && !IsOwner)) return;
 
             float dt = Time.deltaTime;
 
@@ -85,9 +91,9 @@ namespace AIWE.Player
             {
                 foreach (var chain in _timerChains)
                     chain.Trigger.Tick(dt);
-            }
 
-            TickAllCooldowns(dt);
+                TickAllCooldowns(dt);
+            }
         }
 
         private void TickAllCooldowns(float dt)

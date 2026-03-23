@@ -55,6 +55,7 @@ namespace AIWE.Network
                 await _lobbyManager.CreateLobby("AIWE Game", maxPlayers, RelayJoinCode);
 
                 NetworkManager.Singleton.NetworkConfig.ConnectionApproval = true;
+                NetworkManager.Singleton.ConnectionApprovalCallback -= ApprovalCallback;
                 NetworkManager.Singleton.ConnectionApprovalCallback += ApprovalCallback;
 
                 NetworkManager.Singleton.StartHost();
@@ -86,6 +87,7 @@ namespace AIWE.Network
                 await RelayManager.JoinRelay(relayCode);
 
                 NetworkManager.Singleton.NetworkConfig.ConnectionApproval = true;
+                NetworkManager.Singleton.ConnectionApprovalCallback -= ApprovalCallback;
                 NetworkManager.Singleton.ConnectionApprovalCallback += ApprovalCallback;
 
                 NetworkManager.Singleton.StartClient();

@@ -37,6 +37,7 @@ namespace AIWE.Player
             if (!string.IsNullOrEmpty(graphStr))
             {
                 _cachedGraph = GraphSerializer.Deserialize(graphStr);
+                OnGraphUpdated?.Invoke(_cachedGraph);
             }
             else if (IsServer && defaultWeaponGraph != null && defaultWeaponGraph.graph != null)
             {
@@ -79,6 +80,11 @@ namespace AIWE.Player
             else
             {
                 var json = GraphSerializer.Serialize(graph);
+                if (json.Length > 4000)
+                {
+                    Debug.LogWarning("[PlayerWeapon] Graph too large, rejected");
+                    return;
+                }
                 UpdateGraphRpc(json);
             }
         }
