@@ -14,6 +14,7 @@ namespace AIWE.Enemies
         [SerializeField] private float moveSpeed = 3f;
 
         private readonly NetworkVariable<byte> _aiState = new();
+        private readonly NetworkVariable<float> _normalizedSpeed = new();
         private EnemyHealth _health;
         private StatusEffectManager _statusEffects;
         private NavMeshAgent _agent;
@@ -26,6 +27,7 @@ namespace AIWE.Enemies
         public Transform Transform => transform;
         public float MoveSpeed => moveSpeed;
         public EnemyAIState AIState => (EnemyAIState)_aiState.Value;
+        public float NormalizedSpeed => _normalizedSpeed.Value;
 
         private void Awake()
         {
@@ -66,6 +68,11 @@ namespace AIWE.Enemies
                 speed *= _statusEffects.SpeedMultiplier;
 
             _agent.speed = speed;
+            float newSpeed = moveSpeed > 0f
+                ? Mathf.Clamp01(_agent.velocity.magnitude / moveSpeed)
+                : 0f;
+            if (Mathf.Abs(newSpeed - _normalizedSpeed.Value) > 0.01f)
+                _normalizedSpeed.Value = newSpeed;
         }
 
         public void SetDestination(Vector3 destination)

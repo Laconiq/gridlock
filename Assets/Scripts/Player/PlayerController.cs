@@ -37,6 +37,7 @@ namespace AIWE.Player
         public bool IsGrounded => _controller.isGrounded;
 
         public event Action<float> OnLanded;
+        public event Action OnJumped;
 
         private PlayerCamera _cachedCamera;
         private PlayerInteraction _cachedInteraction;
@@ -254,6 +255,7 @@ namespace AIWE.Player
             _verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
             _coyoteTimer = 0f;
             _jumpBufferTimer = 0f;
+            OnJumped?.Invoke();
         }
 
     }

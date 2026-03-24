@@ -10486,6 +10486,8 @@ GameObject:
   - component: {fileID: 4561592705923709995}
   - component: {fileID: 3165716531027523976}
   - component: {fileID: 4507887512255378201}
+  - component: {fileID: 3872544717045769683}
+  - component: {fileID: 4521185980012622576}
   m_Layer: 0
   m_Name: PlayerPrefab
   m_TagString: Untagged
@@ -10936,6 +10938,62 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AIWE.Player.PlayerInputProvider
   ShowTopMostFoldoutHeaderGroup: 1
+--- !u!114 &3872544717045769683
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7362235884474108154}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cacf1e4d462816c45b6f0ec8af372484, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AIWE.Player.PlayerAnimationController
+  ShowTopMostFoldoutHeaderGroup: 1
+  _animator: {fileID: 6608486555999757857}
+  _animatorController: {fileID: 9100000, guid: d5596a75a9abeb6428d638a0bf5dad6b, type: 2}
+  animSpeedDamp: 0.1
+--- !u!114 &4521185980012622576
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7362235884474108154}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8d0727d5ae3244e3b569694d3912374, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.Components.NetworkAnimator
+  ShowTopMostFoldoutHeaderGroup: 1
+  NetworkAnimatorExpanded: 0
+  AuthorityMode: 0
+  m_Animator: {fileID: 6608486555999757857}
+  TransitionStateInfoList: []
+  AnimatorParameterEntries:
+    ParameterEntries:
+    - name: Speed
+      NameHash: -823668238
+      Synchronize: 1
+      ParameterType: 1
+    - name: IsGrounded
+      NameHash: 507951781
+      Synchronize: 1
+      ParameterType: 4
+    - name: IsJumping
+      NameHash: 1749078233
+      Synchronize: 1
+      ParameterType: 4
+    - name: Hit
+      NameHash: 1654612129
+      Synchronize: 1
+      ParameterType: 9
+    - name: Dead
+      NameHash: 1293411866
+      Synchronize: 1
+      ParameterType: 4
+  AnimatorParametersExpanded: 0
 --- !u!1 &8724841465568502037
 GameObject:
   m_ObjectHideFlags: 0
@@ -11161,6 +11219,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 6397529680747772187}
     m_Modifications:
+    - target: {fileID: -1521774772117591016, guid: dc494f42aedd60c4a85be02ec2b22ec4, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: d5596a75a9abeb6428d638a0bf5dad6b, type: 2}
+    - target: {fileID: 384605163159051935, guid: dc494f42aedd60c4a85be02ec2b22ec4, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0.011328132
+      objectReference: {fileID: 0}
+    - target: {fileID: 384605163159051935, guid: dc494f42aedd60c4a85be02ec2b22ec4, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0.033806592
+      objectReference: {fileID: 0}
     - target: {fileID: 1626232734065784990, guid: dc494f42aedd60c4a85be02ec2b22ec4, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -11205,6 +11275,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: Character_Dummy_Male_01_FixedScale
       objectReference: {fileID: 0}
+    - target: {fileID: 3911660632264633032, guid: dc494f42aedd60c4a85be02ec2b22ec4, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0.011328296
+      objectReference: {fileID: 0}
+    - target: {fileID: 3911660632264633032, guid: dc494f42aedd60c4a85be02ec2b22ec4, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0.033806562
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -11213,5 +11291,10 @@ PrefabInstance:
 --- !u!4 &2866000632908788391 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1626232734065784990, guid: dc494f42aedd60c4a85be02ec2b22ec4, type: 3}
+  m_PrefabInstance: {fileID: 3555484609582516793}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &6608486555999757857 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: -1521774772117591016, guid: dc494f42aedd60c4a85be02ec2b22ec4, type: 3}
   m_PrefabInstance: {fileID: 3555484609582516793}
   m_PrefabAsset: {fileID: 0}

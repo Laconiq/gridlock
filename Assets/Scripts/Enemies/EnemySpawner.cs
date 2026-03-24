@@ -96,6 +96,9 @@ namespace AIWE.Enemies
             pos.y = Mathf.Max(pos.y, minSpawnHeight);
             var go = Instantiate(enemyPrefab, pos, Quaternion.identity);
 
+            var netObj = go.GetComponent<NetworkObject>();
+            if (netObj != null) netObj.Spawn();
+
             var controller = go.GetComponent<EnemyController>();
             controller?.Setup(definition);
 
@@ -104,9 +107,6 @@ namespace AIWE.Enemies
 
             var ai = go.GetComponent<EnemyAI>();
             ai?.Setup(routeId, definition);
-
-            var netObj = go.GetComponent<NetworkObject>();
-            if (netObj != null) netObj.Spawn();
 
             if (tracked)
             {
