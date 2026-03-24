@@ -1,6 +1,7 @@
 using AIWE.NodeEditor.UI;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace AIWE.Player
 {
@@ -11,22 +12,16 @@ namespace AIWE.Player
         private PlayerWeaponExecutor _executor;
         private PlayerInventory _inventory;
         private bool _inputEnabled;
+        private Camera _cachedCamera;
 
         public bool InputEnabled
         {
             get => _inputEnabled;
-            set
-            {
-                _inputEnabled = value;
-                if (_controls == null) return;
-                if (value) _controls.Player.Enable();
-                else _controls.Player.Disable();
-            }
+            set => _inputEnabled = value;
         }
 
         private void Awake()
         {
-            _controls = new Controls();
             _chassis = GetComponent<PlayerWeaponChassis>();
             _executor = GetComponent<PlayerWeaponExecutor>();
             _inventory = GetComponent<PlayerInventory>();
@@ -40,16 +35,27 @@ namespace AIWE.Player
                 return;
             }
 
-            _controls.Player.OpenWeaponEditor.performed += _ => ToggleWeaponEditor();
-            _controls.Player.Attack.performed += _ => OnAttack();
-            _controls.Player.AltAttack.performed += _ => OnAltAttack();
+            var provider = GetComponent<PlayerInputProvider>();
+            _controls = provider.Controls;
+            _controls.Player.OpenWeaponEditor.performed += OnToggleWeaponEditorPerformed;
+            _controls.Player.Attack.performed += OnAttackPerformed;
+            _controls.Player.AltAttack.performed += OnAltAttackPerformed;
         }
 
         public override void OnNetworkDespawn()
         {
             if (!IsOwner) return;
-            _controls.Player.Disable();
+            if (_controls != null)
+            {
+                _controls.Player.OpenWeaponEditor.performed -= OnToggleWeaponEditorPerformed;
+                _controls.Player.Attack.performed -= OnAttackPerformed;
+                _controls.Player.AltAttack.performed -= OnAltAttackPerformed;
+            }
         }
+
+        private void OnToggleWeaponEditorPerformed(InputAction.CallbackContext ctx) => ToggleWeaponEditor();
+        private void OnAttackPerformed(InputAction.CallbackContext ctx) => OnAttack();
+        private void OnAltAttackPerformed(InputAction.CallbackContext ctx) => OnAltAttack();
 
         private void ToggleWeaponEditor()
         {
@@ -94,8 +100,8 @@ namespace AIWE.Player
 
         private Vector3 GetAimDirection()
         {
-            var cam = Camera.main;
-            return cam != null ? cam.transform.forward : transform.forward;
+            if (_cachedCamera == null) _cachedCamera = Camera.main;
+            return _cachedCamera != null ? _cachedCamera.transform.forward : transform.forward;
         }
 
         private Vector3 GetFireOrigin()
@@ -103,10 +109,5 @@ namespace AIWE.Player
             return _chassis?.FirePoint != null ? _chassis.FirePoint.position : transform.position;
         }
 
-        public override void OnDestroy()
-        {
-            _controls?.Dispose();
-            base.OnDestroy();
-        }
     }
 }

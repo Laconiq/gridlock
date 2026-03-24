@@ -11,6 +11,7 @@ namespace AIWE.Network
         private Lobby _currentLobby;
         private float _heartbeatTimer;
         private const float HeartbeatInterval = 15f;
+        private bool _isHost;
 
         public Lobby CurrentLobby => _currentLobby;
         public string JoinCode => _currentLobby?.Data?["RelayJoinCode"]?.Value;
@@ -27,6 +28,7 @@ namespace AIWE.Network
             };
 
             _currentLobby = await LobbyService.Instance.CreateLobbyAsync(lobbyName, maxPlayers, options);
+            _isHost = true;
             Debug.Log($"[LobbyManager] Lobby created: {_currentLobby.LobbyCode}");
             return _currentLobby;
         }
@@ -50,7 +52,7 @@ namespace AIWE.Network
 
         private void Update()
         {
-            if (_currentLobby == null) return;
+            if (_currentLobby == null || !_isHost) return;
 
             _heartbeatTimer += Time.deltaTime;
             if (_heartbeatTimer >= HeartbeatInterval)
@@ -89,6 +91,7 @@ namespace AIWE.Network
                 Debug.LogWarning($"[LobbyManager] Leave failed: {e.Message}");
             }
             _currentLobby = null;
+            _isHost = false;
         }
 
         private void OnDestroy()

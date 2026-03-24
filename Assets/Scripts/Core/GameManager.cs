@@ -74,6 +74,11 @@ namespace AIWE.Core
         [Rpc(SendTo.Server)]
         public void RequestResetGameServerRpc()
         {
+            if (CurrentState.Value != GameState.GameOver)
+            {
+                Debug.LogWarning("[GameManager] Reset rejected: game is not in GameOver state");
+                return;
+            }
             ResetGame();
         }
 

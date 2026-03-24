@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using AIWE.Interfaces;
 using UnityEngine;
+using UnityEngine.AI;
 
 namespace AIWE.Modules.Effects
 {
@@ -17,7 +18,18 @@ namespace AIWE.Modules.Effects
                 if (target == null || !target.IsAlive || target.Transform == null) continue;
 
                 var direction = (target.Position - origin).normalized;
-                target.Transform.position += direction * force;
+                var newPos = target.Transform.position + direction * force;
+
+                var agent = target.Transform.GetComponent<NavMeshAgent>();
+                if (agent != null && agent.isOnNavMesh)
+                {
+                    if (NavMesh.SamplePosition(newPos, out var hit, force, NavMesh.AllAreas))
+                        agent.Warp(hit.position);
+                }
+                else
+                {
+                    target.Transform.position = newPos;
+                }
             }
         }
 

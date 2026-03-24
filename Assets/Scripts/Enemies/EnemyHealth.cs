@@ -46,6 +46,12 @@ namespace AIWE.Enemies
                 _currentHPChanged?.Invoke(previous - current);
         }
 
+        public void SetInitialHP(float maxHP)
+        {
+            MaxHP = maxHP;
+            _currentHP.Value = maxHP;
+        }
+
         public void SetMaxHP(float maxHP)
         {
             MaxHP = maxHP;

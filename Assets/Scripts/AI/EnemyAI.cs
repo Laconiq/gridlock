@@ -45,6 +45,7 @@ namespace AIWE.AI
         private float _attackTimer;
         private float _combatTimer;
         private float _threatEvalTimer;
+        private float _prevDistToTarget;
         private bool _initialized;
 
         public float RouteProgress
@@ -174,6 +175,11 @@ namespace AIWE.AI
             _controller.SetDestination(_currentTarget.Position);
 
             float dist = Vector3.Distance(transform.position, _currentTarget.Position);
+
+            if (dist < _prevDistToTarget - 0.05f)
+                _combatTimer = 0f;
+            _prevDistToTarget = dist;
+
             if (dist <= meleeRange)
                 TransitionTo(EnemyAIState.Attack);
         }
@@ -319,6 +325,7 @@ namespace AIWE.AI
             _currentTarget = target;
             EnemyTargetRegistry.RegisterTarget(target);
             _combatTimer = 0f;
+            _prevDistToTarget = float.MaxValue;
         }
 
         private void ClearTarget()

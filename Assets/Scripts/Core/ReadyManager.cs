@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using AIWE.HUD;
 using Unity.Netcode;
 using UnityEngine;
@@ -13,6 +14,7 @@ namespace AIWE.Core
         [SerializeField] private float countdownDuration = 3f;
 
         private readonly NetworkVariable<int> _readyBitmask = new(0);
+        private readonly Dictionary<ulong, bool> _readyState = new();
         private bool _countingDown;
 
         public event Action OnReadyStateChanged;
@@ -68,13 +70,26 @@ namespace AIWE.Core
             if (_countingDown) return;
 
             var clientId = rpcParams.Receive.SenderClientId;
-            var index = GetClientIndex(clientId);
-            if (index < 0) return;
+            _readyState.TryGetValue(clientId, out var wasReady);
+            _readyState[clientId] = !wasReady;
 
-            _readyBitmask.Value ^= 1 << index;
+            SyncBitmaskFromDictionary();
 
             if (AreAllPlayersReady())
                 StartCoroutine(CountdownAndStartWave());
+        }
+
+        private void SyncBitmaskFromDictionary()
+        {
+            int mask = 0;
+            int bit = 0;
+            foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
+            {
+                if (_readyState.TryGetValue(client.ClientId, out var ready) && ready)
+                    mask |= 1 << bit;
+                bit++;
+            }
+            _readyBitmask.Value = mask;
         }
 
         private IEnumerator CountdownAndStartWave()
@@ -110,6 +125,9 @@ namespace AIWE.Core
 
         public bool IsPlayerReady(ulong clientId)
         {
+            if (IsServer)
+                return _readyState.TryGetValue(clientId, out var ready) && ready;
+
             var index = GetClientIndex(clientId);
             if (index < 0) return false;
             return (_readyBitmask.Value & (1 << index)) != 0;
@@ -117,6 +135,16 @@ namespace AIWE.Core
 
         public bool AreAllPlayersReady()
         {
+            if (IsServer)
+            {
+                foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
+                {
+                    if (!_readyState.TryGetValue(client.ClientId, out var ready) || !ready)
+                        return false;
+                }
+                return NetworkManager.Singleton.ConnectedClientsList.Count > 0;
+            }
+
             var count = NetworkManager.Singleton.ConnectedClientsList.Count;
             if (count == 0) return false;
             var expectedMask = (1 << count) - 1;
@@ -126,13 +154,15 @@ namespace AIWE.Core
         public void ResetAllReady()
         {
             if (!IsServer) return;
+            _readyState.Clear();
             _readyBitmask.Value = 0;
         }
 
         private void OnClientDisconnect(ulong clientId)
         {
             if (!IsServer) return;
-            _readyBitmask.Value = 0;
+            _readyState.Remove(clientId);
+            SyncBitmaskFromDictionary();
         }
 
         private void OnGameStateChanged(GameState previous, GameState current)

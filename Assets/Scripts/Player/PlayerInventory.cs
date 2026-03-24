@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using AIWE.Modules;
 using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
@@ -29,6 +30,7 @@ namespace AIWE.Player
     public class PlayerInventory : NetworkBehaviour
     {
         [SerializeField] private DefaultLoadout defaultLoadout;
+        [SerializeField] private ModuleRegistry moduleRegistry;
 
         private NetworkList<ModuleSlot> _modules;
 
@@ -114,15 +116,22 @@ namespace AIWE.Player
             RemoveModuleInternal(moduleId, count);
         }
 
-        [ServerRpc]
+        [Rpc(SendTo.Server)]
         private void AddModuleServerRpc(string moduleId, int count)
         {
+            if (count <= 0) return;
+            if (moduleRegistry != null && moduleRegistry.GetById(moduleId) == null)
+            {
+                Debug.LogWarning($"[PlayerInventory] Rejected AddModule: unknown moduleId '{moduleId}'");
+                return;
+            }
             AddModuleInternal(moduleId, count);
         }
 
-        [ServerRpc]
+        [Rpc(SendTo.Server)]
         private void RemoveModuleServerRpc(string moduleId, int count)
         {
+            if (count <= 0) return;
             RemoveModuleInternal(moduleId, count);
         }
 

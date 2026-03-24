@@ -22,6 +22,7 @@ namespace AIWE.Player
         [SerializeField] private float jumpBufferTime = 0.1f;
 
         private CharacterController _controller;
+        private PlayerInputProvider _inputProvider;
         private Controls _controls;
         private Vector3 _currentHorizontalVelocity;
         private float _verticalVelocity;
@@ -37,10 +38,19 @@ namespace AIWE.Player
 
         public event Action<float> OnLanded;
 
+        private PlayerCamera _cachedCamera;
+        private PlayerInteraction _cachedInteraction;
+        private PlayerWeaponEditorController _cachedWeaponEditor;
+        private PlayerHealth _cachedHealth;
+
         private void Awake()
         {
             _controller = GetComponent<CharacterController>();
-            _controls = new Controls();
+            _inputProvider = GetComponent<PlayerInputProvider>();
+            _cachedCamera = GetComponentInChildren<PlayerCamera>();
+            _cachedInteraction = GetComponent<PlayerInteraction>();
+            _cachedWeaponEditor = GetComponent<PlayerWeaponEditorController>();
+            _cachedHealth = GetComponent<PlayerHealth>();
         }
 
         public override void OnNetworkSpawn()
@@ -58,13 +68,13 @@ namespace AIWE.Player
                 cc.enabled = true;
             }
 
-            _controls.Player.Jump.performed += _ => OnJumpInput();
+            _controls = _inputProvider.Controls;
+            _controls.Player.Jump.performed += OnJumpPerformed;
 
-            var health = GetComponent<PlayerHealth>();
-            if (health != null)
+            if (_cachedHealth != null)
             {
-                health.OnDeath += OnPlayerDeath;
-                health.OnRespawn += OnPlayerRespawn;
+                _cachedHealth.OnDeath += OnPlayerDeath;
+                _cachedHealth.OnRespawn += OnPlayerRespawn;
             }
 
             SetPlayerInputActive(false);
@@ -74,13 +84,14 @@ namespace AIWE.Player
         public override void OnNetworkDespawn()
         {
             if (!IsOwner) return;
-            _controls.Player.Disable();
 
-            var health = GetComponent<PlayerHealth>();
-            if (health != null)
+            if (_controls != null)
+                _controls.Player.Jump.performed -= OnJumpPerformed;
+
+            if (_cachedHealth != null)
             {
-                health.OnDeath -= OnPlayerDeath;
-                health.OnRespawn -= OnPlayerRespawn;
+                _cachedHealth.OnDeath -= OnPlayerDeath;
+                _cachedHealth.OnRespawn -= OnPlayerRespawn;
             }
 
             if (GameManager.Instance != null)
@@ -104,35 +115,29 @@ namespace AIWE.Player
         private void CheckGameState(GameState state)
         {
             bool gameActive = state == GameState.Preparing || state == GameState.Wave;
-            var health = GetComponent<PlayerHealth>();
-            bool alive = health == null || health.IsAlive;
+            bool alive = _cachedHealth == null || _cachedHealth.IsAlive;
             SetPlayerInputActive(gameActive && alive);
         }
 
         public void SetPlayerInputActive(bool active)
         {
             InputEnabled = active;
+            _inputProvider?.SetPlayerMapEnabled(active);
+
             if (active)
             {
-                _controls.Player.Enable();
                 Cursor.lockState = CursorLockMode.Locked;
                 Cursor.visible = false;
             }
             else
             {
-                _controls.Player.Disable();
                 Cursor.lockState = CursorLockMode.None;
                 Cursor.visible = true;
             }
 
-            var cam = GetComponentInChildren<PlayerCamera>();
-            if (cam != null) cam.InputEnabled = active;
-
-            var interaction = GetComponent<PlayerInteraction>();
-            if (interaction != null) interaction.InputEnabled = active;
-
-            var weaponEditor = GetComponent<PlayerWeaponEditorController>();
-            if (weaponEditor != null) weaponEditor.InputEnabled = active;
+            if (_cachedCamera != null) _cachedCamera.InputEnabled = active;
+            if (_cachedInteraction != null) _cachedInteraction.InputEnabled = active;
+            if (_cachedWeaponEditor != null) _cachedWeaponEditor.InputEnabled = active;
         }
 
         private void OnPlayerDeath()
@@ -230,6 +235,11 @@ namespace AIWE.Player
             _wasGrounded = _controller.isGrounded;
         }
 
+        private void OnJumpPerformed(UnityEngine.InputSystem.InputAction.CallbackContext ctx)
+        {
+            OnJumpInput();
+        }
+
         private void OnJumpInput()
         {
             if (!InputEnabled) return;
@@ -246,10 +256,5 @@ namespace AIWE.Player
             _jumpBufferTimer = 0f;
         }
 
-        public override void OnDestroy()
-        {
-            _controls?.Dispose();
-            base.OnDestroy();
-        }
     }
 }

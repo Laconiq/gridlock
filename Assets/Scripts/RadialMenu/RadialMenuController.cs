@@ -14,11 +14,10 @@ namespace AIWE.RadialMenu
         private Controls _controls;
         private bool _waitingForLock;
         private TowerInteractable _pendingTower;
-
-        private void Awake()
-        {
-            _controls = new Controls();
-        }
+        private PlayerController _cachedPlayerController;
+        private PlayerCamera _cachedCamera;
+        private PlayerInteraction _cachedInteraction;
+        private PlayerWeaponEditorController _cachedWeaponEditor;
 
         public override void OnNetworkSpawn()
         {
@@ -28,8 +27,14 @@ namespace AIWE.RadialMenu
                 return;
             }
 
-            _controls.Player.Enable();
+            var provider = GetComponent<PlayerInputProvider>();
+            _controls = provider.Controls;
             _controls.Player.OpenRadialMenu.performed += OnRadialMenuInput;
+
+            _cachedPlayerController = GetComponent<PlayerController>();
+            _cachedCamera = GetComponentInChildren<PlayerCamera>();
+            _cachedInteraction = GetComponent<PlayerInteraction>();
+            _cachedWeaponEditor = GetComponent<PlayerWeaponEditorController>();
 
             var lockManager = ServiceLocator.Get<EditorLockManager>();
             if (lockManager != null)
@@ -43,7 +48,8 @@ namespace AIWE.RadialMenu
         {
             if (!IsOwner) return;
 
-            _controls.Player.OpenRadialMenu.performed -= OnRadialMenuInput;
+            if (_controls != null)
+                _controls.Player.OpenRadialMenu.performed -= OnRadialMenuInput;
 
             var lockManager = ServiceLocator.Get<EditorLockManager>();
             if (lockManager != null)
@@ -76,7 +82,7 @@ namespace AIWE.RadialMenu
             _pendingTower = tower;
             _waitingForLock = true;
             var lockManager = ServiceLocator.Get<EditorLockManager>();
-            lockManager?.RequestLockRpc(OwnerClientId);
+            lockManager?.RequestLockRpc();
         }
 
         private void OnLockGranted()
@@ -86,15 +92,11 @@ namespace AIWE.RadialMenu
 
             var screen = RadialMenuScreen.Instance;
             var inventory = GetComponent<PlayerInventory>();
-            var playerController = GetComponent<PlayerController>();
-            var camera = GetComponentInChildren<PlayerCamera>();
-            var interaction = GetComponent<PlayerInteraction>();
-            var weaponEditor = GetComponent<PlayerWeaponEditorController>();
 
-            if (playerController != null) playerController.InputEnabled = false;
-            if (camera != null) camera.InputEnabled = false;
-            if (interaction != null) interaction.InputEnabled = false;
-            if (weaponEditor != null) weaponEditor.InputEnabled = false;
+            if (_cachedPlayerController != null) _cachedPlayerController.InputEnabled = false;
+            if (_cachedCamera != null) _cachedCamera.InputEnabled = false;
+            if (_cachedInteraction != null) _cachedInteraction.InputEnabled = false;
+            if (_cachedWeaponEditor != null) _cachedWeaponEditor.InputEnabled = false;
 
             screen?.Open(_pendingTower.Chassis, inventory);
         }
@@ -111,28 +113,17 @@ namespace AIWE.RadialMenu
             screen?.Close();
 
             var lockManager = ServiceLocator.Get<EditorLockManager>();
-            lockManager?.ReleaseLockRpc(OwnerClientId);
+            lockManager?.ReleaseLockRpc();
 
-            var playerController = GetComponent<PlayerController>();
-            var camera = GetComponentInChildren<PlayerCamera>();
-            var interaction = GetComponent<PlayerInteraction>();
-            var weaponEditor = GetComponent<PlayerWeaponEditorController>();
-
-            if (playerController != null) playerController.InputEnabled = true;
-            if (camera != null) camera.InputEnabled = true;
-            if (interaction != null) interaction.InputEnabled = true;
-            if (weaponEditor != null) weaponEditor.InputEnabled = true;
+            if (_cachedPlayerController != null) _cachedPlayerController.InputEnabled = true;
+            if (_cachedCamera != null) _cachedCamera.InputEnabled = true;
+            if (_cachedInteraction != null) _cachedInteraction.InputEnabled = true;
+            if (_cachedWeaponEditor != null) _cachedWeaponEditor.InputEnabled = true;
 
             UnityEngine.Cursor.lockState = CursorLockMode.Locked;
             UnityEngine.Cursor.visible = false;
 
             _pendingTower = null;
-        }
-
-        public override void OnDestroy()
-        {
-            _controls?.Dispose();
-            base.OnDestroy();
         }
     }
 }

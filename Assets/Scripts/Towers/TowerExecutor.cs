@@ -27,10 +27,20 @@ namespace AIWE.Towers
             }
         }
 
-        public void RebuildFromGraph(NodeGraphData graph)
+        public override void OnNetworkDespawn()
+        {
+            ClearChains();
+        }
+
+        private void ClearChains()
         {
             _triggerChains.Clear();
             _initialized = false;
+        }
+
+        public void RebuildFromGraph(NodeGraphData graph)
+        {
+            ClearChains();
 
             if (graph == null || graph.nodes.Count == 0 || moduleRegistry == null || _chassis == null)
                 return;
