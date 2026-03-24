@@ -121,8 +121,11 @@ namespace AIWE.Player
 
         private void SetVisuals(bool visible)
         {
-            var body = transform.Find("PlayerBody");
-            if (body != null) body.gameObject.SetActive(visible);
+            foreach (var renderer in GetComponentsInChildren<SkinnedMeshRenderer>(true))
+            {
+                if (renderer.gameObject.activeInHierarchy)
+                    renderer.enabled = visible;
+            }
 
             var weaponVM = GetComponentInChildren<WeaponViewModel>(true);
             if (weaponVM != null) weaponVM.gameObject.SetActive(visible);
