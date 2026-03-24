@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using AIWE.AI;
 using AIWE.Combat;
 using AIWE.Interfaces;
@@ -79,12 +80,33 @@ namespace AIWE.Enemies
             }
         }
 
+        [SerializeField] private float deathAnimDuration = 2f;
+
         private void Die()
         {
             AttributeKill(_lastDamageSourceId);
             OnDeath?.Invoke();
             SpawnDrop();
-            NetworkObject.Despawn();
+            StartCoroutine(DespawnAfterDeathAnim());
+        }
+
+        private IEnumerator DespawnAfterDeathAnim()
+        {
+            var agent = GetComponent<UnityEngine.AI.NavMeshAgent>();
+            if (agent != null && agent.enabled)
+            {
+                agent.ResetPath();
+                agent.enabled = false;
+            }
+
+            var collider = GetComponent<Collider>();
+            if (collider != null)
+                collider.enabled = false;
+
+            yield return new WaitForSeconds(deathAnimDuration);
+
+            if (NetworkObject != null && NetworkObject.IsSpawned)
+                NetworkObject.Despawn();
         }
 
         private void AttributeKill(ulong sourceId)
