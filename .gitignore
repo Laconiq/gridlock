@@ -42,7 +42,9 @@ crashlytics-build.properties
 *.booproj
 *.svd
 *.pdb
+*.pdb.meta
 *.mdb
+*.mdb.meta
 *.opendb
 *.VC.db
 
