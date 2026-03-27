@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 5860436355741958959}
   - component: {fileID: 8632160606008456982}
   - component: {fileID: 8608928232267479782}
-  - component: {fileID: 6233074504620650621}
   - component: {fileID: 7298013138993832780}
   - component: {fileID: 6857266715922580223}
   - component: {fileID: 8588930336834771211}
@@ -119,31 +118,6 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &6233074504620650621
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4165849237337852782}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 32463432
-  InScenePlacedSourceGlobalObjectIdHash: 0
-  DeferredDespawnTick: 0
-  Ownership: 1
-  AlwaysReplicateAsRoot: 0
-  SynchronizeTransform: 1
-  ActiveSceneSynchronization: 0
-  SceneMigrationSynchronization: 0
-  SpawnWithObservers: 1
-  DontDestroyWithOwner: 0
-  AutoObjectParentSync: 1
-  SyncOwnerTransformWhenParented: 1
-  AllowOwnerToParent: 0
 --- !u!114 &7298013138993832780
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -156,10 +130,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 100ca5a674bf81444a254aa8803bf79e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AIWE.Towers.TowerChassis
-  ShowTopMostFoldoutHeaderGroup: 1
   definition: {fileID: 11400000, guid: ef449c25eadd554489bf3c3056d9f311, type: 2}
   firePoint: {fileID: 4093815563506613825}
-  defaultGraph: {fileID: 11400000, guid: bb49ace024c99024b982cac1891d4372, type: 2}
 --- !u!114 &6857266715922580223
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -184,7 +156,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ceeac58dd4313ab4fb07f4773e1684ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AIWE.Towers.TowerExecutor
-  ShowTopMostFoldoutHeaderGroup: 1
   moduleRegistry: {fileID: 11400000, guid: 22193429fd66e25468601df6db58c91d, type: 2}
 --- !u!1 &6931350410310232637
 GameObject:
