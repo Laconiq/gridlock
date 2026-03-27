@@ -1,15 +1,12 @@
 using System.Collections;
 using AIWE.Interfaces;
-using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace AIWE.Player
 {
-    public class PlayerInteraction : NetworkBehaviour
+    public class PlayerInteraction : MonoBehaviour
     {
-        [SerializeField] private float interactionRange = 4f;
-        [SerializeField] private float holdDuration = 0.4f;
         [SerializeField] private LayerMask interactionMask = ~0;
 
         private Controls _controls;
@@ -17,9 +14,6 @@ namespace AIWE.Player
         private InteractionHUD _interactionHUD;
         private bool _inputEnabled;
         private Camera _cachedCamera;
-
-        private bool _isHolding;
-        private float _holdTimer;
 
         public IInteractable CurrentInteractable => _currentInteractable;
 
@@ -32,25 +26,16 @@ namespace AIWE.Player
                 if (!value)
                 {
                     _currentInteractable = null;
-                    _isHolding = false;
-                    _holdTimer = 0f;
                     if (_interactionHUD != null) _interactionHUD.Hide();
                 }
             }
         }
 
-        public override void OnNetworkSpawn()
+        private void Start()
         {
-            if (!IsOwner)
-            {
-                enabled = false;
-                return;
-            }
-
             var provider = GetComponent<PlayerInputProvider>();
             _controls = provider.Controls;
-            _controls.Player.Interact.started += OnInteractStarted;
-            _controls.Player.Interact.canceled += OnInteractCanceled;
+            _controls.Player.Interact.performed += OnInteractPerformed;
             StartCoroutine(WaitForHUD());
         }
 
@@ -63,39 +48,25 @@ namespace AIWE.Player
             }
         }
 
-        public override void OnNetworkDespawn()
+        private void OnDestroy()
         {
-            if (!IsOwner) return;
             if (_controls != null)
-            {
-                _controls.Player.Interact.started -= OnInteractStarted;
-                _controls.Player.Interact.canceled -= OnInteractCanceled;
-            }
+                _controls.Player.Interact.performed -= OnInteractPerformed;
         }
 
-        private void OnInteractStarted(InputAction.CallbackContext ctx)
+        private void OnInteractPerformed(InputAction.CallbackContext ctx)
         {
             if (!_inputEnabled) return;
             if (_currentInteractable == null) return;
-            if (!_currentInteractable.CanInteract(OwnerClientId)) return;
+            if (!_currentInteractable.CanInteract()) return;
 
-            _isHolding = true;
-            _holdTimer = 0f;
-        }
-
-        private void OnInteractCanceled(InputAction.CallbackContext ctx)
-        {
-            _isHolding = false;
-            _holdTimer = 0f;
-            _interactionHUD?.SetProgress(0f);
+            _currentInteractable.Interact();
         }
 
         private void Update()
         {
-            if (!IsOwner || !_inputEnabled) return;
-
+            if (!_inputEnabled) return;
             CheckForInteractable();
-            UpdateHold();
         }
 
         private void CheckForInteractable()
@@ -106,7 +77,10 @@ namespace AIWE.Player
 
             IInteractable found = null;
 
-            if (Physics.Raycast(cam.transform.position, cam.transform.forward, out var hit, interactionRange, interactionMask))
+            var mousePos = Mouse.current.position.ReadValue();
+            var ray = cam.ScreenPointToRay(mousePos);
+
+            if (Physics.Raycast(ray, out var hit, 1000f, interactionMask))
             {
                 found = hit.collider.GetComponentInParent<IInteractable>();
             }
@@ -114,39 +88,7 @@ namespace AIWE.Player
             if (found != _currentInteractable)
             {
                 _currentInteractable = found;
-                _isHolding = false;
-                _holdTimer = 0f;
                 UpdateHUD();
-            }
-            else if (_currentInteractable != null)
-            {
-                UpdateHUD();
-            }
-        }
-
-        private void UpdateHold()
-        {
-            if (!_isHolding || _currentInteractable == null) return;
-
-            if (!_currentInteractable.CanInteract(OwnerClientId))
-            {
-                _isHolding = false;
-                _holdTimer = 0f;
-                _interactionHUD?.SetProgress(0f);
-                return;
-            }
-
-            _holdTimer += Time.deltaTime;
-            float progress = Mathf.Clamp01(_holdTimer / holdDuration);
-            _interactionHUD?.SetProgress(progress);
-
-            if (_holdTimer >= holdDuration)
-            {
-                AIWE.NodeEditor.NodeEditorController.WaitingForLock = true;
-                _currentInteractable.Interact(OwnerClientId);
-                _isHolding = false;
-                _holdTimer = 0f;
-                _interactionHUD?.SetProgress(0f);
             }
         }
 
@@ -156,7 +98,7 @@ namespace AIWE.Player
 
             if (_currentInteractable != null)
             {
-                var canInteract = _currentInteractable.CanInteract(OwnerClientId);
+                var canInteract = _currentInteractable.CanInteract();
                 _interactionHUD.Show(_currentInteractable.GetPromptText(), canInteract);
             }
             else
@@ -164,6 +106,5 @@ namespace AIWE.Player
                 _interactionHUD.Hide();
             }
         }
-
     }
 }

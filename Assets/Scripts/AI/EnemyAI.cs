@@ -100,8 +100,7 @@ namespace AIWE.AI
             if (threatConfig != null)
                 _threatCalc = new ThreatCalculator(threatConfig);
 
-            var netObj = _controller.NetworkObject;
-            _threatEvalTimer = (netObj != null ? netObj.NetworkObjectId % 10 : 0) * 0.05f;
+            _threatEvalTimer = ((uint)gameObject.GetInstanceID() % 10) * 0.05f;
 
             TransitionTo(EnemyAIState.FollowRoute);
             _initialized = true;
@@ -109,7 +108,7 @@ namespace AIWE.AI
 
         private void Update()
         {
-            if (!_initialized || !_controller.IsServer || !_controller.IsAlive) return;
+            if (!_initialized || !_controller.IsAlive) return;
 
             switch (_state)
             {
@@ -223,7 +222,7 @@ namespace AIWE.AI
                 var damageable = _currentTarget.Transform.GetComponent<IDamageable>();
                 if (damageable != null)
                 {
-                    var dmgInfo = new DamageInfo(attackDamage, _controller.NetworkObjectId, DamageType.Direct);
+                    var dmgInfo = new DamageInfo(attackDamage, (ulong)_controller.gameObject.GetInstanceID(), DamageType.Direct);
                     damageable.TakeDamage(dmgInfo);
                     _combatTimer = 0f;
                 }

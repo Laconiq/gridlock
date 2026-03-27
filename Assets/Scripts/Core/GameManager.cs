@@ -1,23 +1,22 @@
+using System;
 using AIWE.Enemies;
 using AIWE.LevelDesign;
 using AIWE.Loot;
-using AIWE.Network;
-using AIWE.Player;
 using AIWE.Towers;
-using Unity.Netcode;
 using UnityEngine;
 
 namespace AIWE.Core
 {
-    public class GameManager : NetworkBehaviour
+    public class GameManager : MonoBehaviour
     {
         public static GameManager Instance { get; private set; }
 
-        public NetworkVariable<GameState> CurrentState { get; } = new(
-            GameState.Lobby,
-            NetworkVariableReadPermission.Everyone,
-            NetworkVariableWritePermission.Server
-        );
+        [SerializeField] private GameState initialState = GameState.Preparing;
+
+        private GameState _currentState;
+        public GameState CurrentState => _currentState;
+
+        public event Action<GameState, GameState> OnStateChanged;
 
         private void Awake()
         {
@@ -30,51 +29,22 @@ namespace AIWE.Core
             ServiceLocator.Register(this);
         }
 
-        public override void OnNetworkSpawn()
+        private void Start()
         {
-            CurrentState.OnValueChanged += OnStateChanged;
-            Debug.Log($"[GameManager] Spawned. State: {CurrentState.Value}");
-
-            if (IsServer && CurrentState.Value == GameState.Lobby)
-                SetState(GameState.Preparing);
-        }
-
-        public override void OnNetworkDespawn()
-        {
-            CurrentState.OnValueChanged -= OnStateChanged;
-        }
-
-        private void OnStateChanged(GameState previous, GameState current)
-        {
-            Debug.Log($"[GameManager] State changed: {previous} -> {current}");
-
-            if (IsServer && current == GameState.Preparing)
-                RespawnDeadPlayers();
+            SetState(initialState);
         }
 
         public void SetState(GameState newState)
         {
-            if (!IsServer) return;
-            CurrentState.Value = newState;
+            var previous = _currentState;
+            _currentState = newState;
+            Debug.Log($"[GameManager] State changed: {previous} -> {newState}");
+            OnStateChanged?.Invoke(previous, newState);
         }
 
-        public void CheckTotalPartyKill()
+        public void RequestResetGame()
         {
-            if (!IsServer || CurrentState.Value != GameState.Wave) return;
-
-            foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
-            {
-                var health = client.PlayerObject?.GetComponent<PlayerHealth>();
-                if (health != null && health.IsAlive) return;
-            }
-
-            SetState(GameState.GameOver);
-        }
-
-        [Rpc(SendTo.Server)]
-        public void RequestResetGameServerRpc()
-        {
-            if (CurrentState.Value != GameState.GameOver)
+            if (_currentState != GameState.GameOver)
             {
                 Debug.LogWarning("[GameManager] Reset rejected: game is not in GameOver state");
                 return;
@@ -84,42 +54,20 @@ namespace AIWE.Core
 
         public void ResetGame()
         {
-            if (!IsServer) return;
+            foreach (var enemy in FindObjectsByType<EnemyController>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+                Destroy(enemy.gameObject);
 
-            foreach (var enemy in FindObjectsByType<EnemyController>(FindObjectsInactive.Exclude))
-            {
-                if (enemy.NetworkObject != null && enemy.NetworkObject.IsSpawned)
-                    enemy.NetworkObject.Despawn(true);
-            }
+            foreach (var pickup in FindObjectsByType<ModulePickup>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+                Destroy(pickup.gameObject);
 
-            foreach (var pickup in FindObjectsByType<ModulePickup>(FindObjectsInactive.Exclude))
-            {
-                if (pickup.NetworkObject != null && pickup.NetworkObject.IsSpawned)
-                    pickup.NetworkObject.Despawn(true);
-            }
-
-            foreach (var tower in FindObjectsByType<TowerChassis>(FindObjectsInactive.Exclude))
-            {
-                if (tower.NetworkObject != null && tower.NetworkObject.IsSpawned)
-                    tower.NetworkObject.Despawn(true);
-            }
+            foreach (var tower in FindObjectsByType<TowerChassis>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+                Destroy(tower.gameObject);
 
             var linker = FindAnyObjectByType<LDtkLevelLinker>();
             if (linker != null) linker.ResetBuiltState();
 
-            foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
-            {
-                if (client.PlayerObject == null) continue;
-
-                var inventory = client.PlayerObject.GetComponent<PlayerInventory>();
-                if (inventory != null) inventory.ResetToDefault();
-
-                var weapon = client.PlayerObject.GetComponent<PlayerWeaponChassis>();
-                if (weapon != null) weapon.ResetToDefault();
-            }
-
-            var lockManager = ServiceLocator.Get<EditorLockManager>();
-            if (lockManager != null) lockManager.ForceReleaseLock();
+            var inventory = FindAnyObjectByType<Player.PlayerInventory>();
+            if (inventory != null) inventory.ResetToDefault();
 
             var wm = FindAnyObjectByType<WaveManager>();
             wm?.ResetWaves();
@@ -129,26 +77,13 @@ namespace AIWE.Core
             SetState(GameState.Preparing);
         }
 
-        private void RespawnDeadPlayers()
-        {
-            if (!IsServer) return;
-
-            foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
-            {
-                var health = client.PlayerObject?.GetComponent<PlayerHealth>();
-                if (health != null && !health.IsAlive)
-                    health.Respawn();
-            }
-        }
-
-        public override void OnDestroy()
+        private void OnDestroy()
         {
             if (Instance == this)
             {
                 ServiceLocator.Unregister<GameManager>();
                 Instance = null;
             }
-            base.OnDestroy();
         }
     }
 }

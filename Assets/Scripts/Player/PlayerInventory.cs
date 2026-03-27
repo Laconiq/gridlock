@@ -1,60 +1,42 @@
 using System;
 using System.Collections.Generic;
 using AIWE.Modules;
-using Unity.Collections;
-using Unity.Netcode;
 using UnityEngine;
 
 namespace AIWE.Player
 {
     [Serializable]
-    public struct ModuleSlot : INetworkSerializable, IEquatable<ModuleSlot>
+    public struct ModuleSlot : IEquatable<ModuleSlot>
     {
-        public FixedString64Bytes ModuleId;
+        public string ModuleId;
         public int Count;
-
-        public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
-        {
-            serializer.SerializeValue(ref ModuleId);
-            serializer.SerializeValue(ref Count);
-        }
 
         public bool Equals(ModuleSlot other)
         {
-            return ModuleId.Equals(other.ModuleId) && Count == other.Count;
+            return ModuleId == other.ModuleId && Count == other.Count;
         }
 
-        public override int GetHashCode() => ModuleId.GetHashCode();
+        public override int GetHashCode() => ModuleId?.GetHashCode() ?? 0;
     }
 
-    public class PlayerInventory : NetworkBehaviour
+    public class PlayerInventory : MonoBehaviour
     {
         [SerializeField] private DefaultLoadout defaultLoadout;
         [SerializeField] private ModuleRegistry moduleRegistry;
 
-        private NetworkList<ModuleSlot> _modules;
+        private readonly List<ModuleSlot> _modules = new();
 
         public event Action OnInventoryChanged;
 
-        private void Awake()
+        private void Start()
         {
-            _modules = new NetworkList<ModuleSlot>();
-            _modules.OnListChanged += OnModulesChanged;
-        }
-
-        public override void OnNetworkSpawn()
-        {
-            base.OnNetworkSpawn();
-
-            if (IsServer && defaultLoadout != null)
-            {
+            if (defaultLoadout != null)
                 ApplyLoadout(defaultLoadout);
-            }
         }
 
         public void ResetToDefault()
         {
-            if (!IsServer || defaultLoadout == null) return;
+            if (defaultLoadout == null) return;
             ApplyLoadout(defaultLoadout);
         }
 
@@ -67,16 +49,12 @@ namespace AIWE.Player
                 if (entry.module == null || entry.count <= 0) continue;
                 _modules.Add(new ModuleSlot
                 {
-                    ModuleId = new FixedString64Bytes(entry.module.moduleId),
+                    ModuleId = entry.module.moduleId,
                     Count = entry.count
                 });
                 total += entry.count;
             }
             Debug.Log($"[PlayerInventory] Loadout applied: {total} modules ({_modules.Count} types)");
-        }
-
-        private void OnModulesChanged(NetworkListEvent<ModuleSlot> changeEvent)
-        {
             OnInventoryChanged?.Invoke();
         }
 
@@ -87,10 +65,9 @@ namespace AIWE.Player
 
         public int GetCount(string moduleId)
         {
-            var fixedId = new FixedString64Bytes(moduleId);
             for (int i = 0; i < _modules.Count; i++)
             {
-                if (_modules[i].ModuleId.Equals(fixedId))
+                if (_modules[i].ModuleId == moduleId)
                     return _modules[i].Count;
             }
             return 0;
@@ -98,83 +75,55 @@ namespace AIWE.Player
 
         public List<ModuleSlot> GetAllModules()
         {
-            var result = new List<ModuleSlot>();
-            for (int i = 0; i < _modules.Count; i++)
-                result.Add(_modules[i]);
-            return result;
+            return new List<ModuleSlot>(_modules);
         }
 
         public void AddModule(string moduleId, int count = 1)
         {
-            if (!IsServer) { AddModuleServerRpc(moduleId, count); return; }
+            if (count <= 0) return;
             AddModuleInternal(moduleId, count);
+            OnInventoryChanged?.Invoke();
         }
 
         public void RemoveModule(string moduleId, int count = 1)
         {
-            if (!IsServer) { RemoveModuleServerRpc(moduleId, count); return; }
-            RemoveModuleInternal(moduleId, count);
-        }
-
-        [Rpc(SendTo.Server)]
-        private void AddModuleServerRpc(string moduleId, int count)
-        {
-            if (count <= 0) return;
-            if (moduleRegistry != null && moduleRegistry.GetById(moduleId) == null)
-            {
-                Debug.LogWarning($"[PlayerInventory] Rejected AddModule: unknown moduleId '{moduleId}'");
-                return;
-            }
-            AddModuleInternal(moduleId, count);
-        }
-
-        [Rpc(SendTo.Server)]
-        private void RemoveModuleServerRpc(string moduleId, int count)
-        {
             if (count <= 0) return;
             RemoveModuleInternal(moduleId, count);
+            OnInventoryChanged?.Invoke();
         }
 
         private void AddModuleInternal(string moduleId, int count)
         {
-            var fixedId = new FixedString64Bytes(moduleId);
             for (int i = 0; i < _modules.Count; i++)
             {
-                if (_modules[i].ModuleId.Equals(fixedId))
+                if (_modules[i].ModuleId == moduleId)
                 {
                     _modules[i] = new ModuleSlot
                     {
-                        ModuleId = fixedId,
+                        ModuleId = moduleId,
                         Count = _modules[i].Count + count
                     };
                     return;
                 }
             }
-            _modules.Add(new ModuleSlot { ModuleId = fixedId, Count = count });
+            _modules.Add(new ModuleSlot { ModuleId = moduleId, Count = count });
         }
 
         private void RemoveModuleInternal(string moduleId, int count)
         {
-            var fixedId = new FixedString64Bytes(moduleId);
             for (int i = 0; i < _modules.Count; i++)
             {
-                if (_modules[i].ModuleId.Equals(fixedId))
+                if (_modules[i].ModuleId == moduleId)
                 {
                     int newCount = Mathf.Max(0, _modules[i].Count - count);
                     _modules[i] = new ModuleSlot
                     {
-                        ModuleId = fixedId,
+                        ModuleId = moduleId,
                         Count = newCount
                     };
                     return;
                 }
             }
-        }
-
-        public override void OnDestroy()
-        {
-            _modules.OnListChanged -= OnModulesChanged;
-            base.OnDestroy();
         }
     }
 }

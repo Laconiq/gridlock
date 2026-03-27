@@ -28,7 +28,7 @@ namespace AIWE.Modules.Effects
                         Value = damagePerTick,
                         Duration = duration,
                         TickInterval = tickInterval,
-                        SourceId = OwnerNetworkObjectId
+                        SourceId = OwnerSourceId
                     });
                 }
             }

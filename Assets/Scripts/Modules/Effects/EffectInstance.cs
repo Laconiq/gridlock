@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using AIWE.Interfaces;
-using Unity.Netcode;
 using UnityEngine;
 
 namespace AIWE.Modules.Effects
@@ -12,12 +11,12 @@ namespace AIWE.Modules.Effects
         [NonSerialized] public EffectDefinition Definition;
         [NonSerialized] public IChassis Owner;
 
-        protected ulong OwnerNetworkObjectId
+        protected ulong OwnerSourceId
         {
             get
             {
-                if (Owner is NetworkBehaviour nb && nb.NetworkObject != null)
-                    return nb.NetworkObject.NetworkObjectId;
+                if (Owner is MonoBehaviour mb)
+                    return (ulong)mb.gameObject.GetInstanceID();
                 return 0;
             }
         }

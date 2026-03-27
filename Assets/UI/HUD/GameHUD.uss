@@ -149,50 +149,6 @@
     text-transform: uppercase;
 }
 
-/* === SPECTATE OVERLAY (bottom-center) === */
-.hud__spectate-overlay {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 64px;
-    align-items: center;
-    flex-direction: column;
-    background-color: rgba(14, 14, 15, 0.6);
-    padding: 16px 24px;
-    align-self: center;
-    max-width: 360px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.hud__spectate-target {
-    font-size: 12px;
-    -unity-font-style: bold;
-    letter-spacing: 4px;
-    color: var(--primary);
-    -unity-text-align: middle-center;
-    text-transform: uppercase;
-}
-
-.hud__spectate-respawn {
-    font-size: 8px;
-    letter-spacing: 3px;
-    color: var(--on-surface-variant);
-    -unity-text-align: middle-center;
-    margin-top: 6px;
-    text-transform: uppercase;
-}
-
-.hud__spectate-hint {
-    font-size: 8px;
-    letter-spacing: 2px;
-    color: var(--on-surface-variant);
-    opacity: 0.5;
-    -unity-text-align: middle-center;
-    margin-top: 4px;
-    text-transform: uppercase;
-}
-
 /* === TOP ROW === */
 .hud__top-row {
     flex-direction: row;
@@ -316,79 +272,6 @@
     text-transform: uppercase;
 }
 
-/* === SQUAD SECTION === */
-.hud__squad-section {
-    margin-top: 20px;
-    border-right-width: 2px;
-    border-right-color: rgba(143, 245, 255, 0.15);
-    padding-right: 8px;
-    flex-direction: column;
-    align-items: flex-end;
-}
-
-.hud__squad-header {
-    font-size: 8px;
-    letter-spacing: 4px;
-    color: var(--on-surface-variant);
-    opacity: 0.5;
-    -unity-text-align: middle-right;
-    margin-bottom: 8px;
-    text-transform: uppercase;
-}
-
-.hud__squad-feed {
-    flex-direction: column;
-    align-items: flex-end;
-}
-
-/* === SQUAD ROW === */
-.hud__squad-row {
-    flex-direction: column;
-    align-items: flex-end;
-    margin-bottom: 10px;
-    width: 100%;
-}
-
-.hud__squad-row--disconnected {
-    opacity: 0.4;
-}
-
-.hud__squad-row-header {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    width: 180px;
-    margin-bottom: 3px;
-}
-
-.hud__squad-name {
-    font-size: 9px;
-    color: var(--on-surface);
-    -unity-text-align: middle-right;
-    letter-spacing: 1px;
-}
-
-.hud__squad-hp-track {
-    width: 180px;
-    height: 2px;
-    background-color: var(--surface-container-highest);
-}
-
-.hud__squad-hp-fill {
-    height: 100%;
-    width: 100%;
-    background-color: rgba(143, 245, 255, 0.6);
-    transition: width 0.2s ease-out;
-}
-
-.hud__hp-bar-fill--low {
-    background-color: var(--hud-hp-low);
-}
-
-.hud__hp-bar-fill--critical {
-    background-color: var(--hud-hp-critical);
-}
-
 /* === BOTTOM ROW === */
 .hud__bottom-row {
     flex-direction: row;
@@ -432,39 +315,6 @@
     color: var(--on-surface-variant);
     opacity: var(--hud-opacity-log);
     margin-bottom: 1px;
-}
-
-/* === READY PROMPT (center) === */
-.hud__center-prompt {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 40%;
-    align-items: center;
-    justify-content: center;
-}
-
-.hud__ready-prompt {
-    font-size: 11px;
-    letter-spacing: 4px;
-    color: var(--on-surface-variant);
-    opacity: 0.3;
-}
-
-/* === SQUAD READY LABEL === */
-.hud__squad-ready {
-    font-size: 8px;
-    letter-spacing: 2px;
-    margin-left: 8px;
-}
-
-.hud__squad-ready--ready {
-    color: var(--secondary);
-}
-
-.hud__squad-ready--waiting {
-    color: var(--on-surface-variant);
-    opacity: 0.5;
 }
 
 /* === WAVE ANNOUNCEMENT (center) === */

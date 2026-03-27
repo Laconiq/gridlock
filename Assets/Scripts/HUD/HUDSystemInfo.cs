@@ -47,7 +47,7 @@ namespace AIWE.HUD
             var gm = GameManager.Instance;
             if (gm == null) return;
 
-            Color dotColor = gm.CurrentState.Value switch
+            Color dotColor = gm.CurrentState switch
             {
                 GameState.Wave => DesignConstants.Secondary,
                 GameState.Preparing => DesignConstants.Primary,

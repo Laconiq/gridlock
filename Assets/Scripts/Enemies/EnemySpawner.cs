@@ -3,12 +3,11 @@ using System.Collections;
 using AIWE.AI;
 using AIWE.Core;
 using AIWE.LevelDesign;
-using Unity.Netcode;
 using UnityEngine;
 
 namespace AIWE.Enemies
 {
-    public class EnemySpawner : NetworkBehaviour
+    public class EnemySpawner : MonoBehaviour
     {
         public event Action OnEnemyDespawned;
         public event Action OnSpawningComplete;
@@ -23,12 +22,8 @@ namespace AIWE.Enemies
         private int _nextSpawnIndex;
         private RouteManager _routeManager;
 
-        public override void OnNetworkSpawn()
+        private void Start()
         {
-            base.OnNetworkSpawn();
-
-            if (!IsServer) return;
-
             if (spawnPoint == null)
                 FindLDtkSpawnPoints();
 
@@ -37,7 +32,7 @@ namespace AIWE.Enemies
 
         private void FindLDtkSpawnPoints()
         {
-            var markers = FindObjectsByType<EnemySpawnerMarker>();
+            var markers = FindObjectsByType<EnemySpawnerMarker>(FindObjectsSortMode.None);
             if (markers.Length > 0)
             {
                 _spawnPoints = markers;
@@ -65,7 +60,6 @@ namespace AIWE.Enemies
 
         public void SpawnWave(WaveDefinition wave)
         {
-            if (!IsServer) return;
             StartCoroutine(SpawnWaveCoroutine(wave));
         }
 
@@ -89,15 +83,12 @@ namespace AIWE.Enemies
 
         private void SpawnEnemy(EnemyDefinition definition, bool tracked = false, EnemySpawnerMarker marker = null)
         {
-            if (enemyPrefab == null || !IsServer) return;
+            if (enemyPrefab == null) return;
 
             int routeId = marker != null ? marker.WaveGroup : 0;
             var pos = GetSpawnPosition(marker);
             pos.y = Mathf.Max(pos.y, minSpawnHeight);
             var go = Instantiate(enemyPrefab, pos, Quaternion.identity);
-
-            var netObj = go.GetComponent<NetworkObject>();
-            if (netObj != null) netObj.Spawn();
 
             var controller = go.GetComponent<EnemyController>();
             controller?.Setup(definition);

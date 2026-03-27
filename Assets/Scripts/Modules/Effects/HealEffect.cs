@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using AIWE.Interfaces;
-using AIWE.Player;
 using UnityEngine;
 
 namespace AIWE.Modules.Effects
@@ -13,15 +12,11 @@ namespace AIWE.Modules.Effects
 
         public override void Execute(List<ITargetable> targets, Vector3 origin)
         {
-            foreach (var target in targets)
+            // In top-down solo, heal targets objective HP instead
+            var objective = Core.ObjectiveController.Instance;
+            if (objective != null && objective.IsAlive)
             {
-                if (target == null || !target.IsAlive || target.Transform == null) continue;
-
-                var health = target.Transform.GetComponent<PlayerHealth>();
-                if (health != null)
-                {
-                    health.Heal(healAmount);
-                }
+                objective.ResetHP();
             }
         }
 

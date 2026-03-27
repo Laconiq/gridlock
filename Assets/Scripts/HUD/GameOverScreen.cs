@@ -1,8 +1,5 @@
 using AIWE.Core;
-using AIWE.Network;
-using AIWE.Player.CameraEffects;
 using AIWE.UI;
-using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -59,7 +56,7 @@ namespace AIWE.HUD
             while (GameManager.Instance == null)
                 yield return null;
 
-            GameManager.Instance.CurrentState.OnValueChanged += OnStateChanged;
+            GameManager.Instance.OnStateChanged += OnStateChanged;
         }
 
         private void OnDisable()
@@ -71,7 +68,7 @@ namespace AIWE.HUD
 
             var gm = GameManager.Instance;
             if (gm != null)
-                gm.CurrentState.OnValueChanged -= OnStateChanged;
+                gm.OnStateChanged -= OnStateChanged;
         }
 
         private void OnStateChanged(GameState previous, GameState current)
@@ -90,15 +87,7 @@ namespace AIWE.HUD
             if (_waveLabel != null)
                 _waveLabel.text = $"{(wm != null ? wm.CurrentWave + 1 : 0):D2}";
 
-            int totalKills = 0;
-            if (NetworkManager.Singleton != null)
-            {
-                foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
-                {
-                    var data = client.PlayerObject?.GetComponent<PlayerData>();
-                    if (data != null) totalKills += data.Kills;
-                }
-            }
+            int totalKills = GameStats.Instance != null ? GameStats.Instance.TotalKills : 0;
             if (_killsLabel != null)
                 _killsLabel.text = $"{totalKills:D2}";
 
@@ -113,11 +102,6 @@ namespace AIWE.HUD
 
             _root.style.display = DisplayStyle.Flex;
             _root.pickingMode = PickingMode.Position;
-            UnityEngine.Cursor.lockState = CursorLockMode.None;
-            UnityEngine.Cursor.visible = true;
-
-            var crosshair = FindAnyObjectByType<DynamicCrosshair>();
-            if (crosshair != null) crosshair.gameObject.SetActive(false);
 
             var hud = FindAnyObjectByType<GameHUD>();
             if (hud != null) hud.SetVisible(false);
@@ -129,23 +113,17 @@ namespace AIWE.HUD
             _root.style.display = DisplayStyle.None;
             _root.pickingMode = PickingMode.Ignore;
 
-            var crosshair = FindAnyObjectByType<DynamicCrosshair>(FindObjectsInactive.Include);
-            if (crosshair != null) crosshair.gameObject.SetActive(true);
-
             var hud = FindAnyObjectByType<GameHUD>();
             if (hud != null) hud.SetVisible(true);
         }
 
         private void OnRebootClicked()
         {
-            GameManager.Instance?.RequestResetGameServerRpc();
+            GameManager.Instance?.RequestResetGame();
         }
 
         private void OnDisconnectClicked()
         {
-            if (NetworkManager.Singleton != null)
-                NetworkManager.Singleton.Shutdown();
-
             Application.Quit();
 #if UNITY_EDITOR
             UnityEditor.EditorApplication.isPlaying = false;

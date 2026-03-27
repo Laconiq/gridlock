@@ -1,5 +1,4 @@
 using Unity.AI.Navigation;
-using Unity.Netcode;
 using UnityEngine;
 
 namespace AIWE.AI
@@ -18,9 +17,6 @@ namespace AIWE.AI
 
         private void Start()
         {
-            var nm = NetworkManager.Singleton;
-            if (nm != null && !nm.IsServer) return;
-
             if (bakeOnAwake)
                 Bake();
         }

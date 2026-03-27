@@ -1,9 +1,8 @@
-using Unity.Netcode;
 using UnityEngine;
 
 namespace AIWE.Player
 {
-    public class PlayerInputProvider : NetworkBehaviour
+    public class PlayerInputProvider : MonoBehaviour
     {
         public Controls Controls { get; private set; }
 
@@ -12,21 +11,9 @@ namespace AIWE.Player
             Controls = new Controls();
         }
 
-        public override void OnNetworkSpawn()
+        private void Start()
         {
-            if (!IsOwner)
-            {
-                enabled = false;
-                return;
-            }
-
             Controls.Player.Enable();
-        }
-
-        public override void OnNetworkDespawn()
-        {
-            if (!IsOwner) return;
-            Controls.Player.Disable();
         }
 
         public void SetPlayerMapEnabled(bool enabled)
@@ -37,10 +24,9 @@ namespace AIWE.Player
                 Controls.Player.Disable();
         }
 
-        public override void OnDestroy()
+        private void OnDestroy()
         {
             Controls?.Dispose();
-            base.OnDestroy();
         }
     }
 }

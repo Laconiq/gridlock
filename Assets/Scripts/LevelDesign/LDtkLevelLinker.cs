@@ -1,20 +1,18 @@
 using System.Collections;
 using AIWE.Core;
-using Unity.Netcode;
 using UnityEngine;
 
 namespace AIWE.LevelDesign
 {
-    public class LDtkLevelLinker : NetworkBehaviour
+    public class LDtkLevelLinker : MonoBehaviour
     {
         [Header("Prefabs")]
         [SerializeField] private GameObject towerPrefab;
 
         private bool _built;
 
-        public override void OnNetworkSpawn()
+        private void Start()
         {
-            if (!IsServer) return;
             StartCoroutine(WaitAndBuild());
         }
 
@@ -23,8 +21,8 @@ namespace AIWE.LevelDesign
             while (GameManager.Instance == null)
                 yield return null;
 
-            GameManager.Instance.CurrentState.OnValueChanged += OnStateChanged;
-            CheckState(GameManager.Instance.CurrentState.Value);
+            GameManager.Instance.OnStateChanged += OnStateChanged;
+            CheckState(GameManager.Instance.CurrentState);
         }
 
         private void OnStateChanged(GameState prev, GameState current)
@@ -61,26 +59,21 @@ namespace AIWE.LevelDesign
                 return;
             }
 
-            var markers = FindObjectsByType<TowerSlotMarker>();
+            var markers = FindObjectsByType<TowerSlotMarker>(FindObjectsSortMode.None);
             foreach (var marker in markers)
             {
                 var pos = marker.transform.position;
                 var tower = Instantiate(towerPrefab, pos, Quaternion.identity);
                 tower.name = $"Tower_{marker.TowerId}";
 
-                var netObj = tower.GetComponent<NetworkObject>();
-                if (netObj != null)
-                    netObj.Spawn();
-
                 Debug.Log($"[LDtkLevelLinker] Spawned tower '{marker.TowerId}' at {pos}");
             }
         }
 
-        public override void OnDestroy()
+        private void OnDestroy()
         {
             if (GameManager.Instance != null)
-                GameManager.Instance.CurrentState.OnValueChanged -= OnStateChanged;
-            base.OnDestroy();
+                GameManager.Instance.OnStateChanged -= OnStateChanged;
         }
     }
 }

@@ -29,7 +29,7 @@
                 <ui:Label name="sys-meta" text="GRID::0.0 | ALT::0M" class="hud__sys-meta" picking-mode="Ignore" />
             </ui:VisualElement>
 
-            <!-- Top right: player + squad -->
+            <!-- Top right: operator status -->
             <ui:VisualElement class="hud__player-panel" picking-mode="Ignore">
 
                 <!-- Self status -->
@@ -48,20 +48,7 @@
                     </ui:VisualElement>
                 </ui:VisualElement>
 
-                <!-- Squad feed -->
-                <ui:VisualElement class="hud__squad-section" picking-mode="Ignore">
-                    <ui:Label text="SQUAD_FEED" class="hud__squad-header" picking-mode="Ignore" />
-                    <ui:VisualElement name="squad-feed" class="hud__squad-feed" picking-mode="Ignore">
-                        <!-- Populated dynamically -->
-                    </ui:VisualElement>
-                </ui:VisualElement>
-
             </ui:VisualElement>
-        </ui:VisualElement>
-
-        <!-- Center: ready prompt -->
-        <ui:VisualElement class="hud__center-prompt" picking-mode="Ignore">
-            <ui:Label name="ready-prompt" text="PRESS [F] TO READY UP" class="hud__ready-prompt" picking-mode="Ignore" />
         </ui:VisualElement>
 
         <!-- Center: wave announcement -->
@@ -81,13 +68,6 @@
                 </ui:VisualElement>
             </ui:VisualElement>
 
-        </ui:VisualElement>
-
-        <!-- Spectate overlay (hidden by default) -->
-        <ui:VisualElement name="spectate-overlay" class="hud__spectate-overlay" picking-mode="Ignore" style="display: none;">
-            <ui:Label name="spectate-target" text="SPECTATING: OPERATOR_XX" class="hud__spectate-target" picking-mode="Ignore" />
-            <ui:Label text="RESPAWN::NEXT_PREPARATION_PHASE" class="hud__spectate-respawn" picking-mode="Ignore" />
-            <ui:Label text="[SCROLL] SWITCH_TARGET" class="hud__spectate-hint" picking-mode="Ignore" />
         </ui:VisualElement>
 
     </ui:VisualElement>

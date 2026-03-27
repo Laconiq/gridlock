@@ -2,27 +2,21 @@ using System;
 using AIWE.Combat;
 using AIWE.Interfaces;
 using AIWE.LevelDesign;
-using Unity.Netcode;
 using UnityEngine;
 
 namespace AIWE.Core
 {
-    public class ObjectiveController : NetworkBehaviour, IDamageable
+    public class ObjectiveController : MonoBehaviour, IDamageable
     {
         public static ObjectiveController Instance { get; private set; }
 
-        private readonly NetworkVariable<float> _currentHP = new(
-            0f,
-            NetworkVariableReadPermission.Everyone,
-            NetworkVariableWritePermission.Server
-        );
-
+        private float _currentHP;
         private float _maxHP;
 
-        public float CurrentHP => _currentHP.Value;
+        public float CurrentHP => _currentHP;
         public float MaxHP => _maxHP;
-        public float HPNormalized => _maxHP > 0f ? _currentHP.Value / _maxHP : 0f;
-        public bool IsAlive => _currentHP.Value > 0f;
+        public float HPNormalized => _maxHP > 0f ? _currentHP / _maxHP : 0f;
+        public bool IsAlive => _currentHP > 0f;
 
         public event Action<float, float> OnHPChanged;
         public event Action OnDestroyed;
@@ -41,55 +35,45 @@ namespace AIWE.Core
             _maxHP = marker != null ? marker.Health : 100f;
         }
 
-        public override void OnNetworkSpawn()
+        private void Start()
         {
-            _currentHP.OnValueChanged += HandleHPChanged;
-
-            if (IsServer)
-                _currentHP.Value = _maxHP;
-
-            Debug.Log($"[ObjectiveController] Spawned. HP: {_currentHP.Value}/{_maxHP}");
+            SetHP(_maxHP);
+            Debug.Log($"[ObjectiveController] Initialized. HP: {_currentHP}/{_maxHP}");
         }
 
-        public override void OnNetworkDespawn()
+        private void SetHP(float value)
         {
-            _currentHP.OnValueChanged -= HandleHPChanged;
-        }
+            float previous = _currentHP;
+            _currentHP = value;
+            OnHPChanged?.Invoke(_currentHP, _maxHP);
 
-        private void HandleHPChanged(float previous, float current)
-        {
-            OnHPChanged?.Invoke(current, _maxHP);
-
-            if (previous > 0f && current <= 0f)
+            if (previous > 0f && _currentHP <= 0f)
                 OnDestroyed?.Invoke();
         }
 
         public void ResetHP()
         {
-            if (!IsServer) return;
-            _currentHP.Value = _maxHP;
+            SetHP(_maxHP);
         }
 
         public void TakeDamage(DamageInfo damage)
         {
-            if (!IsServer) return;
             if (!IsAlive) return;
 
-            float newHP = Mathf.Max(0f, _currentHP.Value - damage.Amount);
-            _currentHP.Value = newHP;
+            float newHP = Mathf.Max(0f, _currentHP - damage.Amount);
+            SetHP(newHP);
 
             if (newHP <= 0f)
                 GameManager.Instance?.SetState(GameState.GameOver);
         }
 
-        public override void OnDestroy()
+        private void OnDestroy()
         {
             if (Instance == this)
             {
                 ServiceLocator.Unregister<ObjectiveController>();
                 Instance = null;
             }
-            base.OnDestroy();
         }
     }
 }

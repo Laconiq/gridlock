@@ -1,5 +1,4 @@
 using AIWE.AI;
-using Unity.Netcode;
 using UnityEngine;
 
 namespace AIWE.Enemies

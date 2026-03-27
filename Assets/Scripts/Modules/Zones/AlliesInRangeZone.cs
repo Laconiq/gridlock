@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using AIWE.Interfaces;
 using AIWE.Player;
-using Unity.Netcode;
 using UnityEngine;
 
 namespace AIWE.Modules.Zones
@@ -13,20 +12,14 @@ namespace AIWE.Modules.Zones
         public override List<ITargetable> SelectTargets(Vector3 origin, float range)
         {
             var result = new List<ITargetable>();
-            var nm = NetworkManager.Singleton;
-            if (nm == null) return result;
+            var players = UnityEngine.Object.FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
 
-            foreach (var client in nm.ConnectedClientsList)
+            foreach (var player in players)
             {
-                var playerObj = client.PlayerObject;
-                if (playerObj == null) continue;
+                if (player == null) continue;
+                if (Vector3.Distance(origin, player.transform.position) > range) continue;
 
-                var health = playerObj.GetComponent<PlayerHealth>();
-                if (health == null || !health.IsAlive) continue;
-
-                if (Vector3.Distance(origin, playerObj.transform.position) > range) continue;
-
-                result.Add(new AllyTarget(health));
+                result.Add(new AllyTarget(player));
             }
 
             return result;
@@ -40,16 +33,16 @@ namespace AIWE.Modules.Zones
         private class AllyTarget : ITargetable
         {
             public Vector3 Position { get; }
-            public bool IsAlive => _health != null && _health.IsAlive;
+            public bool IsAlive => _player != null;
             public Transform Transform { get; }
 
-            private readonly PlayerHealth _health;
+            private readonly PlayerController _player;
 
-            public AllyTarget(PlayerHealth health)
+            public AllyTarget(PlayerController player)
             {
-                _health = health;
-                Position = health.transform.position;
-                Transform = health.transform;
+                _player = player;
+                Position = player.transform.position;
+                Transform = player.transform;
             }
         }
     }

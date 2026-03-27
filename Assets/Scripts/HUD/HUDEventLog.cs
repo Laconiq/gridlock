@@ -1,6 +1,5 @@
 using System;
 using AIWE.Core;
-using Unity.Netcode;
 using UnityEngine.UIElements;
 
 namespace AIWE.HUD
@@ -33,14 +32,7 @@ namespace AIWE.HUD
 
             var gm = GameManager.Instance;
             if (gm != null)
-                gm.CurrentState.OnValueChanged += HandleStateChanged;
-
-            var nm = NetworkManager.Singleton;
-            if (nm != null)
-            {
-                nm.OnClientConnectedCallback += HandleClientConnected;
-                nm.OnClientDisconnectCallback += HandleClientDisconnected;
-            }
+                gm.OnStateChanged += HandleStateChanged;
         }
 
         public void UnbindGameEvents()
@@ -52,14 +44,7 @@ namespace AIWE.HUD
 
             var gm = GameManager.Instance;
             if (gm != null)
-                gm.CurrentState.OnValueChanged -= HandleStateChanged;
-
-            var nm = NetworkManager.Singleton;
-            if (nm != null)
-            {
-                nm.OnClientConnectedCallback -= HandleClientConnected;
-                nm.OnClientDisconnectCallback -= HandleClientDisconnected;
-            }
+                gm.OnStateChanged -= HandleStateChanged;
         }
 
         public void Refresh()
@@ -97,16 +82,6 @@ namespace AIWE.HUD
         private void HandleStateChanged(GameState previous, GameState current)
         {
             Log($"{current.ToString().ToUpperInvariant()}_ACTIVE");
-        }
-
-        private void HandleClientConnected(ulong clientId)
-        {
-            Log($"UNIT_{clientId + 1:D2}::CONNECTED");
-        }
-
-        private void HandleClientDisconnected(ulong clientId)
-        {
-            Log($"UNIT_{clientId + 1:D2}::DISCONNECTED");
         }
     }
 }

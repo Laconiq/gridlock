@@ -1,27 +1,17 @@
 using AIWE.Core;
-using AIWE.Network;
-using AIWE.NodeEditor.UI;
-using AIWE.Player;
-using Unity.Netcode;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace AIWE.HUD
 {
     public class HUDPlayerStatus
     {
-        private const string LowClass = "hud__hp-bar-fill--low";
-        private const string CriticalClass = "hud__hp-bar-fill--critical";
-
         private readonly Label _selfName;
         private readonly VisualElement _hpFill;
         private readonly Label _selfSignal;
         private readonly Label _selfHpPct;
         private readonly Label _selfReady;
 
-        private PlayerHealth _health;
-        private PlayerData _data;
-        private bool _dirty;
+        private bool _bound;
 
         public HUDPlayerStatus(Label selfName, VisualElement hpFill, Label selfSignal, Label selfHpPct, Label selfReady)
         {
@@ -32,34 +22,30 @@ namespace AIWE.HUD
             _selfReady = selfReady;
         }
 
-        public void Bind(PlayerHealth health, PlayerData data)
+        public void Bind()
         {
-            _health = health;
-            _data = data;
+            _bound = true;
 
-            _health.OnHPChanged += HandleHPChanged;
-            _data.OnDataChanged += HandleDataChanged;
-
-            _dirty = true;
+            if (_selfName != null) _selfName.text = "OPERATOR_01";
+            if (_selfSignal != null) _selfSignal.text = "NOMINAL";
+            if (_selfHpPct != null) _selfHpPct.text = "100%";
+            if (_hpFill != null) _hpFill.style.width = Length.Percent(100f);
+            if (_selfReady != null) _selfReady.text = "";
         }
 
         public void Unbind()
         {
-            if (_health != null) _health.OnHPChanged -= HandleHPChanged;
-            if (_data != null) _data.OnDataChanged -= HandleDataChanged;
-
-            _health = null;
-            _data = null;
+            _bound = false;
         }
 
         public void Refresh()
         {
-            UpdateReadyState();
+            if (!_bound) return;
 
-            if (_health == null || !_dirty) return;
-            _dirty = false;
+            var objective = ObjectiveController.Instance;
+            if (objective == null) return;
 
-            float normalized = _health.HPNormalized;
+            float normalized = objective.HPNormalized;
             int pct = (int)(normalized * 100f);
 
             if (_hpFill != null)
@@ -68,65 +54,8 @@ namespace AIWE.HUD
             if (_selfHpPct != null)
                 _selfHpPct.text = $"{pct}%";
 
-            if (_selfName != null && _data != null)
-                _selfName.text = _data.DisplayName;
-
             if (_selfSignal != null)
-                _selfSignal.text = _health.IsAlive ? "NOMINAL" : "OFFLINE";
-
-            UpdateHPClasses(normalized);
-        }
-
-        private void UpdateReadyState()
-        {
-            if (_selfReady == null) return;
-
-            var gm = GameManager.Instance;
-            bool preparing = gm != null && gm.CurrentState.Value == GameState.Preparing;
-
-            if (!preparing)
-            {
-                _selfReady.text = "";
-                return;
-            }
-
-            var rm = ReadyManager.Instance;
-            var nm = NetworkManager.Singleton;
-            bool ready = rm != null && nm != null && rm.IsPlayerReady(nm.LocalClientId);
-
-            _selfReady.text = ready ? "READY" : "WAITING";
-            _selfReady.style.color = new StyleColor(ready ? DesignConstants.Secondary : DesignConstants.Outline);
-        }
-
-        private void UpdateHPClasses(float normalized)
-        {
-            if (_hpFill == null) return;
-
-            if (normalized < 0.15f)
-            {
-                _hpFill.AddToClassList(CriticalClass);
-                _hpFill.AddToClassList(LowClass);
-            }
-            else if (normalized < 0.30f)
-            {
-                _hpFill.RemoveFromClassList(CriticalClass);
-                _hpFill.AddToClassList(LowClass);
-            }
-            else
-            {
-                _hpFill.RemoveFromClassList(CriticalClass);
-                _hpFill.RemoveFromClassList(LowClass);
-            }
-        }
-
-        private void HandleHPChanged(float current, float max)
-        {
-            _dirty = true;
-        }
-
-        private void HandleDataChanged()
-        {
-            _dirty = true;
+                _selfSignal.text = objective.IsAlive ? "NOMINAL" : "OFFLINE";
         }
     }
 }

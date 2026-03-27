@@ -3,12 +3,11 @@ using AIWE.Interfaces;
 using AIWE.Modules;
 using AIWE.Modules.Triggers;
 using AIWE.NodeEditor.Data;
-using Unity.Netcode;
 using UnityEngine;
 
 namespace AIWE.Towers
 {
-    public class TowerExecutor : NetworkBehaviour
+    public class TowerExecutor : MonoBehaviour
     {
         [SerializeField] private ModuleRegistry moduleRegistry;
 
@@ -16,18 +15,16 @@ namespace AIWE.Towers
         private readonly List<TriggerChain> _triggerChains = new();
         private bool _initialized;
 
-        public override void OnNetworkSpawn()
+        private void Start()
         {
             _chassis = GetComponent<IChassis>();
 
             var towerChassis = GetComponent<TowerChassis>();
             if (towerChassis != null)
-            {
                 RebuildFromGraph(towerChassis.GetNodeGraph());
-            }
         }
 
-        public override void OnNetworkDespawn()
+        private void OnDestroy()
         {
             ClearChains();
         }
@@ -70,7 +67,7 @@ namespace AIWE.Towers
 
         private void Update()
         {
-            if (!IsServer || !_initialized) return;
+            if (!_initialized) return;
 
             float dt = Time.deltaTime;
             foreach (var chain in _triggerChains)
@@ -88,9 +85,7 @@ namespace AIWE.Towers
             var range = _chassis.BaseRange;
 
             foreach (var zoneChain in chain.ZoneChains)
-            {
                 ExecuteZoneChainWithRotation(zoneChain, origin, range);
-            }
         }
 
         private void ExecuteZoneChainWithRotation(ZoneChain zoneChain, Vector3 origin, float range)
@@ -115,9 +110,7 @@ namespace AIWE.Towers
             }
 
             foreach (var chained in zoneChain.ChainedZones)
-            {
                 ExecuteZoneChainWithRotation(chained, origin, range);
-            }
         }
     }
 }

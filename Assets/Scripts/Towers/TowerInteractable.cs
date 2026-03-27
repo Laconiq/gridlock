@@ -1,6 +1,4 @@
 using AIWE.Interfaces;
-using AIWE.Network;
-using AIWE.Core;
 using UnityEngine;
 
 namespace AIWE.Towers
@@ -19,27 +17,16 @@ namespace AIWE.Towers
 
         public string GetPromptText()
         {
-            var lockManager = ServiceLocator.Get<EditorLockManager>();
-            if (lockManager != null && lockManager.IsLocked)
-            {
-                return "Tower editor in use";
-            }
-            return "E - Edit Tower | R - Quick Edit";
+            return "Click - Edit Tower";
         }
 
-        public bool CanInteract(ulong clientId)
+        public bool CanInteract()
         {
-            var lockManager = ServiceLocator.Get<EditorLockManager>();
-            if (lockManager == null) return false;
-            return !lockManager.IsLocked || lockManager.IsLockedBy(clientId);
+            return true;
         }
 
-        public void Interact(ulong clientId)
+        public void Interact()
         {
-            if (!CanInteract(clientId)) return;
-
-            var lockManager = ServiceLocator.Get<EditorLockManager>();
-            lockManager?.RequestLockRpc();
         }
     }
 }
