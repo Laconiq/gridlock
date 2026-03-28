@@ -16,8 +16,6 @@ GameObject:
   - component: {fileID: 1850341928324409245}
   - component: {fileID: 8011745337953390265}
   - component: {fileID: 3451753446587265429}
-  - component: {fileID: 2881010709957936232}
-  - component: {fileID: 7991656107410151538}
   m_Layer: 0
   m_Name: Enemy
   m_TagString: Untagged
@@ -37,7 +35,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.5, y: 0.3, z: 0.5}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 9219966568921168685}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!135 &5888535772831582495
@@ -155,21 +154,54 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AIWE.AI.ThreatSource
   decayFactor: 0.85
---- !u!33 &2881010709957936232
+--- !u!1 &3395165169789545910
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 9219966568921168685}
+  - component: {fileID: 3426399951712373421}
+  - component: {fileID: 8467580388216127903}
+  m_Layer: 0
+  m_Name: Model
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &9219966568921168685
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3395165169789545910}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.03, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5161822030647589161}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!33 &3426399951712373421
 MeshFilter:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2552856530296388220}
+  m_GameObject: {fileID: 3395165169789545910}
   m_Mesh: {fileID: 4300000, guid: e27d39ac04939854ba64ee7fa4f747d3, type: 2}
---- !u!23 &7991656107410151538
+--- !u!23 &8467580388216127903
 MeshRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2552856530296388220}
+  m_GameObject: {fileID: 3395165169789545910}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1

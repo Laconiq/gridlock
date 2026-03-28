@@ -23,10 +23,10 @@ public static class BakePrefabMeshes
         string path = "Assets/Prefabs/Enemies/Enemy.prefab";
         var contents = PrefabUtility.LoadPrefabContents(path);
 
-        var mf = contents.GetComponent<MeshFilter>();
+        var mf = contents.GetComponentInChildren<MeshFilter>();
         if (mf != null) mf.sharedMesh = mesh;
 
-        var mr = contents.GetComponent<MeshRenderer>();
+        var mr = contents.GetComponentInChildren<MeshRenderer>();
         if (mr != null) mr.sharedMaterial = defaultMat;
 
         contents.transform.localScale = new Vector3(0.5f, 0.3f, 0.5f);

@@ -24,7 +24,7 @@ namespace AIWE.Enemies
         private void Awake()
         {
             _health = GetComponent<EnemyHealth>();
-            _renderer = GetComponent<MeshRenderer>();
+            _renderer = GetComponentInChildren<MeshRenderer>();
         }
 
         private void OnEnable()

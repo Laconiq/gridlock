@@ -15,8 +15,8 @@ namespace AIWE.Visual
         private void Awake()
         {
             _health = GetComponent<Enemies.EnemyHealth>();
-            _meshFilter = GetComponent<MeshFilter>();
-            _meshRenderer = GetComponent<MeshRenderer>();
+            _meshFilter = GetComponentInChildren<MeshFilter>();
+            _meshRenderer = GetComponentInChildren<MeshRenderer>();
         }
 
         private void OnEnable()
