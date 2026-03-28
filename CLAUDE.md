@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-AIWE is a **solo top-down Tower Defense** built in Unity 6 (6000.3.10f1) with URP. The player defends an objective against enemy waves by configuring modular tower defenses via a visual node editor. The camera is a perspective top-down view (~60° angle) with pan/zoom controls. There is no player character on the field — the player interacts via mouse clicks on towers.
+AIWE is a **2D grid-based Tower Defense** built in Unity 6 (6000.3.10f1) with URP. Neon/vector aesthetic (Geometry Wars style). The player defends an objective against enemy waves by placing towers on a grid and configuring them via a visual node editor. Orthographic top-down camera. Enemies follow predefined paths on the grid. No 3D models — everything uses procedural geometric shapes (triangles, diamonds, circles) with custom glow/outline shaders + heavy Bloom.
 
 ## Stack & Tools
 
@@ -13,8 +13,8 @@ AIWE is a **solo top-down Tower Defense** built in Unity 6 (6000.3.10f1) with UR
 | Engine | Unity 6 (6000.3.10f1) |
 | Rendering | URP 17.x |
 | Input | New Input System 1.19.0 |
-| AI navigation | AI Navigation 2.0.12 |
-| Level design | **LDtk** + LDtkToUnity (`com.cammin.ldtkunity`) |
+| Level design | Grid system (`GridDefinition` ScriptableObjects) |
+| Visuals | Custom shaders (VectorGlow, VectorOutline, CyberGrid) + URP Bloom |
 | Scripting backend | IL2CPP |
 | Inspector | Odin Inspector (Sirenix) |
 | Node Editor UI | Unity UI Toolkit (USS/UXML) |
@@ -25,7 +25,7 @@ AIWE is a **solo top-down Tower Defense** built in Unity 6 (6000.3.10f1) with UR
 ## Code Style
 
 - **No superfluous comments.** Only comment to explain *why* something non-obvious is done. The code should be self-documenting.
-- **No custom Inspector scripts.** Do not create custom editors, property drawers, or Inspector scripts — use Odin attributes and ScriptableObjects instead. Exceptions: import postprocessors (`LDtkLevelPostprocessor`) and `#if UNITY_EDITOR`-guarded editor tools are allowed when they serve the pipeline.
+- **No custom Inspector scripts.** Do not create custom editors, property drawers, or Inspector scripts — use Odin attributes and ScriptableObjects instead. Exceptions: `#if UNITY_EDITOR`-guarded editor tools (e.g. `CreateTestGrid`) are allowed when they serve the pipeline.
 - **Module system uses `[SerializeReference]` + Odin.** Module definitions use `[SerializeReference, ListDrawerSettings, InlineProperty] List<T>` for concrete implementations. The SO holds templates, `CreateInstance()` clones them at runtime. No string-based factory dispatch.
 - **All gameplay values are `[SerializeField]`** for live Inspector tuning. No magic numbers in code.
 - **UI colors use design tokens.** USS uses `var(--token)` from `DesignTokens.uss`. C# uses `DesignConstants` static fields. Never hardcode hex colors.
@@ -49,13 +49,30 @@ SimpleGameBootstrap.Start()
   → Objective destroyed → GameManager.SetState(GameOver)
 ```
 
-### Camera (top-down)
+### Grid System
+
+`GridDefinition` SO (`Assets/Scripts/Grid/GridDefinition.cs`):
+- Defines grid dimensions (width, height, cellSize), cell types array, path definitions, objective HP
+- Cell types: `Empty`, `Path`, `TowerSlot`, `Blocked`, `Spawn`, `Objective`
+- Paths are ordered `List<Vector2Int>` waypoints on the grid
+
+`GridManager` (`Assets/Scripts/Grid/GridManager.cs`):
+- ServiceLocator singleton, converts grid↔world coordinates
+- Provides routes, spawn positions, objective position
+- Replaces both LDtk level linker and NavMesh-based routing
+
+`TowerPlacementSystem` (`Assets/Scripts/Grid/TowerPlacementSystem.cs`):
+- During Preparing state: mouse → grid coord → validate TowerSlot → place tower
+- Grid-snapped preview with valid/invalid material feedback
+
+### Camera (orthographic)
 
 `TopDownCamera` (`Assets/Scripts/Camera/TopDownCamera.cs`):
-- Perspective camera at ~60° angle, adjustable height
+- Orthographic camera looking straight down (90° X rotation)
 - Pan: WASD + edge panning + middle mouse drag
-- Zoom: scroll wheel (adjusts camera height)
-- Bounds clamping to level area
+- Zoom: scroll wheel (adjusts orthographicSize)
+- Bounds clamping to grid area
+- Works in XZ plane (all gameplay uses Vector3 with Y=0)
 
 ### Player (command entity)
 
@@ -129,25 +146,25 @@ State machine (`EnemyAI`) with threat-based aggro against towers.
 - Config via `ThreatCalculatorConfig` ScriptableObject
 
 **Pathing:**
-- `RouteManager` (ServiceLocator singleton) builds routes from `EnemyPathMarker` waypoints
-- `EnemyController` wraps `NavMeshAgent`, speed modulated by `StatusEffectManager`
-- `RuntimeNavMeshBaker` bakes NavMesh at Start
+- `RouteManager` delegates to `GridManager` for route data
+- `EnemyController` uses simple waypoint lerp (no NavMesh), speed modulated by `StatusEffectManager`
+- Enemies are procedural geometric shapes (`GeometricShape` component)
 
-### Level design pipeline (LDtk)
+### Level design (Grid)
 
-Levels are designed in LDtk and auto-imported. See `docs/LEVEL_DESIGN_GUIDE.md` for design best practices.
+Levels are `GridDefinition` ScriptableObjects edited in Odin Inspector.
 
-**Import pipeline:**
-1. LDtk file saved → `LDtkToUnity` ScriptedImporter creates GameObjects
-2. `LDtkLevelPostprocessor` (Editor postprocessor) runs:
-   - Flattens hierarchy, builds 3D blockout from IntGrid via `TerrainMapping` SO
-   - Swizzles entity positions XY→XZ with **automatic terrain height**
-   - Cleans up 2D renderers
-3. At runtime: `RuntimeNavMeshBaker` bakes NavMesh, `LDtkLevelLinker` spawns tower prefabs at `TowerSlotMarker` positions
+**Grid structure:**
+- Flat `CellType[]` array indexed by `[y * width + x]`
+- `PathDefinition` lists: ordered `Vector2Int` waypoints per route
+- Cell types: Empty, Path, TowerSlot, Blocked, Spawn, Objective
 
-**IntGrid values:** 0=empty, 1=Floor (0.2h), 2=Wall (3h), 3=Ramp (auto-stairs), 5=HighGround (2h)
-
-**Entity markers** (all implement `ILDtkImportedFields`): `EnemySpawnerMarker`, `EnemyPathMarker`, `TowerSlotMarker`, `ObjectiveMarker`
+**Runtime flow:**
+1. `GridManager.Awake()` reads `GridDefinition`, converts grid coords to world positions
+2. `GridVisual` spawns a scaled Quad with `CyberGrid.shader` as ground plane
+3. `PathVisualizer` draws LineRenderer paths from `RouteManager` data
+4. `TowerPlacementSystem` enables tower placement on `TowerSlot` cells during Preparing state
+5. `EnemySpawner` spawns enemies at `Spawn` cells, `EnemyAI` follows routes to `Objective`
 
 ### Key interfaces
 
@@ -169,17 +186,22 @@ Enemies drop `ModulePickup` on death. Pickups have a magnet behavior: after a sh
 - `Assets/Data/Modules/` — Module definition SOs (Triggers/, Zones/, Effects/)
 - `Assets/Data/ModuleRegistry.asset` — Registry referencing all module definitions
 - `Assets/Data/DefaultLoadout.asset` — Starter module kit given to players on spawn
-- `Assets/Scripts/Camera/TopDownCamera.cs` — Top-down camera controller
+- `Assets/Scripts/Camera/TopDownCamera.cs` — Orthographic top-down camera controller
+- `Assets/Scripts/Grid/GridDefinition.cs` — Grid level data (SO)
+- `Assets/Scripts/Grid/GridManager.cs` — Grid runtime manager (ServiceLocator singleton)
+- `Assets/Scripts/Grid/TowerPlacementSystem.cs` — Grid-snapped tower placement
+- `Assets/Scripts/Grid/GridVisual.cs` — Ground plane with CyberGrid shader
+- `Assets/Scripts/Visual/GeometricShape.cs` — Procedural mesh generator (Triangle, Diamond, Circle, etc.)
 - `Assets/Scripts/Core/SimpleGameBootstrap.cs` — Solo game initialization
 - `Assets/Scripts/Core/GameStats.cs` — Kill/wave tracking singleton
+- `Assets/Data/Levels/TestGrid.asset` — Test level GridDefinition
 - `Assets/UI/NodeEditor/DesignTokens.uss` — **Design system tokens** (edit this to change theme)
 - `Assets/Scripts/NodeEditor/UI/DesignConstants.cs` — **C# design constants** (must stay in sync with DesignTokens.uss)
 - `Assets/UI/NodeEditor/NodeEditorScreen.uxml` — Node editor main layout
-- `Assets/LDtk/testLevel.ldtk` — LDtk level project (current level: "Foundry")
-- `Assets/Data/LevelDesign/TerrainMapping.asset` — IntGrid value → 3D blockout mapping
-- `Assets/Scripts/LevelDesign/Editor/LDtkLevelPostprocessor.cs` — Import postprocessor
+- `Assets/Shaders/CyberGrid.shader` — Grid ground plane shader
+- `Assets/Shaders/VectorGlow.shader` — Neon glow shader for enemies/projectiles
+- `Assets/Shaders/VectorOutline.shader` — Outlined square shader for towers
 - `Assets/Scripts/AI/ThreatCalculatorConfig` — Threat evaluation weights (ScriptableObject)
-- `docs/LEVEL_DESIGN_GUIDE.md` — Level design best practices and checklist
 
 ## Git Workflow (Gitflow)
 
