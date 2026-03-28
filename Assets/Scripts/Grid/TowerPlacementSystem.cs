@@ -12,6 +12,7 @@ namespace AIWE.Grid
 
         private GridManager _gridManager;
         private Camera _camera;
+        private Controls _controls;
         private GameObject _preview;
         private MeshRenderer _previewRenderer;
         private bool _isActive;
@@ -21,6 +22,9 @@ namespace AIWE.Grid
         {
             _gridManager = ServiceLocator.Get<GridManager>();
             _camera = Camera.main;
+
+            _controls = new Controls();
+            _controls.Player.Enable();
 
             var gm = GameManager.Instance;
             if (gm != null)
@@ -34,6 +38,8 @@ namespace AIWE.Grid
             var gm = GameManager.Instance;
             if (gm != null)
                 gm.OnStateChanged -= OnGameStateChanged;
+
+            _controls?.Dispose();
 
             if (_preview != null)
                 Destroy(_preview);
@@ -59,11 +65,8 @@ namespace AIWE.Grid
         {
             if (!_isActive || _gridManager == null || _camera == null) return;
 
-            var mouse = Mouse.current;
-            if (mouse == null) return;
-
-            var mousePos = mouse.position.ReadValue();
-            var ray = _camera.ScreenPointToRay(mousePos);
+            var pointerPos = _controls.Player.PointerPosition.ReadValue<Vector2>();
+            var ray = _camera.ScreenPointToRay(pointerPos);
 
             var plane = new Plane(Vector3.up, Vector3.zero);
             if (!plane.Raycast(ray, out float distance)) return;
@@ -77,7 +80,7 @@ namespace AIWE.Grid
                 UpdatePreview(gridPos);
             }
 
-            if (mouse.leftButton.wasPressedThisFrame)
+            if (_controls.Player.Interact.WasPressedThisFrame())
                 TryPlaceTower(gridPos);
         }
 
@@ -103,7 +106,7 @@ namespace AIWE.Grid
             if (towerPrefab == null) return;
 
             var worldPos = _gridManager.GridToWorld(gridPos);
-            var tower = Instantiate(towerPrefab, worldPos, Quaternion.identity);
+            Instantiate(towerPrefab, worldPos, Quaternion.identity);
 
             _gridManager.Definition.SetCell(gridPos.x, gridPos.y, CellType.Blocked);
         }
