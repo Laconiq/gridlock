@@ -4,63 +4,73 @@
 
     <ui:VisualElement name="hud-root" class="hud-root" picking-mode="Ignore">
 
-        <!-- Top center: wave info -->
-        <ui:VisualElement class="hud__wave-info" picking-mode="Ignore">
-            <ui:Label name="wave-label" text="WAVE 01" class="hud__wave-label" picking-mode="Ignore" />
-            <ui:Label name="wave-enemies" text="HOSTILES::0" class="hud__wave-enemies" picking-mode="Ignore" />
-            <ui:VisualElement class="hud__objective-section" picking-mode="Ignore">
-                <ui:Label text="OBJECTIVE_INTEGRITY" class="hud__objective-title" picking-mode="Ignore" />
-                <ui:VisualElement class="hud__objective-bar-track" picking-mode="Ignore">
-                    <ui:VisualElement name="objective-hp-fill" class="hud__objective-bar-fill" picking-mode="Ignore" />
-                </ui:VisualElement>
-                <ui:Label name="objective-hp-pct" text="100%" class="hud__objective-pct" picking-mode="Ignore" />
-            </ui:VisualElement>
-        </ui:VisualElement>
+        <!-- ============ TOP BAR ============ -->
+        <ui:VisualElement class="hud__top-bar" picking-mode="Ignore">
 
-        <!-- Top row -->
-        <ui:VisualElement class="hud__top-row" picking-mode="Ignore">
-
-            <!-- Top left: system info -->
-            <ui:VisualElement class="hud__sys-info" picking-mode="Ignore">
-                <ui:VisualElement class="hud__sys-tag" picking-mode="Ignore">
+            <!-- Left cluster: title + system info -->
+            <ui:VisualElement class="hud__top-bar-left" picking-mode="Ignore">
+                <ui:VisualElement class="hud__title-group" picking-mode="Ignore">
                     <ui:VisualElement name="sys-dot" class="hud__sys-dot" picking-mode="Ignore" />
-                    <ui:Label name="sys-version" text="VOID_PROTOCOL // V.2.4.0" class="hud__sys-version" picking-mode="Ignore" />
+                    <ui:Label text="VECTOR_CMD" class="hud__title" picking-mode="Ignore" />
                 </ui:VisualElement>
+                <ui:Label name="sys-version" text="v3.0.0" class="hud__sys-version" picking-mode="Ignore" />
                 <ui:Label name="sys-meta" text="GRID::0.0 | ALT::0M" class="hud__sys-meta" picking-mode="Ignore" />
             </ui:VisualElement>
 
-            <!-- Top right: operator status -->
-            <ui:VisualElement class="hud__player-panel" picking-mode="Ignore">
+            <!-- Center cluster: lives bar + wave + kills -->
+            <ui:VisualElement class="hud__top-bar-center" picking-mode="Ignore">
 
-                <!-- Self status -->
-                <ui:VisualElement class="hud__self-status" picking-mode="Ignore">
-                    <ui:VisualElement class="hud__self-header" picking-mode="Ignore">
-                        <ui:Label text="OPERATOR_ID" class="hud__self-label" picking-mode="Ignore" />
-                        <ui:Label name="self-name" text="SELF: OPERATOR_01" class="hud__self-name" picking-mode="Ignore" />
+                <!-- Lives / Objective HP -->
+                <ui:VisualElement class="hud__stat-block" picking-mode="Ignore">
+                    <ui:Label text="LIVES" class="hud__stat-label" picking-mode="Ignore" />
+                    <ui:VisualElement class="hud__lives-bar-track" picking-mode="Ignore">
+                        <ui:VisualElement name="objective-hp-fill" class="hud__lives-bar-fill" picking-mode="Ignore" />
                     </ui:VisualElement>
-                    <ui:VisualElement class="hud__hp-bar-track" picking-mode="Ignore">
-                        <ui:VisualElement name="self-hp-fill" class="hud__hp-bar-fill" picking-mode="Ignore" />
-                    </ui:VisualElement>
-                    <ui:VisualElement class="hud__self-substats" picking-mode="Ignore">
-                        <ui:Label name="self-signal" text="SIG::STABLE" class="hud__substat" picking-mode="Ignore" />
-                        <ui:Label name="self-hp-pct" text="HP::100%" class="hud__substat" picking-mode="Ignore" />
-                        <ui:Label name="self-ready" text="" class="hud__substat" picking-mode="Ignore" />
-                    </ui:VisualElement>
+                    <ui:Label name="objective-hp-pct" text="100%" class="hud__stat-value" picking-mode="Ignore" />
+                </ui:VisualElement>
+
+                <!-- Separator -->
+                <ui:VisualElement class="hud__bar-separator" picking-mode="Ignore" />
+
+                <!-- Wave -->
+                <ui:VisualElement class="hud__stat-block" picking-mode="Ignore">
+                    <ui:Label text="WAVE" class="hud__stat-label" picking-mode="Ignore" />
+                    <ui:Label name="wave-label" text="WAVE 01" class="hud__stat-value hud__stat-value--primary" picking-mode="Ignore" />
+                </ui:VisualElement>
+
+                <!-- Separator -->
+                <ui:VisualElement class="hud__bar-separator" picking-mode="Ignore" />
+
+                <!-- Hostiles -->
+                <ui:VisualElement class="hud__stat-block" picking-mode="Ignore">
+                    <ui:Label text="HOSTILES" class="hud__stat-label" picking-mode="Ignore" />
+                    <ui:Label name="wave-enemies" text="HOSTILES::0" class="hud__stat-value hud__stat-value--secondary" picking-mode="Ignore" />
                 </ui:VisualElement>
 
             </ui:VisualElement>
+
+            <!-- Right cluster: operator status -->
+            <ui:VisualElement class="hud__top-bar-right" picking-mode="Ignore">
+                <ui:Label name="self-name" text="OPERATOR_01" class="hud__operator-name" picking-mode="Ignore" />
+                <ui:VisualElement class="hud__operator-stats" picking-mode="Ignore">
+                    <ui:Label name="self-signal" text="NOMINAL" class="hud__operator-stat" picking-mode="Ignore" />
+                    <ui:Label name="self-hp-pct" text="100%" class="hud__operator-stat" picking-mode="Ignore" />
+                    <ui:Label name="self-ready" text="" class="hud__operator-stat" picking-mode="Ignore" />
+                </ui:VisualElement>
+                <ui:VisualElement class="hud__hp-bar-track" picking-mode="Ignore">
+                    <ui:VisualElement name="self-hp-fill" class="hud__hp-bar-fill" picking-mode="Ignore" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+
         </ui:VisualElement>
 
-        <!-- Center: wave announcement -->
-        <ui:Label name="announcement-label" class="hud__announcement" picking-mode="Ignore" style="display: none;" />
+        <!-- ============ MIDDLE AREA (event log left, empty center, info right) ============ -->
+        <ui:VisualElement class="hud__middle" picking-mode="Ignore">
 
-        <!-- Bottom row -->
-        <ui:VisualElement class="hud__bottom-row" picking-mode="Ignore">
-
-            <!-- Bottom left: event log -->
-            <ui:VisualElement class="hud__log-section" picking-mode="Ignore">
+            <!-- Left: Event Log -->
+            <ui:VisualElement class="hud__log-panel" picking-mode="Ignore">
                 <ui:VisualElement class="hud__log-header" picking-mode="Ignore">
-                    <ui:Label text="&gt;" class="hud__log-icon" picking-mode="Ignore" />
+                    <ui:Label text=">" class="hud__log-icon" picking-mode="Ignore" />
                     <ui:Label text="SYS_LOG" class="hud__log-title" picking-mode="Ignore" />
                 </ui:VisualElement>
                 <ui:VisualElement name="event-log" class="hud__event-log" picking-mode="Ignore">
@@ -68,6 +78,19 @@
                 </ui:VisualElement>
             </ui:VisualElement>
 
+        </ui:VisualElement>
+
+        <!-- ============ CENTER: WAVE ANNOUNCEMENT ============ -->
+        <ui:Label name="announcement-label" class="hud__announcement" picking-mode="Ignore" style="display: none;" />
+
+        <!-- ============ BOTTOM BAR: TOWER SELECTION ============ -->
+        <ui:VisualElement class="hud__bottom-bar" picking-mode="Ignore">
+            <ui:VisualElement class="hud__bottom-bar-inner" picking-mode="Ignore">
+                <ui:Label text="// SYSTEM_OK" class="hud__bottom-status" picking-mode="Ignore" />
+                <ui:VisualElement name="tower-bar" class="hud__tower-bar" picking-mode="Ignore">
+                    <!-- Tower buttons populated dynamically by TowerSelectionBar -->
+                </ui:VisualElement>
+            </ui:VisualElement>
         </ui:VisualElement>
 
     </ui:VisualElement>

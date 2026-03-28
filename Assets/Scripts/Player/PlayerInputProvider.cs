@@ -11,11 +11,6 @@ namespace AIWE.Player
             Controls = new Controls();
         }
 
-        private void Start()
-        {
-            Controls.Player.Enable();
-        }
-
         public void SetPlayerMapEnabled(bool enabled)
         {
             if (enabled)

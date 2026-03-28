@@ -9,15 +9,16 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5161822030647589161}
-  - component: {fileID: 169988183131360137}
+  - component: {fileID: 5888535772831582495}
   - component: {fileID: 1995572754550367133}
   - component: {fileID: 534131846976979409}
   - component: {fileID: 3204314648888192491}
   - component: {fileID: 1850341928324409245}
-  - component: {fileID: 7300075218918751568}
-  - component: {fileID: 4987562410803711187}
   - component: {fileID: 8011745337953390265}
-  - component: {fileID: 2750777212709610051}
+  - component: {fileID: 3451753446587265429}
+  - component: {fileID: 2881010709957936232}
+  - component: {fileID: 7991656107410151538}
+  - component: {fileID: 2736842825971726367}
   m_Layer: 0
   m_Name: BasicEnemy
   m_TagString: Untagged
@@ -34,15 +35,14 @@ Transform:
   m_GameObject: {fileID: 2552856530296388220}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 100, y: 100, z: 100}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 1396583818394394985}
+  m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!136 &169988183131360137
-CapsuleCollider:
+--- !u!135 &5888535772831582495
+SphereCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -59,10 +59,8 @@ CapsuleCollider:
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5
-  m_Height: 2
-  m_Direction: 1
+  serializedVersion: 3
+  m_Radius: 0.4
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &1995572754550367133
 MonoBehaviour:
@@ -76,7 +74,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad47e1e69abec4946bee54e8c706a7f0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AIWE.Enemies.EnemyController
-  moveSpeed: 1.3
+  moveSpeed: 3
 --- !u!114 &534131846976979409
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -89,8 +87,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d975bf74c890d8f44b239c5231d2dae2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AIWE.Enemies.EnemyHealth
-  lootTable: {fileID: 11400000, guid: 0fc11e32c2f6db043a4bde55c4006c0a, type: 2}
-  pickupPrefab: {fileID: 5586572558703307883, guid: f407f6d53a9c4e14fa603989b75f25ac, type: 3}
+  lootTable: {fileID: 0}
+  pickupPrefab: {fileID: 0}
   deathAnimDuration: 2
 --- !u!114 &3204314648888192491
 MonoBehaviour:
@@ -116,350 +114,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b6e56cf66ea477419e1701259a63e47, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AIWE.Enemies.EnemyHitFeedback
-  hitFeedback: {fileID: 7300075218918751568}
+  hitFeedback: {fileID: 0}
   deathFeedback: {fileID: 0}
-  damageTextPrefab: {fileID: 7901983059841969698, guid: c8ce5813504d1f647aa44d615df212be, type: 3}
+  damageTextPrefab: {fileID: 0}
   textOffsetY: 1.5
   textLifetime: 0.8
---- !u!114 &7300075218918751568
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2552856530296388220}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6da43522623d4704e979466dc7650b65, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: MoreMountains.Tools::MoreMountains.Feedbacks.MMF_Player
-  Feedbacks: []
-  InitializationMode: 2
-  AutoInitialization: 1
-  SafeMode: 3
-  Direction: 0
-  AutoChangeDirectionOnEnd: 0
-  AutoPlayOnStart: 0
-  AutoPlayOnEnable: 0
-  ForceTimescaleMode: 0
-  ForcedTimescaleMode: 1
-  DurationMultiplier: 1
-  TimescaleMultiplier: 1
-  RandomizeDuration: 0
-  RandomDurationMultiplier: {x: 0.5, y: 1.5}
-  DisplayFullDurationDetails: 0
-  PlayerTimescaleMode: 0
-  OnlyPlayIfWithinRange: 0
-  RangeCenter: {fileID: 0}
-  RangeDistance: 5
-  UseRangeFalloff: 0
-  RangeFalloff:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  RemapRangeFalloff: {x: 0, y: 1}
-  IgnoreRangeEvents: 0
-  CooldownDuration: 0
-  InitialDelay: 0
-  CanPlay: 1
-  CanPlayWhileAlreadyPlaying: 1
-  ChanceToPlay: 100
-  FeedbacksIntensity: 1
-  Events:
-    TriggerMMFeedbacksEvents: 0
-    TriggerUnityEvents: 1
-    OnPlay:
-      m_PersistentCalls:
-        m_Calls: []
-    OnPause:
-      m_PersistentCalls:
-        m_Calls: []
-    OnStop:
-      m_PersistentCalls:
-        m_Calls: []
-    OnResume:
-      m_PersistentCalls:
-        m_Calls: []
-    OnChangeDirection:
-      m_PersistentCalls:
-        m_Calls: []
-    OnComplete:
-      m_PersistentCalls:
-        m_Calls: []
-    OnRestoreInitialValues:
-      m_PersistentCalls:
-        m_Calls: []
-    OnSkipToTheEnd:
-      m_PersistentCalls:
-        m_Calls: []
-    OnInitializationComplete:
-      m_PersistentCalls:
-        m_Calls: []
-    OnEnable:
-      m_PersistentCalls:
-        m_Calls: []
-    OnDisable:
-      m_PersistentCalls:
-        m_Calls: []
-  DebugActive: 0
-  InScriptDrivenPause: 0
-  FeedbacksList:
-  - rid: 5387669034917167404
-  - rid: 5387669034917167405
-  KeepPlayModeChanges: 0
-  PerformanceMode: 0
-  RestoreInitialValuesOnDisable: 0
-  StopFeedbacksOnDisable: 0
-  PlayCount: 0
-  MMF_ChannelMode: 0
-  MMF_Channel: 0
-  MMF_ChannelDefinition: {fileID: 0}
-  references:
-    version: 2
-    RefIds:
-    - rid: 5387669034917167404
-      type: {class: MMF_Flicker, ns: MoreMountains.Feedbacks, asm: MoreMountains.Tools}
-      data:
-        Active: 1
-        UniqueID: 1799731079
-        Label: Flicker
-        OriginalLabel: Flicker
-        ChannelMode: 0
-        Channel: 0
-        MMChannelDefinition: {fileID: 0}
-        Chance: 100
-        Timing:
-          TimescaleMode: 0
-          ExcludeFromHoldingPauses: 0
-          ContributeToTotalDuration: 1
-          InitialDelay: 0
-          CooldownDuration: 0
-          InterruptsOnStop: 1
-          NumberOfRepeats: 0
-          RepeatForever: 0
-          DelayBetweenRepeats: 1
-          PlayCount: 0
-          LimitPlayCount: 0
-          MaxPlayCount: 3
-          SetPlayCountToZeroOnReset: 0
-          MMFeedbacksDirectionCondition: 0
-          PlayDirection: 0
-          ConstantIntensity: 0
-          UseIntensityInterval: 0
-          IntensityIntervalMin: 0
-          IntensityIntervalMax: 0
-          Sequence: {fileID: 0}
-          TrackID: 0
-          Quantized: 0
-          TargetBPM: 120
-        AutomatedTargetAcquisition:
-          Mode: 0
-          ChildIndex: 0
-        RandomizeOutput: 0
-        RandomMultiplier: {x: 0.8, y: 1}
-        RandomizeDuration: 0
-        RandomDurationMultiplier: {x: 0.5, y: 2}
-        UseRange: 0
-        RangeDistance: 5
-        UseRangeFalloff: 0
-        RangeFalloff:
-          serializedVersion: 2
-          m_Curve:
-          - serializedVersion: 3
-            time: 0
-            value: 1
-            inSlope: 0
-            outSlope: 0
-            tangentMode: 0
-            weightedMode: 0
-            inWeight: 0
-            outWeight: 0
-          - serializedVersion: 3
-            time: 1
-            value: 0
-            inSlope: 0
-            outSlope: 0
-            tangentMode: 0
-            weightedMode: 0
-            inWeight: 0
-            outWeight: 0
-          m_PreInfinity: 2
-          m_PostInfinity: 2
-          m_RotationOrder: 4
-        RemapRangeFalloff: {x: 0, y: 1}
-        AutomaticShakerSetupButton:
-          ButtonText: 
-        Owner: {fileID: 7300075218918751568}
-        DebugActive: 0
-        BoundRenderer: {fileID: 49504403780556016}
-        ExtraBoundRenderers: []
-        Mode: 0
-        PropertyName: _Tint
-        FlickerDuration: 0.2
-        FlickerPeriod: 0.04
-        FlickerColor: {r: 1, g: 0.078431375, b: 0.078431375, a: 1}
-        MaterialIndexes: 
-        UseMaterialPropertyBlocks: 0
-        SpriteRendererTextureProperty: _MainTex
-    - rid: 5387669034917167405
-      type: {class: MMF_SquashAndStretch, ns: MoreMountains.Feedbacks, asm: MoreMountains.Tools}
-      data:
-        Active: 1
-        UniqueID: -395776483
-        Label: Squash and Stretch
-        OriginalLabel: Squash and Stretch
-        ChannelMode: 0
-        Channel: 0
-        MMChannelDefinition: {fileID: 0}
-        Chance: 100
-        Timing:
-          TimescaleMode: 0
-          ExcludeFromHoldingPauses: 0
-          ContributeToTotalDuration: 1
-          InitialDelay: 0
-          CooldownDuration: 0
-          InterruptsOnStop: 1
-          NumberOfRepeats: 0
-          RepeatForever: 0
-          DelayBetweenRepeats: 1
-          PlayCount: 0
-          LimitPlayCount: 0
-          MaxPlayCount: 3
-          SetPlayCountToZeroOnReset: 0
-          MMFeedbacksDirectionCondition: 0
-          PlayDirection: 0
-          ConstantIntensity: 0
-          UseIntensityInterval: 0
-          IntensityIntervalMin: 0
-          IntensityIntervalMax: 0
-          Sequence: {fileID: 0}
-          TrackID: 0
-          Quantized: 0
-          TargetBPM: 120
-        AutomatedTargetAcquisition:
-          Mode: 0
-          ChildIndex: 0
-        RandomizeOutput: 0
-        RandomMultiplier: {x: 0.8, y: 1}
-        RandomizeDuration: 0
-        RandomDurationMultiplier: {x: 0.5, y: 2}
-        UseRange: 0
-        RangeDistance: 5
-        UseRangeFalloff: 0
-        RangeFalloff:
-          serializedVersion: 2
-          m_Curve:
-          - serializedVersion: 3
-            time: 0
-            value: 1
-            inSlope: 0
-            outSlope: 0
-            tangentMode: 0
-            weightedMode: 0
-            inWeight: 0
-            outWeight: 0
-          - serializedVersion: 3
-            time: 1
-            value: 0
-            inSlope: 0
-            outSlope: 0
-            tangentMode: 0
-            weightedMode: 0
-            inWeight: 0
-            outWeight: 0
-          m_PreInfinity: 2
-          m_PostInfinity: 2
-          m_RotationOrder: 4
-        RemapRangeFalloff: {x: 0, y: 1}
-        AutomaticShakerSetupButton:
-          ButtonText: 
-        Owner: {fileID: 7300075218918751568}
-        DebugActive: 0
-        SquashAndStretchTarget: {fileID: 1396583818394394985}
-        Mode: 0
-        Axis: 0
-        AnimateScaleDuration: 0.2
-        RemapCurveZero: 1
-        RemapCurveOne: 1.2
-        Offset: 0
-        AnimateCurve:
-          serializedVersion: 2
-          m_Curve:
-          - serializedVersion: 3
-            time: 0
-            value: 0
-            inSlope: 0
-            outSlope: 0
-            tangentMode: 0
-            weightedMode: 0
-            inWeight: 0
-            outWeight: 0
-          - serializedVersion: 3
-            time: 0.3
-            value: 1.5
-            inSlope: 0
-            outSlope: 0
-            tangentMode: 0
-            weightedMode: 0
-            inWeight: 0
-            outWeight: 0
-          - serializedVersion: 3
-            time: 1
-            value: 0
-            inSlope: 0
-            outSlope: 0
-            tangentMode: 0
-            weightedMode: 0
-            inWeight: 0
-            outWeight: 0
-          m_PreInfinity: 2
-          m_PostInfinity: 2
-          m_RotationOrder: 4
-        AllowAdditivePlays: 0
-        DetermineScaleOnPlay: 0
-        DestinationScale: 2
---- !u!195 &4987562410803711187
-NavMeshAgent:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2552856530296388220}
-  m_Enabled: 1
-  m_AgentTypeID: 0
-  m_Radius: 0.5
-  m_Speed: 0
-  m_Acceleration: 40
-  avoidancePriority: 50
-  m_AngularSpeed: 720
-  m_StoppingDistance: 0.3
-  m_AutoTraverseOffMeshLink: 1
-  m_AutoBraking: 0
-  m_AutoRepath: 1
-  m_Height: 2
-  m_BaseOffset: 1
-  m_WalkableMask: 4294967295
-  m_ObstacleAvoidanceType: 4
 --- !u!114 &8011745337953390265
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -483,8 +142,8 @@ MonoBehaviour:
   meleeRange: 1.5
   attackCooldown: 1
   attackDamage: 10
-  threatConfig: {fileID: 11400000, guid: 358b6e8b14307d2479f01f1c3b271b77, type: 2}
---- !u!114 &2750777212709610051
+  threatConfig: {fileID: 0}
+--- !u!114 &3451753446587265429
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -493,73 +152,78 @@ MonoBehaviour:
   m_GameObject: {fileID: 2552856530296388220}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 993771f762d234b4887842fc1a41f951, type: 3}
+  m_Script: {fileID: 11500000, guid: 5e19c250e048cec4693cb52ca877ac1c, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AIWE.Enemies.EnemyAnimationController
-  _animator: {fileID: 8003374220369802735}
-  animSpeedDamp: 0.1
-  hitAnimCooldown: 0.3
---- !u!1001 &427881115079842295
-PrefabInstance:
+  m_EditorClassIdentifier: Assembly-CSharp::AIWE.AI.ThreatSource
+  decayFactor: 0.85
+--- !u!33 &2881010709957936232
+MeshFilter:
   m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 5161822030647589161}
-    m_Modifications:
-    - target: {fileID: -1521774772117591016, guid: dc494f42aedd60c4a85be02ec2b22ec4, type: 3}
-      propertyPath: m_Controller
-      value: 
-      objectReference: {fileID: 9100000, guid: 256ccec291fd30e41b9cceead0493c5d, type: 2}
-    - target: {fileID: 384605163159051935, guid: dc494f42aedd60c4a85be02ec2b22ec4, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0.011328132
-      objectReference: {fileID: 0}
-    - target: {fileID: 384605163159051935, guid: dc494f42aedd60c4a85be02ec2b22ec4, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0.033806592
-      objectReference: {fileID: 0}
-    - target: {fileID: 1626232734065784990, guid: dc494f42aedd60c4a85be02ec2b22ec4, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1626232734065784990, guid: dc494f42aedd60c4a85be02ec2b22ec4, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1626232734065784990, guid: dc494f42aedd60c4a85be02ec2b22ec4, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2151131426784420388, guid: dc494f42aedd60c4a85be02ec2b22ec4, type: 3}
-      propertyPath: m_Name
-      value: EnemyModel
-      objectReference: {fileID: 0}
-    - target: {fileID: 3911660632264633032, guid: dc494f42aedd60c4a85be02ec2b22ec4, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0.011328296
-      objectReference: {fileID: 0}
-    - target: {fileID: 3911660632264633032, guid: dc494f42aedd60c4a85be02ec2b22ec4, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0.033806562
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: dc494f42aedd60c4a85be02ec2b22ec4, type: 3}
---- !u!137 &49504403780556016 stripped
-SkinnedMeshRenderer:
-  m_CorrespondingSourceObject: {fileID: 387305605247192327, guid: dc494f42aedd60c4a85be02ec2b22ec4, type: 3}
-  m_PrefabInstance: {fileID: 427881115079842295}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
---- !u!4 &1396583818394394985 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 1626232734065784990, guid: dc494f42aedd60c4a85be02ec2b22ec4, type: 3}
-  m_PrefabInstance: {fileID: 427881115079842295}
+  m_GameObject: {fileID: 2552856530296388220}
+  m_Mesh: {fileID: 0}
+--- !u!23 &7991656107410151538
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
---- !u!95 &8003374220369802735 stripped
-Animator:
-  m_CorrespondingSourceObject: {fileID: -1521774772117591016, guid: dc494f42aedd60c4a85be02ec2b22ec4, type: 3}
-  m_PrefabInstance: {fileID: 427881115079842295}
+  m_GameObject: {fileID: 2552856530296388220}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: eb3ece70247e9544293cc6e8253c42fc, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_MaskInteraction: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &2736842825971726367
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2552856530296388220}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 683795c904387e74c9e65e7baa189683, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AIWE.Visual.GeometricShape
+  shapeType: 0
+  size: 0.4

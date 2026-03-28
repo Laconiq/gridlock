@@ -1,4 +1,6 @@
 using AIWE.Interfaces;
+using AIWE.NodeEditor.UI;
+using AIWE.Player;
 using UnityEngine;
 
 namespace AIWE.Towers
@@ -22,11 +24,17 @@ namespace AIWE.Towers
 
         public bool CanInteract()
         {
-            return true;
+            var editor = NodeEditorScreen.Instance;
+            return editor != null && !editor.IsOpen;
         }
 
         public void Interact()
         {
+            var editor = NodeEditorScreen.Instance;
+            if (editor == null || editor.IsOpen) return;
+
+            var inventory = FindAnyObjectByType<PlayerInventory>();
+            editor.Open(_chassis, inventory);
         }
     }
 }

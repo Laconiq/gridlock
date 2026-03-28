@@ -1,0 +1,8 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="DesignTokensHUD.uss" />
+    <Style src="GameHUD.uss" />
+
+    <ui:VisualElement style="flex-grow: 1; justify-content: flex-end; align-items: center; padding-bottom: 80px;" picking-mode="Ignore">
+        <ui:Button name="start-wave-btn" text="[ START WAVE ]" class="wave-start-btn" />
+    </ui:VisualElement>
+</ui:UXML>

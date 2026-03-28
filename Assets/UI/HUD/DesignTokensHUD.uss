@@ -14,14 +14,14 @@
     --surface-container-highest:#262627;
 
     /* === PRIMARY (Cyan) === */
-    --primary:                  #8ff5ff;
-    --primary-dim:              #00deec;
+    --primary:                  #00ffff;
+    --primary-dim:              #00e6e6;
 
-    /* === SECONDARY (Green) === */
-    --secondary:                #2ff801;
+    /* === SECONDARY (Magenta) === */
+    --secondary:                #ff51fa;
 
-    /* === TERTIARY (Orange) === */
-    --tertiary:                 #ff7948;
+    /* === TERTIARY (Green) === */
+    --tertiary:                 #69fd5d;
 
     /* === ERROR (Red) === */
     --error:                    #ff716c;
@@ -35,12 +35,12 @@
     /* === HUD-SPECIFIC TOKENS === */
     --hud-opacity-ambient:      0.4;
     --hud-opacity-log:          0.3;
-    --hud-hp-color:             #2ff801;
+    --hud-hp-color:             #00ffff;
     --hud-hp-low:               #ff7948;
     --hud-hp-critical:          #ff716c;
-    --hud-hp-track:             rgba(47, 248, 1, 0.12);
-    --hud-corner-color:         rgba(143, 245, 255, 0.12);
-    --hud-squad-connected:      #2ff801;
+    --hud-hp-track:             rgba(0, 255, 255, 0.12);
+    --hud-corner-color:         rgba(0, 255, 255, 0.15);
+    --hud-squad-connected:      #69fd5d;
     --hud-squad-disconnected:   #ff716c;
 
     /* === FONT === */

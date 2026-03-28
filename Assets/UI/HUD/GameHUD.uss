@@ -1,250 +1,184 @@
 /* ============================================================
-   VOID_PROTOCOL — Game HUD Styles
+   VECTOR_CMD — Game HUD Styles (Cyberpunk Vector)
    All colors reference design tokens via var(--token).
+   Sharp corners, cyan/magenta glow, dark surfaces.
    ============================================================ */
 
 /* === ROOT LAYOUT === */
 .hud-root {
     flex-direction: column;
     justify-content: space-between;
-    padding: 32px;
 }
 
-/* === VIEWPORT BORDER === */
-.hud__viewport-border {
-    position: absolute;
-    left: 16px;
-    top: 16px;
-    right: 16px;
-    bottom: 16px;
-    border-left-width: 1px;
-    border-right-width: 1px;
-    border-top-width: 1px;
-    border-bottom-width: 1px;
-    border-left-color: rgba(143, 245, 255, 0.05);
-    border-right-color: rgba(143, 245, 255, 0.05);
-    border-top-color: rgba(143, 245, 255, 0.05);
-    border-bottom-color: rgba(143, 245, 255, 0.05);
-}
-
-/* === CORNER ACCENTS === */
-.hud__corner {
-    position: absolute;
-    width: 24px;
-    height: 24px;
-    border-left-color: var(--hud-corner-color);
-    border-right-color: var(--hud-corner-color);
-    border-top-color: var(--hud-corner-color);
-    border-bottom-color: var(--hud-corner-color);
-}
-
-.hud__corner--tl {
-    left: 16px;
-    top: 16px;
-    border-top-width: 1px;
-    border-left-width: 1px;
-    border-right-width: 0;
-    border-bottom-width: 0;
-}
-
-.hud__corner--tr {
-    right: 16px;
-    top: 16px;
-    border-top-width: 1px;
-    border-right-width: 1px;
-    border-left-width: 0;
-    border-bottom-width: 0;
-}
-
-.hud__corner--bl {
-    left: 16px;
-    bottom: 16px;
-    border-bottom-width: 1px;
-    border-left-width: 1px;
-    border-right-width: 0;
-    border-top-width: 0;
-}
-
-.hud__corner--br {
-    right: 16px;
-    bottom: 16px;
-    border-bottom-width: 1px;
-    border-right-width: 1px;
-    border-left-width: 0;
-    border-top-width: 0;
-}
-
-/* === WAVE INFO (top-center) === */
-.hud__wave-info {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 32px;
-    align-items: center;
-    flex-direction: column;
-}
-
-.hud__wave-label {
-    font-size: 14px;
-    -unity-font-style: bold;
-    letter-spacing: 6px;
-    color: var(--primary);
-    text-shadow: 0 0 8px rgba(143, 245, 255, 0.6);
-    -unity-text-align: middle-center;
-    text-transform: uppercase;
-}
-
-.hud__wave-enemies {
-    font-size: 9px;
-    letter-spacing: 3px;
-    color: var(--on-surface-variant);
-    -unity-text-align: middle-center;
-    margin-top: 2px;
-    text-transform: uppercase;
-}
-
-.hud__objective-section {
-    margin-top: 8px;
-    align-items: center;
-    flex-direction: column;
-}
-
-.hud__objective-title {
-    font-size: 7px;
-    letter-spacing: 3px;
-    color: var(--on-surface-variant);
-    opacity: 0.5;
-    -unity-text-align: middle-center;
-    margin-bottom: 4px;
-    text-transform: uppercase;
-}
-
-.hud__objective-bar-track {
-    width: 160px;
-    height: 4px;
-    background-color: var(--surface-container-highest);
-}
-
-.hud__objective-bar-fill {
-    height: 100%;
-    width: 100%;
-    background-color: var(--hud-hp-color);
-    transition: width 0.2s ease-out;
-}
-
-.hud__objective-bar-fill--low {
-    background-color: var(--hud-hp-low);
-}
-
-.hud__objective-bar-fill--critical {
-    background-color: var(--hud-hp-critical);
-}
-
-.hud__objective-pct {
-    font-size: 8px;
-    letter-spacing: 2px;
-    color: var(--on-surface-variant);
-    -unity-text-align: middle-center;
-    margin-top: 2px;
-    text-transform: uppercase;
-}
-
-/* === TOP ROW === */
-.hud__top-row {
+/* ============================================================
+   TOP BAR
+   ============================================================ */
+.hud__top-bar {
     flex-direction: row;
     justify-content: space-between;
-    align-items: flex-start;
+    align-items: center;
+    padding: 10px 24px;
+    background-color: rgba(14, 14, 15, 0.92);
+    border-bottom-width: 1px;
+    border-bottom-color: rgba(0, 255, 255, 0.2);
 }
 
-/* === SYSTEM INFO (top-left) === */
-.hud__sys-info {
-    opacity: var(--hud-opacity-ambient);
-    flex-direction: column;
-}
-
-.hud__sys-tag {
+/* --- Left cluster: title + sys info --- */
+.hud__top-bar-left {
     flex-direction: row;
     align-items: center;
+}
+
+.hud__title-group {
+    flex-direction: row;
+    align-items: center;
+    margin-right: 16px;
 }
 
 .hud__sys-dot {
-    width: 6px;
-    height: 6px;
-    background-color: var(--secondary);
+    width: 8px;
+    height: 8px;
+    background-color: var(--primary);
     margin-right: 8px;
+}
+
+.hud__title {
+    font-size: 16px;
+    -unity-font-style: bold;
+    color: var(--primary);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.7), 0 0 20px rgba(0, 255, 255, 0.3);
 }
 
 .hud__sys-version {
     font-size: 9px;
-    color: var(--on-surface);
-    -unity-text-align: middle-left;
-    letter-spacing: 3px;
+    color: var(--on-surface-variant);
+    letter-spacing: 2px;
     text-transform: uppercase;
+    margin-right: 16px;
+    opacity: 0.5;
 }
 
 .hud__sys-meta {
     font-size: 8px;
+    color: var(--outline);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    opacity: 0.4;
+}
+
+/* --- Center cluster: stats --- */
+.hud__top-bar-center {
+    flex-direction: row;
+    align-items: center;
+}
+
+.hud__stat-block {
+    flex-direction: row;
+    align-items: center;
+    padding: 0 12px;
+}
+
+.hud__stat-label {
+    font-size: 8px;
     color: var(--on-surface-variant);
-    margin-left: 14px;
-    margin-top: 2px;
     letter-spacing: 3px;
     text-transform: uppercase;
+    margin-right: 8px;
+    opacity: 0.6;
 }
 
-/* === PLAYER PANEL (top-right) === */
-.hud__player-panel {
-    width: 280px;
-    flex-direction: column;
-    align-items: flex-end;
-}
-
-/* === SELF STATUS === */
-.hud__self-status {
-    width: 100%;
-    flex-direction: column;
-    align-items: flex-end;
-}
-
-.hud__self-header {
-    flex-direction: column;
-    align-items: flex-end;
-    margin-bottom: 6px;
-}
-
-.hud__self-label {
-    font-size: 9px;
-    letter-spacing: 3px;
-    color: var(--on-surface-variant);
-    -unity-text-align: middle-right;
-    text-transform: uppercase;
-}
-
-.hud__self-name {
+.hud__stat-value {
     font-size: 13px;
     -unity-font-style: bold;
+    color: var(--on-surface);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.hud__stat-value--primary {
     color: var(--primary);
-    letter-spacing: -0.5px;
-    -unity-text-align: middle-right;
-    text-shadow: 0 0 8px rgba(143, 245, 255, 0.6);
+    text-shadow: 0 0 8px rgba(0, 255, 255, 0.5);
+}
+
+.hud__stat-value--secondary {
+    color: var(--secondary);
+    text-shadow: 0 0 8px rgba(255, 81, 250, 0.5);
+}
+
+.hud__bar-separator {
+    width: 1px;
+    height: 20px;
+    background-color: rgba(0, 255, 255, 0.15);
+    margin: 0 4px;
+}
+
+/* --- Lives bar (objective HP in top bar) --- */
+.hud__lives-bar-track {
+    width: 100px;
+    height: 6px;
+    background-color: var(--surface-container-highest);
+    margin-right: 8px;
+}
+
+.hud__lives-bar-fill {
+    height: 100%;
+    width: 100%;
+    background-color: var(--primary);
+    transition: width 0.2s ease-out;
+}
+
+.hud__lives-bar-fill.hud__objective-bar-fill--low {
+    background-color: var(--hud-hp-low);
+}
+
+.hud__lives-bar-fill.hud__objective-bar-fill--critical {
+    background-color: var(--hud-hp-critical);
+}
+
+/* --- Right cluster: operator --- */
+.hud__top-bar-right {
+    flex-direction: row;
+    align-items: center;
+}
+
+.hud__operator-name {
+    font-size: 11px;
+    -unity-font-style: bold;
+    color: var(--primary);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-shadow: 0 0 8px rgba(0, 255, 255, 0.5);
+    margin-right: 16px;
+}
+
+.hud__operator-stats {
+    flex-direction: row;
+    align-items: center;
+    margin-right: 12px;
+}
+
+.hud__operator-stat {
+    font-size: 8px;
+    color: var(--on-surface-variant);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-right: 10px;
+    opacity: 0.6;
 }
 
 .hud__hp-bar-track {
-    width: 100%;
-    height: 6px;
+    width: 60px;
+    height: 4px;
     background-color: var(--surface-container-highest);
-    flex-direction: row;
-    justify-content: flex-end;
 }
 
 .hud__hp-bar-fill {
     height: 100%;
     width: 100%;
-    background-color: var(--hud-hp-color);
+    background-color: var(--primary);
     transition: width 0.2s ease-out;
-    position: absolute;
-    right: 0;
-    top: 0;
-    bottom: 0;
 }
 
 .hud__hp-bar-fill--low {
@@ -255,53 +189,44 @@
     background-color: var(--hud-hp-critical);
 }
 
-.hud__self-substats {
-    flex-direction: row;
-    justify-content: flex-end;
-    margin-top: 4px;
-}
-
-.hud__self-substats > * {
-    margin-right: 12px;
-}
-
-.hud__substat {
-    font-size: 8px;
-    letter-spacing: 2px;
-    color: rgba(143, 245, 255, 0.5);
-    text-transform: uppercase;
-}
-
-/* === BOTTOM ROW === */
-.hud__bottom-row {
+/* ============================================================
+   MIDDLE AREA
+   ============================================================ */
+.hud__middle {
+    flex-grow: 1;
     flex-direction: row;
     justify-content: space-between;
     align-items: flex-end;
+    padding: 16px 24px;
 }
 
-/* === EVENT LOG (bottom-left) === */
-.hud__log-section {
-    max-width: 240px;
+/* --- Event Log Panel (left side) --- */
+.hud__log-panel {
+    max-width: 280px;
     flex-direction: column;
+    padding: 10px 14px;
+    background-color: rgba(14, 14, 15, 0.75);
+    border-left-width: 2px;
+    border-left-color: var(--primary);
 }
 
 .hud__log-header {
     flex-direction: row;
     align-items: center;
-    margin-bottom: 4px;
+    margin-bottom: 6px;
 }
 
 .hud__log-icon {
-    font-size: 8px;
+    font-size: 9px;
     color: var(--primary);
-    opacity: 0.4;
+    opacity: 0.6;
     margin-right: 6px;
 }
 
 .hud__log-title {
     font-size: 8px;
     color: var(--primary);
-    opacity: 0.4;
+    opacity: 0.6;
     letter-spacing: 3px;
     text-transform: uppercase;
 }
@@ -311,25 +236,129 @@
 }
 
 .hud__log-entry {
-    font-size: 7px;
+    font-size: 8px;
     color: var(--on-surface-variant);
-    opacity: var(--hud-opacity-log);
-    margin-bottom: 1px;
+    margin-bottom: 2px;
+    letter-spacing: 1px;
 }
 
-/* === WAVE ANNOUNCEMENT (center) === */
+/* ============================================================
+   WAVE ANNOUNCEMENT (center overlay)
+   ============================================================ */
 .hud__announcement {
     position: absolute;
     left: 0;
     right: 0;
     top: 40%;
     translate: 0 -50%;
-    font-size: 48px;
+    font-size: 52px;
     color: var(--primary);
-    letter-spacing: 8px;
+    letter-spacing: 10px;
     -unity-font-style: bold;
     -unity-text-align: middle-center;
-    text-shadow: 0 0 16px rgba(143, 245, 255, 0.8);
+    text-shadow: 0 0 20px rgba(0, 255, 255, 0.8), 0 0 40px rgba(0, 255, 255, 0.4), 0 0 60px rgba(0, 255, 255, 0.2);
     text-transform: uppercase;
 }
 
+/* ============================================================
+   BOTTOM BAR
+   ============================================================ */
+.hud__bottom-bar {
+    background-color: rgba(14, 14, 15, 0.92);
+    border-top-width: 1px;
+    border-top-color: rgba(0, 255, 255, 0.2);
+    padding: 8px 24px;
+}
+
+.hud__bottom-bar-inner {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.hud__bottom-status {
+    font-size: 8px;
+    color: var(--on-surface-variant);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    opacity: 0.4;
+}
+
+/* --- Tower Selection Bar --- */
+.hud__tower-bar {
+    flex-direction: row;
+    align-items: center;
+}
+
+.hud__tower-btn {
+    width: 80px;
+    height: 36px;
+    margin: 0 4px;
+    background-color: rgba(0, 255, 255, 0.05);
+    border-width: 1px;
+    border-color: rgba(0, 255, 255, 0.3);
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.hud__tower-btn:hover {
+    background-color: rgba(0, 255, 255, 0.12);
+    border-color: rgba(0, 255, 255, 0.6);
+}
+
+.hud__tower-btn--selected {
+    border-color: var(--primary);
+    border-width: 2px;
+    background-color: rgba(0, 255, 255, 0.15);
+}
+
+.hud__tower-btn-label {
+    font-size: 9px;
+    color: var(--primary);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    -unity-font-style: bold;
+    text-shadow: 0 0 6px rgba(0, 255, 255, 0.5);
+}
+
+.hud__tower-btn--cannon .hud__tower-btn-label { color: rgb(0, 255, 255); }
+.hud__tower-btn--laser .hud__tower-btn-label { color: rgb(255, 81, 250); }
+.hud__tower-btn--slow .hud__tower-btn-label { color: rgb(0, 255, 128); }
+
+/* ============================================================
+   WAVE START BUTTON
+   ============================================================ */
+.wave-start-btn {
+    width: 220px;
+    height: 48px;
+    font-size: 16px;
+    -unity-font-style: bold;
+    color: var(--primary);
+    background-color: rgba(0, 255, 255, 0.08);
+    border-width: 2px;
+    border-color: var(--primary);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    text-shadow: 0 0 12px rgba(0, 255, 255, 0.6);
+}
+
+.wave-start-btn:hover {
+    background-color: rgba(0, 255, 255, 0.2);
+    border-color: rgb(0, 255, 255);
+}
+
+.wave-start-btn:active {
+    background-color: rgba(0, 255, 255, 0.3);
+}
+
+/* ============================================================
+   LEGACY CLASS COMPAT (used by C# HUDWaveInfo)
+   ============================================================ */
+.hud__objective-bar-fill--low {
+    background-color: var(--hud-hp-low);
+}
+
+.hud__objective-bar-fill--critical {
+    background-color: var(--hud-hp-critical);
+}
