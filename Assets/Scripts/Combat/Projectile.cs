@@ -13,19 +13,32 @@ namespace AIWE.Combat
         private float _lifetime;
         private bool _initialized;
         private bool _dealsDamage;
+        private ITargetable _target;
 
-        public void Initialize(Vector3 direction, float speed, float damage, bool dealsDamage)
+        public void Initialize(Vector3 direction, float speed, float damage, bool dealsDamage,
+            ITargetable target = null)
         {
             _direction = direction;
             _speed = speed;
             _damage = damage;
             _dealsDamage = dealsDamage;
+            _target = target;
             _initialized = true;
         }
 
         private void Update()
         {
             if (!_initialized) return;
+
+            if (_target != null && _target.IsAlive && _target.Transform != null)
+            {
+                var toTarget = _target.Position - transform.position;
+                if (toTarget.sqrMagnitude > 0.001f)
+                {
+                    _direction = toTarget.normalized;
+                    transform.rotation = Quaternion.LookRotation(_direction);
+                }
+            }
 
             transform.position += _direction * (_speed * Time.deltaTime);
             _lifetime += Time.deltaTime;

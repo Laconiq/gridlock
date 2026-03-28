@@ -30,7 +30,7 @@ namespace AIWE.Modules.Effects
 
                 var projectile = go.GetComponent<Combat.Projectile>();
                 if (projectile != null)
-                    projectile.Initialize(direction, speed, damage, dealsDamage: true);
+                    projectile.Initialize(direction, speed, damage, dealsDamage: true, target: target);
             }
         }
 
