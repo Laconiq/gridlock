@@ -1,11 +1,11 @@
 #if UNITY_EDITOR
-using AIWE.Grid;
+using Gridlock.Grid;
 using UnityEditor;
 using UnityEngine;
 
 public static class CreateTestGrid
 {
-    [MenuItem("AIWE/Create Test Grid Level")]
+    [MenuItem("Gridlock/Create Test Grid Level")]
     public static void Create()
     {
         int width = 24;

@@ -4,19 +4,19 @@ using UnityEngine;
 
 public static class FixTowerPrefab
 {
-    [MenuItem("AIWE/Fix Tower Prefab References")]
+    [MenuItem("Gridlock/Fix Tower Prefab References")]
     public static void Run()
     {
         string path = "Assets/Prefabs/Towers/TowerPrefab.prefab";
         var contents = PrefabUtility.LoadPrefabContents(path);
 
-        var chassis = contents.GetComponent<AIWE.Towers.TowerChassis>();
+        var chassis = contents.GetComponent<Gridlock.Towers.TowerChassis>();
         if (chassis != null)
         {
             var so = new SerializedObject(chassis);
 
             var defProp = so.FindProperty("definition");
-            var defAsset = AssetDatabase.LoadAssetAtPath<AIWE.Towers.ChassisDefinition>("Assets/Data/Chassis/Sentinelle.asset");
+            var defAsset = AssetDatabase.LoadAssetAtPath<Gridlock.Towers.ChassisDefinition>("Assets/Data/Chassis/Sentinelle.asset");
             if (defAsset != null)
                 defProp.objectReferenceValue = defAsset;
 
@@ -28,12 +28,12 @@ public static class FixTowerPrefab
             so.ApplyModifiedPropertiesWithoutUndo();
         }
 
-        var executor = contents.GetComponent<AIWE.Towers.TowerExecutor>();
+        var executor = contents.GetComponent<Gridlock.Towers.TowerExecutor>();
         if (executor != null)
         {
             var so = new SerializedObject(executor);
             var regProp = so.FindProperty("moduleRegistry");
-            var registry = AssetDatabase.LoadAssetAtPath<AIWE.Modules.ModuleRegistry>("Assets/Data/ModuleRegistry.asset");
+            var registry = AssetDatabase.LoadAssetAtPath<Gridlock.Modules.ModuleRegistry>("Assets/Data/ModuleRegistry.asset");
             if (registry != null)
                 regProp.objectReferenceValue = registry;
             so.ApplyModifiedPropertiesWithoutUndo();

@@ -4,7 +4,7 @@ using UnityEngine;
 
 public static class BakePrefabMeshes
 {
-    [MenuItem("AIWE/Bake Meshes into Prefabs")]
+    [MenuItem("Gridlock/Bake Meshes into Prefabs")]
     public static void Run()
     {
         BakeEnemy();
