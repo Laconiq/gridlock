@@ -18,7 +18,6 @@ GameObject:
   - component: {fileID: 3451753446587265429}
   - component: {fileID: 2881010709957936232}
   - component: {fileID: 7991656107410151538}
-  - component: {fileID: 2736842825971726367}
   m_Layer: 0
   m_Name: BasicEnemy
   m_TagString: Untagged
@@ -36,7 +35,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.5, y: 0.3, z: 0.5}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -114,10 +113,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b6e56cf66ea477419e1701259a63e47, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AIWE.Enemies.EnemyHitFeedback
-  hitFeedback: {fileID: 0}
-  deathFeedback: {fileID: 0}
+  flashDuration: 0.1
+  flashIntensity: 8
   damageTextPrefab: {fileID: 0}
-  textOffsetY: 1.5
+  textOffsetZ: 0.5
   textLifetime: 0.8
 --- !u!114 &8011745337953390265
 MonoBehaviour:
@@ -163,7 +162,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2552856530296388220}
-  m_Mesh: {fileID: 0}
+  m_Mesh: {fileID: 4300000, guid: e27d39ac04939854ba64ee7fa4f747d3, type: 2}
 --- !u!23 &7991656107410151538
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -189,7 +188,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: eb3ece70247e9544293cc6e8253c42fc, type: 2}
+  - {fileID: 2100000, guid: 0b93ffba20e5f2f489f50dd78e3ec1f4, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -213,17 +212,3 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &2736842825971726367
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2552856530296388220}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 683795c904387e74c9e65e7baa189683, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AIWE.Visual.GeometricShape
-  shapeType: 0
-  size: 0.4
