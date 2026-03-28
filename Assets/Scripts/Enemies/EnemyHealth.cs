@@ -53,7 +53,13 @@ namespace AIWE.Enemies
             _currentHP = Mathf.Max(0f, _currentHP - amount);
 
             if (_currentHP < previous)
+            {
                 _currentHPChanged?.Invoke(previous - _currentHP);
+
+                var juice = Visual.GameJuice.Instance;
+                if (juice != null)
+                    juice.OnEnemyHit(transform.position);
+            }
 
             ThreatSource.ReportDamageFromSource(damage.SourceId, amount);
 
@@ -65,6 +71,10 @@ namespace AIWE.Enemies
         {
             var stats = Core.GameStats.Instance;
             if (stats != null) stats.AddKill();
+
+            var juice = Visual.GameJuice.Instance;
+            if (juice != null)
+                juice.OnEnemyKilled(transform.position);
 
             OnDeath?.Invoke();
             SpawnDrop();

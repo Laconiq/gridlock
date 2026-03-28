@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using AIWE.Core;
 using AIWE.Interfaces;
@@ -13,6 +14,7 @@ namespace AIWE.Grid
     {
         [SerializeField] private GameObject towerPrefab;
         [SerializeField] private int maxTowers = 5;
+        [SerializeField] private LayerMask towerLayerMask = ~0;
 
         private GridManager _gridManager;
         private Camera _camera;
@@ -22,6 +24,9 @@ namespace AIWE.Grid
         private bool _isActive;
         private Vector2Int _lastGridPos = new(-1, -1);
         private readonly List<GameObject> _placedTowers = new();
+
+        private static readonly Plane GroundPlane = new(Vector3.up, Vector3.zero);
+        private readonly List<RaycastResult> _uiRaycastResults = new();
 
         public int RemainingTowers => maxTowers - _placedTowers.Count;
 
@@ -69,19 +74,17 @@ namespace AIWE.Grid
             _preview.SetActive(false);
         }
 
-        private void Update()
+        private void LateUpdate()
         {
             if (!_isActive || _gridManager == null || _camera == null) return;
 
             var pointerPos = _controls.Player.PointerPosition.ReadValue<Vector2>();
             var ray = _camera.ScreenPointToRay(pointerPos);
 
-            if (_controls.Player.Interact.WasPressedThisFrame() && !IsPointerOverUI())
+            if (_controls.Player.Interact.WasPressedThisFrame() && !IsPointerOverUI(pointerPos))
             {
-                if (TryClickTower(ray))
-                    return;
-
-                TryPlaceTower(ray);
+                if (!TryClickTower(ray))
+                    TryPlaceTower(ray);
             }
 
             if (RemainingTowers > 0)
@@ -92,11 +95,10 @@ namespace AIWE.Grid
 
         private bool TryClickTower(Ray ray)
         {
-            if (!Physics.Raycast(ray, out var hit, 200f)) return false;
+            if (!Physics.Raycast(ray, out var hit, 200f, towerLayerMask)) return false;
 
             var interactable = hit.collider.GetComponentInParent<IInteractable>();
-            if (interactable == null) return false;
-            if (!interactable.CanInteract()) return false;
+            if (interactable == null || !interactable.CanInteract()) return false;
 
             interactable.Interact();
             return true;
@@ -104,11 +106,20 @@ namespace AIWE.Grid
 
         private void UpdatePreview(Ray ray)
         {
-            var plane = new Plane(Vector3.up, Vector3.zero);
-            if (!plane.Raycast(ray, out float distance)) return;
+            if (!GroundPlane.Raycast(ray, out float distance))
+            {
+                _preview.SetActive(false);
+                return;
+            }
 
             var worldPos = ray.GetPoint(distance);
-            var gridPos = _gridManager.WorldToGrid(worldPos);
+
+            if (!_gridManager.TryWorldToGrid(worldPos, out var gridPos))
+            {
+                _preview.SetActive(false);
+                _lastGridPos = new Vector2Int(-1, -1);
+                return;
+            }
 
             if (gridPos == _lastGridPos) return;
             _lastGridPos = gridPos;
@@ -120,8 +131,9 @@ namespace AIWE.Grid
             snapPos.y = 0.3f;
             _preview.transform.position = snapPos;
 
-            var color = valid ? new Color(0.2f, 1f, 0.5f, 1f) : new Color(1f, 0.2f, 0.2f, 1f);
-            _previewRenderer.material.color = color;
+            _previewRenderer.material.color = valid
+                ? new Color(0.2f, 1f, 0.5f, 1f)
+                : new Color(1f, 0.2f, 0.2f, 1f);
         }
 
         private void TryPlaceTower(Ray ray)
@@ -129,19 +141,24 @@ namespace AIWE.Grid
             if (RemainingTowers <= 0) return;
             if (towerPrefab == null) return;
 
-            var plane = new Plane(Vector3.up, Vector3.zero);
-            if (!plane.Raycast(ray, out float distance)) return;
+            if (!GroundPlane.Raycast(ray, out float distance)) return;
 
             var worldPos = ray.GetPoint(distance);
-            var gridPos = _gridManager.WorldToGrid(worldPos);
 
+            if (!_gridManager.TryWorldToGrid(worldPos, out var gridPos)) return;
             if (!CanPlaceAt(gridPos)) return;
 
             var snapPos = _gridManager.GridToWorld(gridPos);
             var tower = Instantiate(towerPrefab, snapPos, Quaternion.identity);
             _placedTowers.Add(tower);
+            tower.AddComponent<Visual.WarpFollower>();
+            StartCoroutine(TowerPopIn(tower.transform));
 
-            _gridManager.Definition.SetCell(gridPos.x, gridPos.y, CellType.Blocked);
+            _gridManager.SetRuntimeCell(gridPos.x, gridPos.y, CellType.Blocked);
+
+            var juice = Visual.GameJuice.Instance;
+            if (juice != null)
+                juice.OnTowerPlaced(snapPos);
 
             var chassis = tower.GetComponent<TowerChassis>();
             if (chassis != null)
@@ -151,19 +168,39 @@ namespace AIWE.Grid
                 _preview.SetActive(false);
         }
 
-        private bool IsPointerOverUI()
+        private bool IsPointerOverUI(Vector2 pointerPos)
         {
-            var pointer = _controls.Player.PointerPosition.ReadValue<Vector2>();
-            var pointerData = new PointerEventData(EventSystem.current) { position = pointer };
-            var results = new List<RaycastResult>();
-            EventSystem.current.RaycastAll(pointerData, results);
-            return results.Count > 0;
+            if (EventSystem.current == null) return false;
+
+            var pointerData = new PointerEventData(EventSystem.current) { position = pointerPos };
+            _uiRaycastResults.Clear();
+            EventSystem.current.RaycastAll(pointerData, _uiRaycastResults);
+            return _uiRaycastResults.Count > 0;
         }
 
         private bool CanPlaceAt(Vector2Int gridPos)
         {
-            var cell = _gridManager.Definition.GetCell(gridPos.x, gridPos.y);
+            var cell = _gridManager.GetRuntimeCell(gridPos.x, gridPos.y);
             return cell == CellType.Empty || cell == CellType.TowerSlot;
+        }
+
+        private static System.Collections.IEnumerator TowerPopIn(Transform t)
+        {
+            var targetScale = t.localScale;
+            t.localScale = Vector3.zero;
+            float elapsed = 0f;
+            const float duration = 0.25f;
+
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                float p = elapsed / duration;
+                float overshoot = 1f + Mathf.Sin(p * Mathf.PI) * 0.3f;
+                t.localScale = targetScale * Mathf.Min(overshoot, 1f + (1f - p) * 0.3f);
+                yield return null;
+            }
+
+            t.localScale = targetScale;
         }
 
         private static NodeGraphData CreateDefaultGraph()

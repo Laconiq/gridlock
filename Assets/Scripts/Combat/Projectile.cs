@@ -24,6 +24,12 @@ namespace AIWE.Combat
             _dealsDamage = dealsDamage;
             _target = target;
             _initialized = true;
+
+            gameObject.AddComponent<Visual.WarpFollower>();
+
+            var juice = Visual.GameJuice.Instance;
+            if (juice != null)
+                juice.OnTowerFired(transform.position);
         }
 
         private void Update()
@@ -57,6 +63,7 @@ namespace AIWE.Combat
                 if (damageable != null)
                     damageable.TakeDamage(new DamageInfo(_damage, 0, DamageType.Projectile));
 
+                Visual.ImpactFlash.Spawn(hit.point, new Color(0f, 1f, 1f));
                 Destroy(gameObject);
             }
         }

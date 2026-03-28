@@ -41,6 +41,9 @@ namespace AIWE.Enemies
             _health = GetComponent<EnemyHealth>();
             _statusEffects = GetComponent<StatusEffectManager>();
             _floatY = transform.position.y;
+
+            var wf = gameObject.AddComponent<Visual.WarpFollower>();
+            wf.SetBaseY(_floatY);
         }
 
         public void Setup(EnemyDefinition definition)
