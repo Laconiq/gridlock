@@ -53,13 +53,13 @@ namespace AIWE.Core
 
         public void ResetGame()
         {
-            foreach (var enemy in FindObjectsByType<EnemyController>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+            foreach (var enemy in FindObjectsByType<EnemyController>(FindObjectsInactive.Exclude))
                 Destroy(enemy.gameObject);
 
-            foreach (var pickup in FindObjectsByType<ModulePickup>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+            foreach (var pickup in FindObjectsByType<ModulePickup>(FindObjectsInactive.Exclude))
                 Destroy(pickup.gameObject);
 
-            foreach (var tower in FindObjectsByType<TowerChassis>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+            foreach (var tower in FindObjectsByType<TowerChassis>(FindObjectsInactive.Exclude))
                 Destroy(tower.gameObject);
 
             var inventory = FindAnyObjectByType<Player.PlayerInventory>();

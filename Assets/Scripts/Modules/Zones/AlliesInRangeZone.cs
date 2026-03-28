@@ -12,7 +12,7 @@ namespace AIWE.Modules.Zones
         public override List<ITargetable> SelectTargets(Vector3 origin, float range)
         {
             var result = new List<ITargetable>();
-            var players = UnityEngine.Object.FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
+            var players = UnityEngine.Object.FindObjectsByType<PlayerController>();
 
             foreach (var player in players)
             {
