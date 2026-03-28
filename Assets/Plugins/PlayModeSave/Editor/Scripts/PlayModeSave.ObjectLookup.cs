@@ -104,7 +104,8 @@ namespace PluginMaster
                     var ddol_obj = FindInScene(loadedScene);
                     if (ddol_obj != null)
                     {
-                        _objectDictionary.Add(key, obj);
+                        if (obj != null) _objectDictionary.Add(key, obj);
+                        else _objectDictionary.Add(key, ddol_obj);
                         return ddol_obj;
                     }
                 }

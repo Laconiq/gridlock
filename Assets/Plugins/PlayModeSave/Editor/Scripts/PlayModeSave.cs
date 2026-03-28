@@ -197,10 +197,13 @@ namespace PluginMaster
 
         public static void AddAll()
         {
-#if UNITY_2022_2_OR_NEWER
-            var components = GameObject.FindObjectsByType<Component>(FindObjectsSortMode.None);
+
+#if UNITY_6000_4_OR_NEWER
+            var components = Object.FindObjectsByType<Component>();
+#elif UNITY_2022_2_OR_NEWER
+            var components = Object.FindObjectsByType<Component>(FindObjectsSortMode.None);
 #else
-            var components = GameObject.FindObjectsOfType<Component>();
+            var components = Object.FindObjectsOfType<Component>();
 #endif
             foreach (var comp in components) Add(comp, SaveCommand.SAVE_ON_EXITING_PLAY_MODE, false, true);
         }
@@ -468,7 +471,7 @@ namespace PluginMaster
             foreach (var objItem in _objectsToBeDeleted)
             {
                 var obj = FindObject(objItem);
-                if (obj == null) return;
+                if (obj == null) continue;
                 UnityEditor.Undo.DestroyObjectImmediate(obj);
             }
             foreach (var item in _componentsToBeDeleted)

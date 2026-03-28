@@ -113,6 +113,6 @@ AssetOrigin:
   serializedVersion: 1
   productId: 177452
   packageName: Play Mode Save
-  packageVersion: 4.1.5
-  assetPath: Assets/PluginMaster/PlayModeSave/Editor/Resources/Save.png
-  uploadId: 882432
+  packageVersion: 4.1.6
+  assetPath: Assets/Plugins/PlayModeSave/Editor/Resources/Save.png
+  uploadId: 889044

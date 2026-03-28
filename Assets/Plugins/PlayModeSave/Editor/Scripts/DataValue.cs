@@ -76,6 +76,7 @@ namespace PluginMaster
 #else
             var spriteRenderer = UnityEditor.EditorUtility.InstanceIDToObject(componentId) as SpriteRenderer;
 #endif
+            if (spriteRenderer == null) return;
             sortingOrder = spriteRenderer.sortingOrder;
             sortingLayerID = spriteRenderer.sortingLayerID;
         }

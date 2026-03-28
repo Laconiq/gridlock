@@ -43,7 +43,7 @@ namespace PluginMaster
                 if (_resolveObjIdPending) ResolveObjectId();
                 return _objId;
             }
-            set => value = _objId;
+            set => _objId = value;
         }
         public string globalObjId { get => _globalObjId; set => _globalObjId = value; }
         public string scenePath => _scenePath;
@@ -114,7 +114,7 @@ namespace PluginMaster
 
         public bool isNull => _globalObjId == null;
 
-        public override int GetHashCode() => _globalObjId.GetHashCode();
+        public override int GetHashCode() => _globalObjId?.GetHashCode() ?? 0;
         public virtual bool Equals(ObjectDataKeyBase other)
         {
             if (other is null) return false;
@@ -132,7 +132,12 @@ namespace PluginMaster
             if (_objName != other._objName) return false;
             return Enumerable.SequenceEqual(_siblingPath, other._siblingPath);
         }
-        public static bool operator ==(ObjectDataKeyBase lhs, ObjectDataKeyBase rhs) => lhs.Equals(rhs);
+        public static bool operator ==(ObjectDataKeyBase lhs, ObjectDataKeyBase rhs)
+        {
+            if (ReferenceEquals(lhs, rhs)) return true;
+            if (ReferenceEquals(lhs, null) || ReferenceEquals(rhs, null)) return false;
+            return lhs.Equals(rhs);
+        }
         public static bool operator !=(ObjectDataKeyBase lhs, ObjectDataKeyBase rhs) => !lhs.Equals(rhs);
 
         public void Copy(ObjectDataKeyBase other)
@@ -277,7 +282,7 @@ namespace PluginMaster
         }
         public string globalCompId { get => _globalCompId; set => _globalCompId = value; }
         public int compIdx => _compIdx;
-        public System.Type compType => System.Type.GetType(_compTypeName, true);
+        public System.Type compType => System.Type.GetType(_compTypeName, false);
 
 
 

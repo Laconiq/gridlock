@@ -189,12 +189,15 @@ namespace PluginMaster
                     {
                         key.UpdateParentKeys();
                         var data = objDataClone[key];
+                        if (data.saveCmd == SaveCommand.SAVE_NOW)
+                        {
+                            continue;
+                        }
                         if (data.objIsNull)
                         {
                             if (!data.unloadedScene) ToBeDeleted(key);
                             continue;
                         }
-                        if (data.saveCmd == SaveCommand.SAVE_NOW) continue;
 
                         if (FullObjectDataContains(key, out FullObjectData foundItem))
                         {
@@ -319,9 +322,8 @@ namespace PluginMaster
                     }
                     compNames = compNames.Remove(compNames.Length - 2);
                     ComponentSaveListWindow.Show(_compData, instanceID);
+                    UnityEditor.EditorApplication.RepaintHierarchyWindow();
                 }
-
-                UnityEditor.EditorApplication.RepaintHierarchyWindow();
             }
         }
     }
