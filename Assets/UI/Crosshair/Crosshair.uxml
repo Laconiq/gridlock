@@ -1,7 +1,0 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements">
-    <Style src="Crosshair.uss" />
-
-    <ui:VisualElement name="crosshair-root" class="crosshair-root" picking-mode="Ignore">
-        <ui:VisualElement name="crosshair-canvas" class="crosshair__canvas" picking-mode="Ignore" />
-    </ui:VisualElement>
-</ui:UXML>
