@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-AIWE is an **isometric grid-based Tower Defense** built in Unity 6 (6000.3.10f1) with URP. The player defends an objective against enemy waves by placing up to 5 towers anywhere on the grid and configuring them via a visual node editor. Isometric orthographic camera (30° pitch, 45° yaw). Enemies are tetrahedrons that follow predefined paths on the grid. Towers are cubes with default URP/Lit material. All meshes are baked into prefabs (no runtime mesh generation). Heavy Bloom post-processing for neon aesthetic.
+AIWE is an **isometric grid-based Tower Defense** built in Unity 6 (6000.3.10f1) with URP. The player defends an objective against enemy waves by placing up to 5 towers anywhere on the grid and configuring them via a visual node editor. Isometric orthographic camera (30° pitch, 45° yaw). Enemies are tetrahedrons that follow predefined paths on the grid (classic TD — no AI targeting/chasing). Towers are cubes with default URP/Lit material. Neon aesthetic with Geometry Wars-style grid deformation, bloom, screen shake, and chromatic aberration.
 
 ## Stack & Tools
 
@@ -15,6 +15,7 @@ AIWE is an **isometric grid-based Tower Defense** built in Unity 6 (6000.3.10f1)
 | Input | New Input System 1.19.0 (Controls asset with callbacks) |
 | Level design | Grid system (`GridDefinition` ScriptableObjects) |
 | Visuals | URP/Lit materials + CyberGrid shader + Bloom post-process |
+| Juice / Feel | More Mountains Feel (MMFeedbacks) — installed but feedbacks are triggered via code, not MMF_Player prefabs |
 | Scripting backend | IL2CPP |
 | Inspector | Odin Inspector (Sirenix) |
 | Node Editor UI | Unity UI Toolkit (USS/UXML) |
@@ -29,7 +30,7 @@ AIWE is an **isometric grid-based Tower Defense** built in Unity 6 (6000.3.10f1)
 - **Module system uses `[SerializeReference]` + Odin.** Module definitions use `[SerializeReference, ListDrawerSettings, InlineProperty] List<T>` for concrete implementations. The SO holds templates, `CreateInstance()` clones them at runtime. No string-based factory dispatch.
 - **All gameplay values are `[SerializeField]`** for live Inspector tuning. No magic numbers in code.
 - **UI colors use design tokens.** USS uses `var(--token)` from `DesignTokens.uss`. C# uses `DesignConstants` static fields. Never hardcode hex colors.
-- **Prefab meshes are baked.** Enemy/tower/projectile meshes are assigned directly in the prefab via editor tools (`BakePrefabMeshes`). No runtime mesh generation on prefabs. Use Unity's Default-Lit material.
+- **Prefab meshes are baked.** Enemy/tower/projectile meshes are assigned directly in the prefab via editor tools (`BakePrefabMeshes`). No runtime mesh generation on prefabs.
 - **Input uses Controls asset.** Never use `UnityEngine.Input`, `Keyboard.current`, or `Mouse.current` directly. Always use the `Controls` class generated from `Controls.inputactions` with proper callbacks (started/canceled).
 
 ## Architecture
@@ -45,9 +46,9 @@ SimpleGameBootstrap.Start()
   → Player can click towers to configure them via NodeEditorScreen
   → Player clicks "Start Wave" (WaveStartUI)
   → GameManager.SetState(Wave)
-  → Enemies spawn, follow routes segment-by-segment
+  → Enemies spawn, follow routes segment-by-segment (no AI targeting)
   → Towers fire automatically based on their node graph
-  → Enemies die → loot flies to camera center (magnet auto-collect)
+  → Enemies die → voxel death explosion → loot flies to camera center (magnet auto-collect)
   → Wave cleared → GameManager.SetState(Preparing)
   → Objective HP depleted → GameManager.SetState(GameOver)
 ```
@@ -56,21 +57,85 @@ SimpleGameBootstrap.Start()
 
 `GridDefinition` SO (`Assets/Scripts/Grid/GridDefinition.cs`):
 - Defines grid dimensions (width, height, cellSize), cell types array, path definitions, objective HP
+- Implements `ISerializationCallbackReceiver` — saves original cells on deserialize, `CloneCells()` always returns the clean copy (prevents SO corruption from runtime modifications)
 - Cell types: `Empty`, `Path`, `TowerSlot`, `Blocked`, `Spawn`, `Objective`
 - Paths are ordered `List<Vector2Int>` waypoints on the grid
 - Current test level: 24x14, cellSize=2 (48x28 world units)
 
 `GridManager` (`Assets/Scripts/Grid/GridManager.cs`):
 - ServiceLocator singleton, converts grid↔world coordinates
+- **Runtime cell state**: `_runtimeCells` cloned from SO at startup, never modifies the SO
+- `GetRuntimeCell(x,y)` / `SetRuntimeCell(x,y,type)` for runtime queries/mutations
+- `TryWorldToGrid(worldPos, out gridPos)` — returns false if out of bounds (no clamping)
+- `OnCellChanged` event fires when runtime cells change → drives `GridVisual` cell map updates
 - Provides routes, spawn positions, objective position
 
 `TowerPlacementSystem` (`Assets/Scripts/Grid/TowerPlacementSystem.cs`):
 - **5 towers max**, placeable on any `Empty` or `TowerSlot` cell
-- Left click on empty ground → place tower with default loadout (OnTimer→NearestEnemy→Projectile)
-- Left click on placed tower → open node editor (via `IInteractable`)
-- Preview cube follows mouse (green=valid, red=invalid)
+- Runs in `LateUpdate()` (synced with camera)
+- Uses `TryWorldToGrid()` — rejects out-of-bounds clicks instead of clamping
+- `LayerMask` for tower click raycasting
+- Tower pop-in scale animation on placement
+- Triggers grid warp + GameJuice on placement
+- Preview cube follows mouse (green=valid, red=invalid), hides when cursor exits grid
 - UI click-through protection via `EventSystem.RaycastAll`
 - Only active during `GameState.Preparing`
+
+### Grid Visual System
+
+`GridVisual` (`Assets/Scripts/Grid/GridVisual.cs`):
+- Creates a **subdivided mesh** (~1.5 vertices per world unit) for grid warp deformation
+- Generates a cell map `Texture2D` (1 pixel per cell, point-filtered) for cell type visualization
+- Listens to `GridManager.OnCellChanged` to update cell map in real-time
+- Cell colors: Path=magenta lines, Blocked=red lines, Spawn/Objective=bright tints
+- Passes mesh to `GridWarpManager` for physics simulation
+
+`CyberGrid.shader` (`Assets/Shaders/CyberGrid.shader`):
+- Transparent shader (alpha blend) — only grid lines visible, black between them
+- Procedural anti-aliased grid lines from deformed world-space XZ coordinates
+- Reads vertex colors from mesh → grid lines change color near warp events
+- Samples cell map texture for path/blocked cell visualization
+- Grid line brightness increases near active warp events (glow effect)
+
+`GridWarpManager` (`Assets/Scripts/Grid/GridWarpManager.cs`):
+- **Mass-spring-damper physics** on every vertex of the grid mesh (CPU)
+- Each vertex: anchor spring (back to rest) + 4 neighbor springs (wave propagation)
+- `DropStone(pos, force, radius, color)` — stone-in-water ripple effect
+- `Shockwave(pos, force, radius, color)` — XZ outward push + Y dip
+- `GetWarpOffset(worldX, worldZ)` — bilinear interpolation for any world position
+- **Tint diffusion**: color spreads between neighbors like ink in water, brightness follows wave displacement
+- Key tuning: `anchorStiffness` (low=flexible), `neighborStiffness` (high=fast propagation), `damping` (low=long oscillation)
+
+`WarpFollower` (`Assets/Scripts/Visual/WarpFollower.cs`):
+- Lightweight component added to any object that should follow the grid surface
+- Samples `GridWarpManager.GetWarpOffset()` each `LateUpdate` and adjusts Y position
+- Auto-added to: enemies (in `EnemyController.Awake`), towers (at placement), projectiles (in `Projectile.Initialize`)
+
+`PathVisualizer` (`Assets/Scripts/Visual/PathVisualizer.cs`):
+- Draws LineRenderer + dot spheres for enemy routes
+- Updates positions every `LateUpdate` to follow grid warp deformation
+
+### Juice System
+
+`GameJuice` (`Assets/Scripts/Visual/GameJuice.cs`):
+- Singleton managing all game feel effects
+- **Screen shake**: `[DefaultExecutionOrder(200)]` runs after camera, applies position offset
+- **Freeze frame**: brief `Time.timeScale = 0` on kills
+- **Chromatic aberration pulse**: decays over time via URP Volume API
+- **Bloom pulse**: boost + decay on kills
+- **Vignette**: permanent subtle darkening at screen edges
+- **Grid warp triggers**: calls `GridWarpManager.DropStone/Shockwave` with event-specific colors
+
+| Event | Shake | Freeze | Grid Warp | Color |
+|-------|-------|--------|-----------|-------|
+| Enemy hit | subtle | — | DropStone small | orange |
+| Enemy killed | medium | 40ms | Shockwave large | red |
+| Tower fired | — | — | DropStone tiny | cyan |
+| Tower placed | — | — | Shockwave medium | green |
+
+`ImpactFlash` (`Assets/Scripts/Visual/ImpactFlash.cs`):
+- Static `Spawn(position, color)` — creates expanding glowing sphere + point light at projectile impact
+- Fades and destroys over 150ms
 
 ### Camera (isometric)
 
@@ -148,17 +213,33 @@ ServiceLocator.Unregister<T>();        // in OnDestroy
 
 ### Enemy system
 
-**Movement:** `EnemyController` follows routes segment-by-segment via `AssignRoute()`. Uses a `while` loop consuming remaining movement per frame — never cuts diagonals. Enemies do **not rotate** when changing direction (model stays fixed). Float height at Y=0.5.
+**Classic TD enemies — no AI targeting.** Enemies follow routes to the objective. No chase, no attack, no threat evaluation.
 
-**AI State machine** (`EnemyAI`): `FollowRoute → ChaseTarget → Attack → ReturnToRoute`
-- FollowRoute: movement handled entirely by `EnemyController.FollowRouteStep()`
-- ReturnToRoute: finds nearest waypoint, walks there, then resumes route via `AssignRoute`
+**Prefab structure** (base: `Enemy.prefab`, variant: `BasicEnemy.prefab`):
+```
+Enemy (root) — logic components
+├── EnemyController, EnemyHealth, StatusEffectManager, EnemyHitFeedback, EnemyAI
+└── Model (child) — visual only
+    ├── MeshFilter (Tetrahedron)
+    └── MeshRenderer (M_EnemyLit)
+```
+Model child can be rotated/swapped independently of logic.
 
-**Threat evaluation** (in `ThreatCalculator`, called from `EnemyAI`):
-- `ThreatSource` components on towers track recent DPS (exponential decay)
-- Config via `ThreatCalculatorConfig` ScriptableObject
+**Movement:** `EnemyController` follows routes segment-by-segment via `AssignRoute()`. Uses a `while` loop consuming remaining movement per frame — never cuts diagonals. Float height at Y=0.5. `WarpFollower` auto-added in Awake for grid surface tracking.
 
-**Spawning:** `EnemySpawner` instantiates the prefab as-is (no runtime material/mesh changes). Position, color, mesh, scale are all defined in the prefab.
+**AI** (`EnemyAI`): Simplified to pure route following. `Setup()` assigns route and starts movement. No states other than `FollowRoute`.
+
+**Death effects:** `VoxelDeathEffect` (on BasicEnemy variant) voxelizes the mesh into physics cubes that explode outward, bounce, and fade. Uses `GetComponentInChildren<MeshFilter/MeshRenderer>()` to find the Model child.
+
+**Hit feedback:** `EnemyHitFeedback` flashes emission white on hit, spawns floating damage text. Uses `GetComponentInChildren<MeshRenderer>()`.
+
+**Spawning:** `EnemySpawner` instantiates the prefab as-is. Position, color, mesh, scale are all defined in the prefab.
+
+### Combat
+
+**DamageInfo** struct: `Amount` (float) + `Type` (Direct, Projectile, Hitscan, DamageOverTime). No SourceId — threat system was removed.
+
+**Projectile:** Homing to target, SphereCast collision, spawns `ImpactFlash` on hit, triggers `GameJuice.OnEnemyHit`. `WarpFollower` auto-added for grid surface tracking.
 
 ### Level design (Grid)
 
@@ -170,9 +251,9 @@ Levels are `GridDefinition` ScriptableObjects edited in Odin Inspector.
 - Cell types: Empty, Path, TowerSlot, Blocked, Spawn, Objective
 
 **Runtime flow:**
-1. `GridManager.Awake()` reads `GridDefinition`, converts grid coords to world positions
-2. `GridVisual` spawns a scaled Quad with `CyberGrid.shader` as ground plane
-3. `PathVisualizer` draws LineRenderer paths from `RouteManager` data
+1. `GridManager.Awake()` clones cells from `GridDefinition` SO (protects SO from runtime corruption)
+2. `GridVisual` creates subdivided mesh + cell map texture, initializes `GridWarpManager`
+3. `PathVisualizer` draws LineRenderer paths from `RouteManager` data (updates with grid warp)
 4. `TowerPlacementSystem` enables tower placement on Empty/TowerSlot cells during Preparing state
 5. `EnemySpawner` spawns enemies at `Spawn` cells, `EnemyController` follows routes to `Objective`
 
@@ -199,10 +280,16 @@ Enemies drop `ModulePickup` on death. Pickups have a magnet behavior: after a sh
 - `Assets/Data/DefaultLoadout.asset` — Starter module kit given to players on spawn
 - `Assets/Scripts/Camera/CameraSetup.cs` — Isometric camera setup (30°, 45°)
 - `Assets/Scripts/Camera/TopDownCamera.cs` — Camera pan/zoom with New Input System
-- `Assets/Scripts/Grid/GridDefinition.cs` — Grid level data (SO)
-- `Assets/Scripts/Grid/GridManager.cs` — Grid runtime manager (ServiceLocator singleton)
-- `Assets/Scripts/Grid/TowerPlacementSystem.cs` — Tower placement (5 max, default loadout, UI protection)
-- `Assets/Scripts/Grid/GridVisual.cs` — Ground plane with CyberGrid shader
+- `Assets/Scripts/Grid/GridDefinition.cs` — Grid level data (SO with ISerializationCallbackReceiver)
+- `Assets/Scripts/Grid/GridManager.cs` — Grid runtime manager (runtime cells, events, ServiceLocator singleton)
+- `Assets/Scripts/Grid/GridVisual.cs` — Subdivided grid mesh + cell map texture
+- `Assets/Scripts/Grid/GridWarpManager.cs` — Mass-spring grid deformation (Geometry Wars style)
+- `Assets/Scripts/Grid/TowerPlacementSystem.cs` — Tower placement (5 max, LateUpdate, pop-in animation)
+- `Assets/Scripts/Visual/GameJuice.cs` — Screen shake, freeze frame, bloom/chromatic pulses, grid warp triggers
+- `Assets/Scripts/Visual/ImpactFlash.cs` — Projectile impact glow effect
+- `Assets/Scripts/Visual/WarpFollower.cs` — Makes objects follow grid warp surface
+- `Assets/Scripts/Visual/VoxelDeathEffect.cs` — Enemy death voxel explosion
+- `Assets/Scripts/Visual/PathVisualizer.cs` — Route LineRenderer + dots (warp-aware)
 - `Assets/Scripts/Core/SimpleGameBootstrap.cs` — Game initialization
 - `Assets/Scripts/Core/GameStats.cs` — Kill/wave tracking singleton
 - `Assets/Data/Levels/TestGrid.asset` — Test level GridDefinition (24x14, cellSize=2)
@@ -211,18 +298,26 @@ Enemies drop `ModulePickup` on death. Pickups have a magnet behavior: after a sh
 - `Assets/Scripts/NodeEditor/UI/DesignConstants.cs` — **C# design constants**
 - `Assets/UI/HUD/GameHUD.uxml` — HUD layout with tower selection bar
 - `Assets/UI/HUD/WaveStart.uxml` — Wave start button overlay
-- `Assets/Shaders/CyberGrid.shader` — Grid ground plane shader (world-space XZ lines)
+- `Assets/Shaders/CyberGrid.shader` — Grid shader (transparent lines, vertex color warp glow, cell map)
 - `Assets/Shaders/VectorGlow.shader` — Lit shader with emission + shadows for enemies
 - `Assets/Shaders/VectorOutline.shader` — Lit outline shader with shadows for towers
-- `Assets/Scripts/AI/ThreatCalculatorConfig` — Threat evaluation weights (ScriptableObject)
+- `Assets/Prefabs/Enemies/Enemy.prefab` — Base enemy prefab (logic on root, Model child for visuals)
+- `Assets/Prefabs/Enemies/BasicEnemy.prefab` — Variant with VoxelDeathEffect
 
 ## Editor Tools
 
 These are `#if UNITY_EDITOR` menu items under `AIWE/`:
 - **Create Test Grid Level** — Generates a 24x14 GridDefinition SO with S-path and tower slots
-- **Bake Meshes into Prefabs** — Assigns Tetrahedron/Cube/Sphere meshes + Default-Lit material to enemy/tower/projectile prefabs
+- **Bake Meshes into Prefabs** — Assigns Tetrahedron/Cube/Sphere meshes + Default-Lit material to enemy/tower/projectile prefabs (uses `GetComponentInChildren`)
 - **Fix Tower Prefab References** — Links ChassisDefinition, FirePoint, ModuleRegistry on tower prefab
-- **Assign Default Material to Prefabs** — Sets Unity's default URP/Lit material on all gameplay prefabs
+- **Assign Default Material to Prefabs** — Sets Unity's default URP/Lit material on all gameplay prefabs (uses `GetComponentInChildren`)
+
+## Removed Systems
+
+The following systems have been intentionally removed:
+- **Threat system** (`ThreatSource`, `ThreatCalculator`, `ThreatCalculatorConfig`, `ThreatScenarioWindow`, `EnemyTargetRegistry`, `DefaultThreatConfig.asset`) — enemies no longer evaluate threats or chase towers
+- **Enemy combat AI** (chase, attack, de-aggro states) — enemies follow routes only, classic TD style
+- **DamageInfo.SourceId** — no longer needed without threat tracking
 
 ## Git Workflow (Gitflow)
 

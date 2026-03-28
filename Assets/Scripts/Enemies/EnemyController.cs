@@ -177,7 +177,7 @@ namespace AIWE.Enemies
         {
             var objective = ServiceLocator.Get<ObjectiveController>();
             if (objective != null)
-                objective.TakeDamage(new DamageInfo(_objectiveDamage, (ulong)gameObject.GetInstanceID(), DamageType.Direct));
+                objective.TakeDamage(new DamageInfo(_objectiveDamage, DamageType.Direct));
 
             OnReachedObjective?.Invoke();
             Destroy(gameObject);

@@ -1128,7 +1128,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1157821839}
   - component: {fileID: 1157821838}
-  - component: {fileID: 1157821840}
   - component: {fileID: 1157821841}
   m_Layer: 0
   m_Name: GameJuice
@@ -1173,23 +1172,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1157821840
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1157821837}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 69f5542a8f35f47ce89c2057061967f3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AIWE.Grid.GridRippleManager
-  rippleSpeed: 12
-  rippleDamping: 3
-  rippleFrequency: 3
-  rippleMaxDistance: 20
-  _rippleCount: 0
 --- !u!114 &1157821841
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1205,7 +1187,10 @@ MonoBehaviour:
   anchorStiffness: 8
   neighborStiffness: 3
   damping: 4
-  colorDecay: 3
+  tintDiffusion: 8
+  tintDecay: 0.6
+  glowFromDisplacement: 5
+  glowFromVelocity: 1
 --- !u!1 &1262466356
 GameObject:
   m_ObjectHideFlags: 0

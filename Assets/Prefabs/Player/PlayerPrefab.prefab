@@ -62,7 +62,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AIWE.Player.PlayerInteraction
   interactionMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 55
 --- !u!114 &6989580229809042815
 MonoBehaviour:
   m_ObjectHideFlags: 0

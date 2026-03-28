@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using AIWE.AI;
 using AIWE.Combat;
 using AIWE.Interfaces;
 using AIWE.Loot;
@@ -60,8 +59,6 @@ namespace AIWE.Enemies
                 if (juice != null)
                     juice.OnEnemyHit(transform.position);
             }
-
-            ThreatSource.ReportDamageFromSource(damage.SourceId, amount);
 
             if (_currentHP <= 0f)
                 Die();

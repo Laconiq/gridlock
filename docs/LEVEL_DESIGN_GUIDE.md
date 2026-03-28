@@ -40,7 +40,7 @@ Les niveaux sont des `GridDefinition` ScriptableObjects éditables dans l'Inspec
 | `Empty` | Case vide, le joueur peut y poser une tour |
 | `Path` | Chemin des ennemis (non constructible) |
 | `TowerSlot` | Emplacement suggéré pour une tour (constructible) |
-| `Blocked` | Case occupée par une tour posée |
+| `Blocked` | Case occupée par une tour posée (set at runtime, never in the SO) |
 | `Spawn` | Point d'apparition des ennemis |
 | `Objective` | L'objectif à défendre |
 
@@ -72,6 +72,8 @@ Les niveaux sont des `GridDefinition` ScriptableObjects éditables dans l'Inspec
 - **Le path doit être visible** : le `PathVisualizer` dessine les routes en LineRenderer
 - **Espace libre autour du path** : laisser des cases `Empty` pour le placement de tours
 - **Gameplay en XZ** : Y est réservé à la hauteur visuelle (ennemis flottent à Y=0.5)
+- **Grid warp** : la grille se déforme à chaque impact/kill (mass-spring physics style Geometry Wars). Tous les objets (tours, ennemis, projectiles, path) suivent la surface déformée via `WarpFollower`
+- **Runtime cells** : `GridManager` clone les cellules du SO au démarrage. Les modifications runtime (placement de tours → `Blocked`) ne corrompent jamais le SO
 
 ---
 

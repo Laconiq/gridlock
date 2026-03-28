@@ -61,7 +61,7 @@ namespace AIWE.Combat
             {
                 var damageable = hit.collider.GetComponentInParent<IDamageable>();
                 if (damageable != null)
-                    damageable.TakeDamage(new DamageInfo(_damage, 0, DamageType.Projectile));
+                    damageable.TakeDamage(new DamageInfo(_damage, DamageType.Projectile));
 
                 Visual.ImpactFlash.Spawn(hit.point, new Color(0f, 1f, 1f));
                 Destroy(gameObject);

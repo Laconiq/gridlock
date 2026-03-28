@@ -11,16 +11,6 @@ namespace AIWE.Modules.Effects
         [NonSerialized] public EffectDefinition Definition;
         [NonSerialized] public IChassis Owner;
 
-        protected ulong OwnerSourceId
-        {
-            get
-            {
-                if (Owner is MonoBehaviour mb)
-                    return (ulong)mb.gameObject.GetInstanceID();
-                return 0;
-            }
-        }
-
         [SerializeField] protected float cooldown;
         [NonSerialized] private float _cooldownTimer;
 

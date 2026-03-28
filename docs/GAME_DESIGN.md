@@ -4,7 +4,7 @@
 
 Tower Defense isométrique solo sur grille. Le joueur place jusqu'à 5 tours sur une grille et les configure via un **éditeur visuel de nodes** (style Scratch). Chaque tour est un châssis vide dont le comportement est entièrement défini par les modules branchés dans l'éditeur.
 
-Inspiration : Bloons TD, Kingdom Rush, Geometry Wars (esthétique).
+Inspiration : Bloons TD, Kingdom Rush, Geometry Wars (esthétique neon + grid deformation).
 
 ## Twist principal
 
@@ -102,11 +102,9 @@ TRIGGER (QUAND) ──► ZONE (OÙ/QUI) ──► EFFECT (QUOI)
 
 Les ennemis sont des tétraèdres qui suivent un chemin prédéfini sur la grille, segment par segment. Ils ne tournent pas quand ils changent de direction. Quand ils atteignent l'objectif, ils infligent des dégâts.
 
-### IA
+### Comportement
 
-State machine à 4 états : `FollowRoute → ChaseTarget → Attack → ReturnToRoute`
-
-Les ennemis évaluent un **score de menace** pour chaque tour à portée. S'ils détectent une menace suffisante, ils quittent le path pour attaquer la tour, puis reviennent au waypoint le plus proche.
+**TD classique** : les ennemis suivent le path segment par segment jusqu'à l'objectif. Pas d'IA de combat, pas de ciblage de tours, pas de de-aggro. Quand un ennemi atteint l'objectif, il inflige des dégâts et disparaît.
 
 ### Paramètres par type (`EnemyDefinition`)
 
@@ -114,14 +112,16 @@ Les ennemis évaluent un **score de menace** pour chaque tour à portée. S'ils 
 |-----------|------|
 | `maxHP` | Points de vie |
 | `moveSpeed` | Vitesse de déplacement |
-| `attackDamage` | Dégâts par coup |
-| `attackCooldown` | Temps entre deux coups |
-| `attackRange` | Portée melee |
-| `detectionRadius` | Rayon de détection des menaces |
-| `leashRadius` | Distance max avant de-aggro |
 | `objectiveDamage` | Dégâts infligés à l'objectif |
 | `color` | Couleur de l'ennemi |
 | `shape` | Forme géométrique (Triangle, Diamond, etc.) |
+
+### Effets visuels
+
+- **Hit flash** : émission blanche sur impact (EnemyHitFeedback)
+- **Damage text** : nombres flottants au-dessus de l'ennemi
+- **Death** : explosion voxel (VoxelDeathEffect) — le mesh se désintègre en cubes physiques
+- **Grid warp** : onde colorée qui se propage sur la grille au hit/kill (Geometry Wars style)
 
 ---
 
@@ -176,7 +176,7 @@ Game Over
 - Loadout par défaut sur chaque tour (OnTimer→NearestEnemy→Projectile)
 - Pas de joueur FPS sur le terrain
 - L'éditeur de nodes est accessible pendant la phase Preparing
-- Visuels : URP/Lit materials, Bloom post-process, formes géométriques simples
+- Visuels : esthétique neon (Geometry Wars), Bloom/chromatic aberration, grid warp mass-spring, voxel death effects, screen shake/freeze frame
 
 ## Questions ouvertes
 

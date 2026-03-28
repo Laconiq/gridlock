@@ -46,7 +46,7 @@ namespace AIWE.Combat
                     {
                         effect.TickTimer = 0f;
                         _damageable?.TakeDamage(new DamageInfo(
-                            effect.Data.Value, effect.Data.SourceId, DamageType.DamageOverTime));
+                            effect.Data.Value, DamageType.DamageOverTime));
                     }
                 }
 
@@ -99,7 +99,6 @@ namespace AIWE.Combat
         public float Value;
         public float Duration;
         public float TickInterval;
-        public ulong SourceId;
     }
 
     public enum StatusEffectType

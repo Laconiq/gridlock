@@ -15,7 +15,6 @@ GameObject:
   - component: {fileID: 3204314648888192491}
   - component: {fileID: 1850341928324409245}
   - component: {fileID: 8011745337953390265}
-  - component: {fileID: 3451753446587265429}
   m_Layer: 0
   m_Name: Enemy
   m_TagString: Untagged
@@ -129,31 +128,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4bf22a04e49dd15499809aad9709f4b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AIWE.AI.EnemyAI
-  detectionRadius: 12
-  threatEvalInterval: 0.5
-  leashRadius: 15
-  maxRouteDistance: 20
-  combatTimeout: 5
-  targetSwitchThreshold: 0.3
-  combatReevalInterval: 1.5
   waypointReachDistance: 1.5
-  meleeRange: 1.5
-  attackCooldown: 1
-  attackDamage: 10
-  threatConfig: {fileID: 0}
---- !u!114 &3451753446587265429
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2552856530296388220}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5e19c250e048cec4693cb52ca877ac1c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AIWE.AI.ThreatSource
-  decayFactor: 0.85
 --- !u!1 &3395165169789545910
 GameObject:
   m_ObjectHideFlags: 0

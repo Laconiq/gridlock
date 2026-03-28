@@ -19,7 +19,7 @@ namespace AIWE.Modules.Effects
 
                 var damageable = target.Transform.GetComponent<IDamageable>();
                 if (damageable != null)
-                    damageable.TakeDamage(new DamageInfo(damage, 0, DamageType.Hitscan));
+                    damageable.TakeDamage(new DamageInfo(damage, DamageType.Hitscan));
             }
         }
 
