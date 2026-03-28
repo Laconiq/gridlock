@@ -3,7 +3,6 @@ using System.Collections;
 using AIWE.AI;
 using AIWE.Core;
 using AIWE.Grid;
-using AIWE.Visual;
 using UnityEngine;
 
 namespace AIWE.Enemies
@@ -73,17 +72,6 @@ namespace AIWE.Enemies
 
             var ai = go.GetComponent<EnemyAI>();
             ai?.Setup(0, definition);
-
-            var shape = go.GetComponent<GeometricShape>();
-            if (shape != null)
-                shape.SetShape(definition.shape, definition.scale * 0.4f);
-
-            var renderer = go.GetComponent<MeshRenderer>();
-            if (renderer != null && renderer.material != null)
-            {
-                renderer.material.SetColor("_Color", definition.color);
-                renderer.material.SetColor("_EmissionColor", definition.color);
-            }
 
             if (tracked)
             {

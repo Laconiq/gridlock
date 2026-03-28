@@ -7,7 +7,7 @@ namespace AIWE.Enemies
     {
         [Header("Flash")]
         [SerializeField] private float flashDuration = 0.1f;
-        [SerializeField] private float flashIntensity = 8f;
+        [SerializeField] private float flashIntensity = 5f;
 
         [Header("Damage Text")]
         [SerializeField] private GameObject damageTextPrefab;
@@ -16,10 +16,10 @@ namespace AIWE.Enemies
 
         private EnemyHealth _health;
         private MeshRenderer _renderer;
-        private float _baseEmission;
+        private Color _baseEmission;
         private float _flashTimer;
 
-        private static readonly int EmissionIntensity = Shader.PropertyToID("_EmissionIntensity");
+        private static readonly int EmissionColor = Shader.PropertyToID("_EmissionColor");
 
         private void Awake()
         {
@@ -35,8 +35,8 @@ namespace AIWE.Enemies
                 _health.OnDeath += OnDeath;
             }
 
-            if (_renderer != null && _renderer.material.HasFloat(EmissionIntensity))
-                _baseEmission = _renderer.material.GetFloat(EmissionIntensity);
+            if (_renderer != null && _renderer.material.HasColor(EmissionColor))
+                _baseEmission = _renderer.material.GetColor(EmissionColor);
         }
 
         private void OnDisable()
@@ -55,10 +55,10 @@ namespace AIWE.Enemies
             _flashTimer -= Time.deltaTime;
             float t = Mathf.Clamp01(_flashTimer / flashDuration);
 
-            if (_renderer != null && _renderer.material.HasFloat(EmissionIntensity))
+            if (_renderer != null && _renderer.material.HasColor(EmissionColor))
             {
-                float emission = Mathf.Lerp(_baseEmission, flashIntensity, t);
-                _renderer.material.SetFloat(EmissionIntensity, emission);
+                var col = Color.Lerp(_baseEmission, Color.white * flashIntensity, t);
+                _renderer.material.SetColor(EmissionColor, col);
             }
         }
 
@@ -70,8 +70,8 @@ namespace AIWE.Enemies
 
         private void OnDeath()
         {
-            if (_renderer != null && _renderer.material.HasFloat(EmissionIntensity))
-                _renderer.material.SetFloat(EmissionIntensity, flashIntensity * 2f);
+            if (_renderer != null && _renderer.material.HasColor(EmissionColor))
+                _renderer.material.SetColor(EmissionColor, Color.white * flashIntensity * 2f);
         }
 
         private void SpawnDamageText(float damage)

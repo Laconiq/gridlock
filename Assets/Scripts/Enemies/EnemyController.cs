@@ -47,7 +47,6 @@ namespace AIWE.Enemies
         {
             moveSpeed = definition.moveSpeed;
             _objectiveDamage = definition.objectiveDamage;
-            transform.localScale = Vector3.one * definition.scale;
         }
 
         public void AssignRoute(Vector3[] route, int startIndex)
@@ -107,8 +106,6 @@ namespace AIWE.Enemies
                 {
                     var dir = toTarget / dist;
                     transform.position += dir * remaining;
-                    if (dir.sqrMagnitude > 0.001f)
-                        transform.rotation = Quaternion.LookRotation(dir);
                     remaining = 0f;
                 }
             }
@@ -129,9 +126,6 @@ namespace AIWE.Enemies
                     move = direction;
 
                 transform.position += move;
-
-                if (direction.sqrMagnitude > 0.1f)
-                    transform.rotation = Quaternion.LookRotation(direction.normalized);
             }
         }
 
