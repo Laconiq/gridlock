@@ -83,26 +83,6 @@ namespace AIWE.Modules
             }
         }
 
-        public static void ExecuteZoneChain(ZoneChain zoneChain, Vector3 origin, float range)
-        {
-            if (!zoneChain.Zone.IsReady) return;
-
-            var targets = zoneChain.Zone.SelectTargets(origin, range);
-            zoneChain.Zone.StartCooldown();
-
-            foreach (var effect in zoneChain.Effects)
-            {
-                if (!effect.IsReady) continue;
-                effect.Execute(targets, origin);
-                effect.StartCooldown();
-            }
-
-            foreach (var chained in zoneChain.ChainedZones)
-            {
-                ExecuteZoneChain(chained, origin, range);
-            }
-        }
-
         public static void TickCooldowns(List<ZoneChain> zoneChains, float dt)
         {
             foreach (var zc in zoneChains)

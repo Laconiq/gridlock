@@ -1,7 +1,7 @@
 using System;
 using AIWE.Combat;
+using AIWE.Grid;
 using AIWE.Interfaces;
-using AIWE.LevelDesign;
 using UnityEngine;
 
 namespace AIWE.Core
@@ -9,6 +9,8 @@ namespace AIWE.Core
     public class ObjectiveController : MonoBehaviour, IDamageable
     {
         public static ObjectiveController Instance { get; private set; }
+
+        [SerializeField] private float defaultHP = 100f;
 
         private float _currentHP;
         private float _maxHP;
@@ -31,8 +33,8 @@ namespace AIWE.Core
             Instance = this;
             ServiceLocator.Register(this);
 
-            var marker = FindAnyObjectByType<ObjectiveMarker>();
-            _maxHP = marker != null ? marker.Health : 100f;
+            var gridManager = ServiceLocator.Get<GridManager>();
+            _maxHP = gridManager != null ? gridManager.Definition.ObjectiveHP : defaultHP;
         }
 
         private void Start()

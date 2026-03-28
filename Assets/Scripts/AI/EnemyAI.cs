@@ -23,7 +23,7 @@ namespace AIWE.AI
         [SerializeField] private float combatReevalInterval = 1.5f;
 
         [Header("Movement")]
-        [SerializeField] private float waypointReachDistance = 1.5f;
+        [SerializeField] private float waypointReachDistance = 0.3f;
 
         [Header("Melee")]
         [SerializeField] private float meleeRange = 1.5f;
@@ -92,10 +92,16 @@ namespace AIWE.AI
             {
                 _route = _routeManager.GetRoute(routeId);
                 _currentWaypointIndex = _routeManager.GetNearestWaypointIndex(routeId, transform.position);
-            }
 
-            if (_route != null && _route.Length > 0)
-                _currentWaypointIndex = Mathf.Clamp(_currentWaypointIndex, 0, _route.Length - 1);
+                if (_route != null && _currentWaypointIndex < _route.Length)
+                {
+                    float distToNearest = Vector3.Distance(transform.position, _route[_currentWaypointIndex]);
+                    if (distToNearest < waypointReachDistance && _currentWaypointIndex < _route.Length - 1)
+                        _currentWaypointIndex++;
+                }
+
+                _controller.AssignRoute(_route, _currentWaypointIndex);
+            }
 
             if (threatConfig != null)
                 _threatCalc = new ThreatCalculator(threatConfig);
@@ -131,24 +137,7 @@ namespace AIWE.AI
         {
             if (_route == null || _route.Length == 0) return;
 
-            if (_currentWaypointIndex >= _route.Length)
-            {
-                _controller.NotifyReachedObjective();
-                return;
-            }
-
-            var target = _route[_currentWaypointIndex];
-            _controller.SetDestination(target);
-
-            if (_controller.HasReachedDestination(waypointReachDistance))
-            {
-                _currentWaypointIndex++;
-                if (_currentWaypointIndex >= _route.Length)
-                {
-                    _controller.NotifyReachedObjective();
-                    return;
-                }
-            }
+            _currentWaypointIndex = _controller.RouteIndex;
 
             TryEvaluateThreats();
         }
@@ -241,12 +230,18 @@ namespace AIWE.AI
                 _currentWaypointIndex = _routeManager.GetNearestWaypointIndex(_routeId, transform.position);
 
             _currentWaypointIndex = Mathf.Clamp(_currentWaypointIndex, 0, _route.Length - 1);
-            _controller.SetDestination(_route[_currentWaypointIndex]);
+
+            var nearestPoint = _route[_currentWaypointIndex];
+            _controller.SetDestination(nearestPoint);
 
             TryEvaluateThreats();
 
             if (_controller.HasReachedDestination(waypointReachDistance))
+            {
+                _controller.AssignRoute(_route, _currentWaypointIndex);
+                _controller.ResumeRoute();
                 TransitionTo(EnemyAIState.FollowRoute);
+            }
         }
 
         private void TryEvaluateThreats()

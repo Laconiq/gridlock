@@ -11,6 +11,5 @@ namespace AIWE.Towers
         public float baseRange = 10f;
         [Range(0f, 360f)]
         public float rotationArc = 360f;
-        public bool isPlayerChassis;
     }
 }

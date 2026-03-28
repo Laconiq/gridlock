@@ -12,14 +12,14 @@ namespace AIWE.Combat
         private float _damage;
         private float _lifetime;
         private bool _initialized;
-        private bool _serverSide;
+        private bool _dealsDamage;
 
-        public void Initialize(Vector3 direction, float speed, float damage, bool serverSide)
+        public void Initialize(Vector3 direction, float speed, float damage, bool dealsDamage)
         {
             _direction = direction;
             _speed = speed;
             _damage = damage;
-            _serverSide = serverSide;
+            _dealsDamage = dealsDamage;
             _initialized = true;
         }
 
@@ -36,7 +36,7 @@ namespace AIWE.Combat
                 return;
             }
 
-            if (!_serverSide) return;
+            if (!_dealsDamage) return;
 
             if (Physics.SphereCast(transform.position - _direction * 0.1f, 0.15f, _direction, out var hit, _speed * Time.deltaTime + 0.2f))
             {

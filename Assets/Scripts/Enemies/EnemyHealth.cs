@@ -73,13 +73,6 @@ namespace AIWE.Enemies
 
         private IEnumerator DespawnAfterDeathAnim()
         {
-            var agent = GetComponent<UnityEngine.AI.NavMeshAgent>();
-            if (agent != null && agent.enabled)
-            {
-                agent.ResetPath();
-                agent.enabled = false;
-            }
-
             var collider = GetComponent<Collider>();
             if (collider != null)
                 collider.enabled = false;

@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
+using AIWE.Core;
 using AIWE.Enemies;
+using AIWE.Grid;
 using AIWE.Interfaces;
-using AIWE.LevelDesign;
 using UnityEngine;
 
 namespace AIWE.Modules.Zones
@@ -19,8 +20,8 @@ namespace AIWE.Modules.Zones
 
             if (!_objectiveCached)
             {
-                var marker = UnityEngine.Object.FindAnyObjectByType<ObjectiveMarker>();
-                if (marker != null) _objectivePosition = marker.transform.position;
+                var gridManager = ServiceLocator.Get<GridManager>();
+                if (gridManager != null) _objectivePosition = gridManager.ObjectivePosition;
                 _objectiveCached = true;
             }
 

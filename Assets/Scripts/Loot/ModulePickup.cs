@@ -51,10 +51,15 @@ namespace AIWE.Loot
                 if (_mainCamera == null) _mainCamera = Camera.main;
                 if (_mainCamera != null)
                 {
-                    var target = _mainCamera.transform.position;
+                    var cam = _mainCamera;
+                    var ray = new Ray(cam.transform.position, cam.transform.forward);
+                    var plane = new Plane(Vector3.up, Vector3.zero);
+                    var target = plane.Raycast(ray, out float d) ? ray.GetPoint(d) : cam.transform.position;
+                    target.y = 1f;
+
                     transform.position = Vector3.MoveTowards(transform.position, target, magnetSpeed * Time.deltaTime);
 
-                    if (Vector3.Distance(transform.position, target) < 0.5f)
+                    if (Vector3.Distance(transform.position, target) < 1f)
                     {
                         var inventory = FindAnyObjectByType<PlayerInventory>();
                         if (inventory != null)

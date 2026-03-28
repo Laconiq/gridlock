@@ -2,7 +2,8 @@ using System;
 using System.Collections;
 using AIWE.AI;
 using AIWE.Core;
-using AIWE.LevelDesign;
+using AIWE.Grid;
+using AIWE.Visual;
 using UnityEngine;
 
 namespace AIWE.Enemies
@@ -13,49 +14,25 @@ namespace AIWE.Enemies
         public event Action OnSpawningComplete;
 
         [SerializeField] private GameObject enemyPrefab;
-        [SerializeField] private Transform spawnPoint;
 
-        [Header("Spawn")]
-        [SerializeField] private float minSpawnHeight = 1.25f;
-
-        private EnemySpawnerMarker[] _spawnPoints;
-        private int _nextSpawnIndex;
+        private GridManager _gridManager;
         private RouteManager _routeManager;
+        private int _nextSpawnIndex;
 
         private void Start()
         {
-            if (spawnPoint == null)
-                FindLDtkSpawnPoints();
-
+            _gridManager = ServiceLocator.Get<GridManager>();
             _routeManager = ServiceLocator.Get<RouteManager>();
         }
 
-        private void FindLDtkSpawnPoints()
+        private Vector3 GetSpawnPosition()
         {
-            var markers = FindObjectsByType<EnemySpawnerMarker>(FindObjectsSortMode.None);
-            if (markers.Length > 0)
-            {
-                _spawnPoints = markers;
-                spawnPoint = _spawnPoints[0].transform;
-                Debug.Log($"[EnemySpawner] Found {_spawnPoints.Length} LDtk spawn points");
-            }
-        }
+            if (_gridManager == null || _gridManager.SpawnPositions.Count == 0)
+                return transform.position;
 
-        private EnemySpawnerMarker GetNextSpawnMarker()
-        {
-            if (_spawnPoints != null && _spawnPoints.Length > 0)
-            {
-                var marker = _spawnPoints[_nextSpawnIndex];
-                _nextSpawnIndex = (_nextSpawnIndex + 1) % _spawnPoints.Length;
-                return marker;
-            }
-            return null;
-        }
-
-        private Vector3 GetSpawnPosition(EnemySpawnerMarker marker)
-        {
-            if (marker != null) return marker.transform.position;
-            return spawnPoint != null ? spawnPoint.position : transform.position;
+            var pos = _gridManager.SpawnPositions[_nextSpawnIndex % _gridManager.SpawnPositions.Count];
+            _nextSpawnIndex++;
+            return pos;
         }
 
         public void SpawnWave(WaveDefinition wave)
@@ -72,8 +49,7 @@ namespace AIWE.Enemies
 
                 for (int i = 0; i < entry.count; i++)
                 {
-                    var marker = GetNextSpawnMarker();
-                    SpawnEnemy(entry.enemy, tracked: true, marker: marker);
+                    SpawnEnemy(entry.enemy, tracked: true);
                     yield return new WaitForSeconds(entry.spawnInterval);
                 }
             }
@@ -81,13 +57,12 @@ namespace AIWE.Enemies
             OnSpawningComplete?.Invoke();
         }
 
-        private void SpawnEnemy(EnemyDefinition definition, bool tracked = false, EnemySpawnerMarker marker = null)
+        private void SpawnEnemy(EnemyDefinition definition, bool tracked = false)
         {
             if (enemyPrefab == null) return;
 
-            int routeId = marker != null ? marker.WaveGroup : 0;
-            var pos = GetSpawnPosition(marker);
-            pos.y = Mathf.Max(pos.y, minSpawnHeight);
+            var pos = GetSpawnPosition();
+            pos.y = 0.5f;
             var go = Instantiate(enemyPrefab, pos, Quaternion.identity);
 
             var controller = go.GetComponent<EnemyController>();
@@ -97,7 +72,18 @@ namespace AIWE.Enemies
             health?.SetInitialHP(definition.maxHP);
 
             var ai = go.GetComponent<EnemyAI>();
-            ai?.Setup(routeId, definition);
+            ai?.Setup(0, definition);
+
+            var shape = go.GetComponent<GeometricShape>();
+            if (shape != null)
+                shape.SetShape(definition.shape, definition.scale * 0.4f);
+
+            var renderer = go.GetComponent<MeshRenderer>();
+            if (renderer != null && renderer.material != null)
+            {
+                renderer.material.SetColor("_Color", definition.color);
+                renderer.material.SetColor("_EmissionColor", definition.color);
+            }
 
             if (tracked)
             {

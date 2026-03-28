@@ -4,7 +4,6 @@ using AIWE.Combat;
 using AIWE.Core;
 using AIWE.Interfaces;
 using UnityEngine;
-using UnityEngine.AI;
 
 namespace AIWE.Enemies
 {
@@ -16,8 +15,16 @@ namespace AIWE.Enemies
         private float _normalizedSpeed;
         private EnemyHealth _health;
         private StatusEffectManager _statusEffects;
-        private NavMeshAgent _agent;
         private float _objectiveDamage;
+        private float _floatY;
+
+        private Vector3[] _route;
+        private int _routeIndex;
+        private bool _followingRoute;
+
+        private Vector3 _overrideDestination;
+        private bool _hasOverride;
+        private bool _stopped;
 
         public event Action OnReachedObjective;
 
@@ -27,12 +34,13 @@ namespace AIWE.Enemies
         public float MoveSpeed => moveSpeed;
         public EnemyAIState AIState => (EnemyAIState)_aiState;
         public float NormalizedSpeed => _normalizedSpeed;
+        public int RouteIndex => _routeIndex;
 
         private void Awake()
         {
             _health = GetComponent<EnemyHealth>();
             _statusEffects = GetComponent<StatusEffectManager>();
-            _agent = GetComponent<NavMeshAgent>();
+            _floatY = transform.position.y;
         }
 
         public void Setup(EnemyDefinition definition)
@@ -40,44 +48,127 @@ namespace AIWE.Enemies
             moveSpeed = definition.moveSpeed;
             _objectiveDamage = definition.objectiveDamage;
             transform.localScale = Vector3.one * definition.scale;
+        }
 
-            if (_agent != null)
-            {
-                _agent.speed = moveSpeed;
-                _agent.updateRotation = true;
-            }
+        public void AssignRoute(Vector3[] route, int startIndex)
+        {
+            _route = route;
+            _routeIndex = Mathf.Clamp(startIndex, 0, route.Length - 1);
+            _followingRoute = true;
+            _hasOverride = false;
         }
 
         private void Update()
         {
-            if (!IsAlive || _agent == null || !_agent.enabled) return;
+            if (!IsAlive || _stopped) return;
 
             float speed = moveSpeed;
             if (_statusEffects != null)
                 speed *= _statusEffects.SpeedMultiplier;
 
-            _agent.speed = speed;
-            _normalizedSpeed = moveSpeed > 0f
-                ? Mathf.Clamp01(_agent.velocity.magnitude / moveSpeed)
-                : 0f;
+            if (_hasOverride)
+            {
+                MoveToward(_overrideDestination, speed);
+            }
+            else if (_followingRoute && _route != null)
+            {
+                FollowRouteStep(speed);
+            }
+
+            _normalizedSpeed = moveSpeed > 0f ? Mathf.Clamp01(speed / moveSpeed) : 0f;
+        }
+
+        private void FollowRouteStep(float speed)
+        {
+            if (_routeIndex >= _route.Length)
+            {
+                NotifyReachedObjective();
+                return;
+            }
+
+            float remaining = speed * Time.deltaTime;
+
+            while (remaining > 0f && _routeIndex < _route.Length)
+            {
+                var target = _route[_routeIndex];
+                target.y = _floatY;
+
+                var toTarget = target - transform.position;
+                toTarget.y = 0f;
+                float dist = toTarget.magnitude;
+
+                if (dist <= remaining)
+                {
+                    transform.position = new Vector3(target.x, _floatY, target.z);
+                    remaining -= dist;
+                    _routeIndex++;
+                }
+                else
+                {
+                    var dir = toTarget / dist;
+                    transform.position += dir * remaining;
+                    if (dir.sqrMagnitude > 0.001f)
+                        transform.rotation = Quaternion.LookRotation(dir);
+                    remaining = 0f;
+                }
+            }
+
+            if (_routeIndex >= _route.Length)
+                NotifyReachedObjective();
+        }
+
+        private void MoveToward(Vector3 target, float speed)
+        {
+            var direction = target - transform.position;
+            direction.y = 0f;
+
+            if (direction.sqrMagnitude > 0.01f)
+            {
+                var move = direction.normalized * (speed * Time.deltaTime);
+                if (move.sqrMagnitude > direction.sqrMagnitude)
+                    move = direction;
+
+                transform.position += move;
+
+                if (direction.sqrMagnitude > 0.1f)
+                    transform.rotation = Quaternion.LookRotation(direction.normalized);
+            }
         }
 
         public void SetDestination(Vector3 destination)
         {
-            if (_agent != null && _agent.enabled && _agent.isOnNavMesh)
-                _agent.SetDestination(destination);
+            _overrideDestination = destination;
+            _hasOverride = true;
+            _followingRoute = false;
+            _stopped = false;
+        }
+
+        public void ResumeRoute()
+        {
+            _hasOverride = false;
+            _followingRoute = true;
+            _stopped = false;
         }
 
         public void StopMovement()
         {
-            if (_agent != null && _agent.enabled && _agent.isOnNavMesh)
-                _agent.ResetPath();
+            _stopped = true;
+            _normalizedSpeed = 0f;
         }
 
-        public bool HasReachedDestination(float threshold = 0.5f)
+        public bool HasReachedDestination(float threshold = 0.3f)
         {
-            if (_agent == null || !_agent.enabled || !_agent.isOnNavMesh) return false;
-            return !_agent.pathPending && _agent.remainingDistance <= threshold;
+            Vector3 target;
+            if (_hasOverride)
+                target = _overrideDestination;
+            else if (_followingRoute && _route != null && _routeIndex < _route.Length)
+                target = _route[_routeIndex];
+            else
+                return true;
+
+            var diff = target - transform.position;
+            diff.y = 0f;
+            return diff.sqrMagnitude <= threshold * threshold;
         }
 
         public void SetAIState(EnemyAIState state)

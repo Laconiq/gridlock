@@ -1,6 +1,5 @@
 using System;
 using AIWE.Enemies;
-using AIWE.LevelDesign;
 using AIWE.Loot;
 using AIWE.Towers;
 using UnityEngine;
@@ -62,9 +61,6 @@ namespace AIWE.Core
 
             foreach (var tower in FindObjectsByType<TowerChassis>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
                 Destroy(tower.gameObject);
-
-            var linker = FindAnyObjectByType<LDtkLevelLinker>();
-            if (linker != null) linker.ResetBuiltState();
 
             var inventory = FindAnyObjectByType<Player.PlayerInventory>();
             if (inventory != null) inventory.ResetToDefault();

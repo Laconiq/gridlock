@@ -13,7 +13,6 @@ namespace AIWE.Core
             {
                 var player = Instantiate(playerPrefab);
                 player.name = "Player";
-                Debug.Log("[SimpleGameBootstrap] Player instantiated");
             }
 
             StartCoroutine(WaitAndStart());
@@ -24,10 +23,7 @@ namespace AIWE.Core
             yield return null;
 
             if (GameManager.Instance != null)
-            {
                 GameManager.Instance.SetState(GameState.Preparing);
-                Debug.Log("[SimpleGameBootstrap] Game state set to Preparing");
-            }
         }
     }
 }

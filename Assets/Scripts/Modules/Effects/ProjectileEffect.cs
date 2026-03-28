@@ -30,7 +30,7 @@ namespace AIWE.Modules.Effects
 
                 var projectile = go.GetComponent<Combat.Projectile>();
                 if (projectile != null)
-                    projectile.Initialize(direction, speed, damage, true);
+                    projectile.Initialize(direction, speed, damage, dealsDamage: true);
             }
         }
 
@@ -42,7 +42,7 @@ namespace AIWE.Modules.Effects
 
             var projectile = go.GetComponent<Combat.Projectile>();
             if (projectile != null)
-                projectile.Initialize(direction, speed, 0f, false);
+                projectile.Initialize(direction, speed, 0f, dealsDamage: false);
         }
 
         public override EffectInstance CreateInstance()
