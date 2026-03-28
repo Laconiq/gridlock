@@ -59,10 +59,18 @@ namespace AIWE.Visual
             _velocity.y -= 9.81f * Time.deltaTime;
             transform.position += _velocity * Time.deltaTime;
 
-            if (transform.position.y < _floorY)
+            // Grid warp floor
+            float warpY = 0f;
+            var warp = Grid.GridWarpManager.Instance;
+            if (warp != null)
+                warpY = warp.GetWarpOffset(transform.position.x, transform.position.z);
+
+            float floor = _floorY + warpY;
+
+            if (transform.position.y < floor)
             {
                 var pos = transform.position;
-                pos.y = _floorY;
+                pos.y = floor;
                 transform.position = pos;
                 _velocity.y *= -0.3f;
                 _velocity.x *= 0.7f;

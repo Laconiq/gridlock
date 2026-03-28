@@ -630,7 +630,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d68be771f9100174fb25e239a87c7939, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PathVisualizer
-  pathMaterial: {fileID: 0}
+  pathMaterial: {fileID: 2100000, guid: 62d27c3107934465ab8ff63391defe82, type: 2}
   lineWidth: 0.12
   lineY: 0.15
   dotRadius: 0.2
@@ -1129,6 +1129,7 @@ GameObject:
   - component: {fileID: 1157821839}
   - component: {fileID: 1157821838}
   - component: {fileID: 1157821841}
+  - component: {fileID: 1157821842}
   m_Layer: 0
   m_Name: GameJuice
   m_TagString: Untagged
@@ -1191,6 +1192,20 @@ MonoBehaviour:
   tintDecay: 0.6
   glowFromDisplacement: 5
   glowFromVelocity: 1
+--- !u!114 &1157821842
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1157821837}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e76950cdfd6e43bb91669f8271a943f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AIWE.Visual.VoxelPool
+  maxVoxels: 4096
+  settleTime: 2
 --- !u!1 &1262466356
 GameObject:
   m_ObjectHideFlags: 0
