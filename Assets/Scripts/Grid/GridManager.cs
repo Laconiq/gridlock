@@ -12,6 +12,7 @@ namespace AIWE.Grid
         private List<Vector3> _spawnPositions = new();
         private Vector3 _objectivePosition;
         private Vector3 _gridOrigin;
+        private CellType[] _runtimeCells;
 
         public GridDefinition Definition => gridDefinition;
         public Vector3 ObjectivePosition => _objectivePosition;
@@ -36,6 +37,8 @@ namespace AIWE.Grid
                 Debug.LogError("[GridManager] No GridDefinition assigned");
                 return;
             }
+
+            _runtimeCells = gridDefinition.CloneCells();
 
             _gridOrigin = new Vector3(
                 -gridDefinition.Width * gridDefinition.CellSize * 0.5f,
@@ -84,10 +87,34 @@ namespace AIWE.Grid
             );
         }
 
+        public bool TryWorldToGrid(Vector3 worldPos, out Vector2Int gridPos)
+        {
+            int x = Mathf.FloorToInt((worldPos.x - _gridOrigin.x) / gridDefinition.CellSize);
+            int y = Mathf.FloorToInt((worldPos.z - _gridOrigin.z) / gridDefinition.CellSize);
+            gridPos = new Vector2Int(x, y);
+            return x >= 0 && x < gridDefinition.Width && y >= 0 && y < gridDefinition.Height;
+        }
+
+        public CellType GetRuntimeCell(int x, int y)
+        {
+            if (x < 0 || x >= gridDefinition.Width || y < 0 || y >= gridDefinition.Height)
+                return CellType.Blocked;
+            return _runtimeCells[y * gridDefinition.Width + x];
+        }
+
+        public event System.Action<int, int, CellType> OnCellChanged;
+
+        public void SetRuntimeCell(int x, int y, CellType type)
+        {
+            if (x < 0 || x >= gridDefinition.Width || y < 0 || y >= gridDefinition.Height) return;
+            _runtimeCells[y * gridDefinition.Width + x] = type;
+            OnCellChanged?.Invoke(x, y, type);
+        }
+
         public CellType GetCellAt(Vector3 worldPos)
         {
             var grid = WorldToGrid(worldPos);
-            return gridDefinition.GetCell(grid.x, grid.y);
+            return GetRuntimeCell(grid.x, grid.y);
         }
 
         public Vector3[] GetRoute(int routeId)

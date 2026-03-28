@@ -5,7 +5,7 @@ using UnityEngine;
 namespace AIWE.Grid
 {
     [CreateAssetMenu(menuName = "AIWE/Grid Definition")]
-    public class GridDefinition : ScriptableObject
+    public class GridDefinition : ScriptableObject, ISerializationCallbackReceiver
     {
         [Header("Grid")]
         [SerializeField] private int width = 20;
@@ -21,11 +21,21 @@ namespace AIWE.Grid
         [Header("Objective")]
         [SerializeField] private float objectiveHP = 100f;
 
+        private CellType[] _originalCells;
+
         public int Width => width;
         public int Height => height;
         public float CellSize => cellSize;
         public float ObjectiveHP => objectiveHP;
         public IReadOnlyList<PathDefinition> Paths => paths;
+
+        public void OnBeforeSerialize() { }
+
+        public void OnAfterDeserialize()
+        {
+            if (cells != null)
+                _originalCells = (CellType[])cells.Clone();
+        }
 
         public CellType GetCell(int x, int y)
         {
@@ -37,6 +47,12 @@ namespace AIWE.Grid
         {
             if (x < 0 || x >= width || y < 0 || y >= height) return;
             cells[y * width + x] = type;
+        }
+
+        public CellType[] CloneCells()
+        {
+            var source = _originalCells ?? cells;
+            return (CellType[])source.Clone();
         }
 
         [Button("Initialize Grid")]
