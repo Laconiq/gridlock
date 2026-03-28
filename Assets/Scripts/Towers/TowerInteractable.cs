@@ -34,7 +34,7 @@ namespace Gridlock.Towers
             if (editor == null || editor.IsOpen) return;
 
             var inventory = FindAnyObjectByType<PlayerInventory>();
-            editor.Open(_chassis, inventory);
+            editor.Open(_chassis, inventory, transform);
         }
     }
 }

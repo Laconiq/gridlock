@@ -1,3 +1,5 @@
+using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -5,6 +7,8 @@ namespace Gridlock.CameraSystem
 {
     public class TopDownCamera : MonoBehaviour
     {
+        public static TopDownCamera Instance { get; private set; }
+
         [Header("Pan")]
         [SerializeField] private float dragSpeed = 0.04f;
 
@@ -18,6 +22,10 @@ namespace Gridlock.CameraSystem
         [SerializeField] private Vector2 boundsMin = new(-30f, -20f);
         [SerializeField] private Vector2 boundsMax = new(30f, 20f);
 
+        [Header("Focus")]
+        [SerializeField] private float focusDuration = 0.35f;
+        [SerializeField] private float restoreDuration = 0.3f;
+
         private Camera _camera;
         private Controls _controls;
         private Vector3 _camRight;
@@ -25,8 +33,16 @@ namespace Gridlock.CameraSystem
         private bool _isPanning;
         private float _targetSize;
 
+        private Vector3 _savedPosition;
+        private float _savedOrthoSize;
+        private bool _hasSavedState;
+        private bool _isFocusing;
+        private bool _inputEnabled = true;
+        private Coroutine _focusCoroutine;
+
         private void Awake()
         {
+            Instance = this;
             _camera = GetComponent<Camera>();
             _controls = new Controls();
         }
@@ -51,6 +67,7 @@ namespace Gridlock.CameraSystem
 
         private void OnDestroy()
         {
+            if (Instance == this) Instance = null;
             _controls?.Dispose();
         }
 
@@ -66,6 +83,7 @@ namespace Gridlock.CameraSystem
 
         private void HandlePan()
         {
+            if (_isFocusing || !_inputEnabled) return;
             if (!_isPanning) return;
 
             var delta = _controls.Player.CameraDelta.ReadValue<Vector2>();
@@ -80,6 +98,8 @@ namespace Gridlock.CameraSystem
 
         private void HandleZoom()
         {
+            if (_isFocusing || !_inputEnabled) return;
+
             var scroll = _controls.Player.CameraZoom.ReadValue<Vector2>();
             if (Mathf.Abs(scroll.y) < 0.01f) return;
 
@@ -91,7 +111,6 @@ namespace Gridlock.CameraSystem
 
         private void ClampPosition()
         {
-            // Smooth zoom lerp even when not scrolling
             if (Mathf.Abs(_camera.orthographicSize - _targetSize) > 0.01f)
                 _camera.orthographicSize = Mathf.Lerp(_camera.orthographicSize, _targetSize, zoomSmoothing * Time.deltaTime);
 
@@ -99,6 +118,78 @@ namespace Gridlock.CameraSystem
             pos.x = Mathf.Clamp(pos.x, boundsMin.x, boundsMax.x);
             pos.z = Mathf.Clamp(pos.z, boundsMin.y, boundsMax.y);
             transform.position = pos;
+        }
+
+        public void FocusOn(Vector3 worldPosition, float targetOrthoSize, Action onComplete = null)
+        {
+            _savedPosition = transform.position;
+            _savedOrthoSize = _camera.orthographicSize;
+            _hasSavedState = true;
+            _isFocusing = true;
+
+            if (_focusCoroutine != null) StopCoroutine(_focusCoroutine);
+
+            // For orthographic camera, compute position so worldPosition projects to screen center
+            var forward = transform.forward;
+            float t = (worldPosition.y - transform.position.y) / forward.y;
+            var targetPos = worldPosition - forward * t;
+
+            _focusCoroutine = StartCoroutine(LerpCamera(targetPos, targetOrthoSize, focusDuration, () =>
+            {
+                _isFocusing = false;
+                onComplete?.Invoke();
+            }));
+        }
+
+        public void RestoreFocus(Action onComplete = null)
+        {
+            if (!_hasSavedState)
+            {
+                onComplete?.Invoke();
+                return;
+            }
+
+            _isFocusing = true;
+
+            if (_focusCoroutine != null) StopCoroutine(_focusCoroutine);
+
+            _focusCoroutine = StartCoroutine(LerpCamera(_savedPosition, _savedOrthoSize, restoreDuration, () =>
+            {
+                _hasSavedState = false;
+                _isFocusing = false;
+                onComplete?.Invoke();
+            }));
+        }
+
+        public void SetInputEnabled(bool enabled)
+        {
+            _inputEnabled = enabled;
+        }
+
+        private IEnumerator LerpCamera(Vector3 targetPos, float targetSize, float duration, Action onComplete)
+        {
+            var startPos = transform.position;
+            var startSize = _camera.orthographicSize;
+            var elapsed = 0f;
+
+            while (elapsed < duration)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                var t = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / duration));
+
+                var pos = Vector3.Lerp(startPos, targetPos, t);
+                transform.position = pos;
+                _camera.orthographicSize = Mathf.Lerp(startSize, targetSize, t);
+
+                yield return null;
+            }
+
+            transform.position = targetPos;
+            _camera.orthographicSize = targetSize;
+            _targetSize = targetSize;
+
+            _focusCoroutine = null;
+            onComplete?.Invoke();
         }
     }
 }

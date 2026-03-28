@@ -1,3 +1,4 @@
+using Gridlock.CameraSystem;
 using Gridlock.Interfaces;
 using Gridlock.Modules;
 using Gridlock.NodeEditor.Data;
@@ -11,12 +12,17 @@ namespace Gridlock.NodeEditor.UI
     public class NodeEditorScreen : MonoBehaviour
     {
         [SerializeField] private ModuleRegistry moduleRegistry;
+        [SerializeField] private float focusOrthoSize = 10f;
 
         private UIDocument _uiDocument;
         private VisualElement _root;
+        private VisualElement _panelLeft;
+        private VisualElement _panelRight;
+        private VisualElement _panelCenter;
         private Controls _controls;
         private IChassis _currentChassis;
         private PlayerInventory _playerInventory;
+        private Transform _currentTowerTransform;
         private bool _isOpen;
 
         private NodeEditorCanvas _canvas;
@@ -43,6 +49,10 @@ namespace Gridlock.NodeEditor.UI
 
             _root.style.display = DisplayStyle.None;
 
+            _panelLeft = _root.Q("panel-left");
+            _panelRight = _root.Q("panel-right");
+            _panelCenter = _root.Q("panel-center");
+
             var canvasArea = _root.Q("canvas-area");
             if (canvasArea != null)
             {
@@ -62,15 +72,27 @@ namespace Gridlock.NodeEditor.UI
                 docsBtn.clicked += ShowDocumentation;
         }
 
-        public void Open(IChassis chassis, PlayerInventory inventory = null)
+        public void Open(IChassis chassis, PlayerInventory inventory = null, Transform towerTransform = null)
         {
             _currentChassis = chassis;
             _playerInventory = inventory;
+            _currentTowerTransform = towerTransform;
             _isOpen = true;
             _canvas?.ResumeAnimations();
 
             if (_root != null)
                 _root.style.display = DisplayStyle.Flex;
+
+            if (_currentTowerTransform != null)
+                TopDownCamera.Instance?.FocusOn(_currentTowerTransform.position, focusOrthoSize);
+
+            TopDownCamera.Instance?.SetInputEnabled(false);
+
+            _root?.schedule.Execute(() =>
+            {
+                _panelLeft?.AddToClassList("panel-left--open");
+                _panelRight?.AddToClassList("panel-right--open");
+            });
 
             var graph = chassis.GetNodeGraph();
             _canvas?.LoadGraph(graph, chassis.MaxTriggers);
@@ -89,14 +111,24 @@ namespace Gridlock.NodeEditor.UI
             _isOpen = false;
             _canvas?.PauseAnimations();
 
-            if (_root != null)
-                _root.style.display = DisplayStyle.None;
+            _panelLeft?.RemoveFromClassList("panel-left--open");
+            _panelRight?.RemoveFromClassList("panel-right--open");
+
+            TopDownCamera.Instance?.RestoreFocus();
+            TopDownCamera.Instance?.SetInputEnabled(true);
+
+            _root?.schedule.Execute(() =>
+            {
+                if (!_isOpen && _root != null)
+                    _root.style.display = DisplayStyle.None;
+            }).ExecuteLater(400);
 
             _controls.UI.Cancel.performed -= OnCancelPerformed;
             _controls.UI.Disable();
             _controls.Player.Enable();
 
             _currentChassis = null;
+            _currentTowerTransform = null;
         }
 
         public void SaveGraph()

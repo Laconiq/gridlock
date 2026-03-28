@@ -6,23 +6,69 @@
 /* === ROOT === */
 .node-editor-root {
     flex-grow: 1;
-    flex-direction: column;
-    background-color: var(--surface, #0e0e0f);
+    flex-direction: row;
+    background-color: rgba(0, 0, 0, 0);
     color: var(--on-surface, #ffffff);
     -unity-font-definition: url("project://database/Assets/UI/NodeEditor/Fonts/SpaceGrotesk-Variable.ttf");
 }
 
-/* === TOP BAR === */
-.top-bar {
+/* === PANEL LAYOUT === */
+.panel-left,
+.panel-right {
+    min-width: 280px;
+    max-width: 480px;
+}
+
+.panel-left {
+    flex-basis: 33.33%;
+    flex-shrink: 0;
+    flex-grow: 0;
+    flex-direction: column;
+    background-color: var(--surface, #0e0e0f);
+    translate: -100% 0;
+    transition: translate var(--transition-panel, 0.35s) ease-out;
+    overflow: hidden;
+    border-right-width: 1px;
+    border-right-color: var(--outline-variant, #484849);
+}
+
+.panel-left--open {
+    translate: 0 0;
+}
+
+.panel-center {
+    flex-grow: 1;
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.panel-right {
+    flex-basis: 33.33%;
+    flex-shrink: 0;
+    flex-grow: 0;
+    flex-direction: column;
+    background-color: var(--surface, #0e0e0f);
+    translate: 100% 0;
+    transition: translate var(--transition-panel, 0.35s) ease-out;
+    overflow: hidden;
+    border-left-width: 1px;
+    border-left-color: var(--outline-variant, #484849);
+}
+
+.panel-right--open {
+    translate: 0 0;
+}
+
+/* === PANEL TOP BAR === */
+.panel-top-bar {
     height: 56px;
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    padding-left: var(--space-xl, 24px);
-    padding-right: var(--space-xl, 24px);
-    background-color: var(--surface, #0e0e0f);
+    padding-left: var(--space-lg, 16px);
+    padding-right: var(--space-lg, 16px);
+    background-color: var(--surface-container-low, #131314);
     border-bottom-width: 1px;
-    border-bottom-color: rgba(72, 72, 73, 0.1);
+    border-bottom-color: var(--outline-variant, #484849);
 }
 
 .top-bar__left {
@@ -52,21 +98,23 @@
 .top-bar__save-btn:hover { opacity: 0.85; }
 .top-bar__save-btn:active { opacity: 0.7; }
 
-/* === CONTENT AREA === */
-.content-area {
-    flex-grow: 1;
+/* === PANEL BOTTOM BAR === */
+.panel-bottom-bar {
+    height: 32px;
     flex-direction: row;
-    overflow: hidden;
+    align-items: center;
+    padding-left: var(--space-lg, 16px);
+    padding-right: var(--space-lg, 16px);
+    background-color: var(--surface-container-highest, #262627);
+    border-top-width: 1px;
+    border-top-color: var(--outline-variant, #484849);
 }
 
 /* === SIDEBAR === */
 .sidebar {
-    width: 256px;
-    flex-shrink: 0;
+    flex-grow: 1;
     flex-direction: column;
     background-color: var(--surface-container-low, #131314);
-    border-right-width: 1px;
-    border-right-color: rgba(72, 72, 73, 0.1);
 }
 
 .sidebar__header {
@@ -383,18 +431,7 @@
     -unity-text-align: middle-right;
 }
 
-/* === BOTTOM BAR === */
-.bottom-bar {
-    height: 32px;
-    flex-direction: row;
-    align-items: center;
-    padding-left: var(--space-xl, 24px);
-    padding-right: var(--space-xl, 24px);
-    background-color: var(--surface-container-highest, #262627);
-    border-top-width: 1px;
-    border-top-color: rgba(72, 72, 73, 0.1);
-}
-
+/* === BOTTOM BAR ELEMENTS (shared by panel-bottom-bar) === */
 .bottom-bar__hint {
     flex-direction: row;
     align-items: center;

@@ -73,6 +73,7 @@
     --transition-fast:          0.075s;
     --transition-normal:        0.15s;
     --transition-slow:          0.2s;
+    --transition-panel:         0.35s;
 
     /* === PORT === */
     --port-size:                12px;

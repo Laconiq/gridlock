@@ -76,9 +76,11 @@ namespace Gridlock.NodeEditor.UI
             _viewport.RegisterCallback<PointerUpEvent>(OnViewportPointerUp);
             _viewport.RegisterCallback<WheelEvent>(OnWheel);
 
-            _sidebar = canvasArea.parent?.Q("sidebar");
+            var root = canvasArea;
+            while (root.parent != null) root = root.parent;
+            _sidebar = root.Q("sidebar");
 
-            var editorRoot = canvasArea.parent?.parent;
+            var editorRoot = root.Q("node-editor-root") ?? root;
             if (editorRoot != null)
             {
                 _dragOverlay = new VisualElement { name = "drag-overlay" };
