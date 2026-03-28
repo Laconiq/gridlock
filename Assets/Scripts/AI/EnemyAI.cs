@@ -45,7 +45,7 @@ namespace Gridlock.AI
             _controller = GetComponent<EnemyController>();
         }
 
-        public void Setup(int routeId, EnemyDefinition definition)
+        public void Setup(int routeId)
         {
             _routeId = routeId;
 

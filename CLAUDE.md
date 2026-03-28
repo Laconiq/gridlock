@@ -215,25 +215,25 @@ ServiceLocator.Unregister<T>();        // in OnDestroy
 
 **Classic TD enemies — no AI targeting.** Enemies follow routes to the objective. No chase, no attack, no threat evaluation.
 
-**Prefab structure** (base: `Enemy.prefab`, variant: `BasicEnemy.prefab`):
+**Single prefab, data-driven via `EnemyDefinition` SO:**
 ```
-Enemy (root) — logic components
-├── EnemyController, EnemyHealth, StatusEffectManager, EnemyHitFeedback, EnemyAI
+Enemy.prefab (root) — logic + death VFX
+├── EnemyController, EnemyHealth, StatusEffectManager, EnemyHitFeedback, EnemyAI, VoxelDeathEffect
 └── Model (child) — visual only
-    ├── MeshFilter (Tetrahedron)
-    └── MeshRenderer (M_EnemyLit)
+    ├── MeshFilter (default mesh, overridden at spawn from SO)
+    └── MeshRenderer (default material, overridden at spawn from SO)
 ```
-Model child can be rotated/swapped independently of logic.
+Visuals (mesh, material, color, scale) come from `EnemyDefinition` SO, applied by `EnemySpawner` at instantiation.
 
 **Movement:** `EnemyController` follows routes segment-by-segment via `AssignRoute()`. Uses a `while` loop consuming remaining movement per frame — never cuts diagonals. Float height at Y=0.5. `WarpFollower` auto-added in Awake for grid surface tracking.
 
 **AI** (`EnemyAI`): Simplified to pure route following. `Setup()` assigns route and starts movement. No states other than `FollowRoute`.
 
-**Death effects:** `VoxelDeathEffect` (on BasicEnemy variant) voxelizes the mesh into physics cubes that explode outward, bounce, and fade. Uses `GetComponentInChildren<MeshFilter/MeshRenderer>()` to find the Model child.
+**Death effects:** `VoxelDeathEffect` (on Enemy.prefab) voxelizes the mesh into physics cubes that explode outward, bounce, and fade. Uses `GetComponentInChildren<MeshFilter/MeshRenderer>()` to find the Model child.
 
 **Hit feedback:** `EnemyHitFeedback` flashes emission white on hit, spawns floating damage text. Uses `GetComponentInChildren<MeshRenderer>()`.
 
-**Spawning:** `EnemySpawner` instantiates the prefab as-is. Position, color, mesh, scale are all defined in the prefab.
+**Spawning:** `EnemySpawner` instantiates `Enemy.prefab`, then applies visuals (mesh, material, color, scale) from the `EnemyDefinition` SO. Stats (HP, speed, objective damage) are also set from the SO.
 
 ### Combat
 
@@ -302,7 +302,7 @@ Enemies drop `ModulePickup` on death. Pickups have a magnet behavior: after a sh
 - `Assets/Shaders/VectorGlow.shader` — Lit shader with emission + shadows for enemies
 - `Assets/Shaders/VectorOutline.shader` — Lit outline shader with shadows for towers
 - `Assets/Prefabs/Enemies/Enemy.prefab` — Base enemy prefab (logic on root, Model child for visuals)
-- `Assets/Prefabs/Enemies/BasicEnemy.prefab` — Variant with VoxelDeathEffect
+- `Assets/Data/Enemies/TestEnemy.asset` — Test EnemyDefinition SO (mesh, material, color, scale, stats)
 
 ## Editor Tools
 

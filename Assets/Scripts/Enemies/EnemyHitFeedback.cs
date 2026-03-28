@@ -18,6 +18,7 @@ namespace Gridlock.Enemies
         private MeshRenderer _renderer;
         private Color _baseEmission;
         private float _flashTimer;
+        private bool _emissionCached;
 
         private static readonly int EmissionColor = Shader.PropertyToID("_EmissionColor");
 
@@ -35,8 +36,6 @@ namespace Gridlock.Enemies
                 _health.OnDeath += OnDeath;
             }
 
-            if (_renderer != null && _renderer.material.HasColor(EmissionColor))
-                _baseEmission = _renderer.material.GetColor(EmissionColor);
         }
 
         private void OnDisable()
@@ -50,6 +49,12 @@ namespace Gridlock.Enemies
 
         private void Update()
         {
+            if (!_emissionCached && _renderer != null && _renderer.material.HasColor(EmissionColor))
+            {
+                _baseEmission = _renderer.material.GetColor(EmissionColor);
+                _emissionCached = true;
+            }
+
             if (_flashTimer <= 0f) return;
 
             _flashTimer -= Time.deltaTime;

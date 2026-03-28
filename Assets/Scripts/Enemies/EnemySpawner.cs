@@ -64,6 +64,19 @@ namespace Gridlock.Enemies
             pos.y = 0.5f;
             var go = Instantiate(enemyPrefab, pos, Quaternion.identity);
 
+            go.transform.localScale = definition.scale;
+
+            var mf = go.GetComponentInChildren<MeshFilter>();
+            if (mf != null && definition.mesh != null)
+                mf.sharedMesh = definition.mesh;
+
+            var mr = go.GetComponentInChildren<MeshRenderer>();
+            if (mr != null && definition.material != null)
+            {
+                mr.material = definition.material;
+                mr.material.SetColor("_BaseColor", definition.color);
+            }
+
             var controller = go.GetComponent<EnemyController>();
             controller?.Setup(definition);
 
@@ -71,7 +84,7 @@ namespace Gridlock.Enemies
             health?.SetInitialHP(definition.maxHP);
 
             var ai = go.GetComponent<EnemyAI>();
-            ai?.Setup(0, definition);
+            ai?.Setup(0);
 
             if (tracked)
             {
