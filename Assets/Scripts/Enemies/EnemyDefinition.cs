@@ -1,3 +1,4 @@
+using AIWE.Visual;
 using UnityEngine;
 
 namespace AIWE.Enemies
@@ -8,6 +9,7 @@ namespace AIWE.Enemies
         [Header("Identity")]
         public string enemyId;
         public Color color = Color.red;
+        public ShapeType shape = ShapeType.Triangle;
 
         [Header("Stats")]
         public float maxHP = 100f;

@@ -6,6 +6,7 @@ namespace AIWE.Enemies
     {
         [SerializeField] private float riseSpeed = 1.5f;
         [SerializeField] private float fadeSpeed = 2f;
+        [SerializeField] private float scaleUpSpeed = 0.5f;
 
         private TMPro.TextMeshPro _tmp;
         private Color _startColor;
@@ -22,10 +23,11 @@ namespace AIWE.Enemies
         private void Update()
         {
             transform.position += Vector3.up * (riseSpeed * Time.deltaTime);
+            transform.localScale += Vector3.one * (scaleUpSpeed * Time.deltaTime);
 
             if (_cachedCamera == null) _cachedCamera = Camera.main;
             if (_cachedCamera != null)
-                transform.forward = _cachedCamera.transform.forward;
+                transform.rotation = _cachedCamera.transform.rotation;
 
             _elapsed += Time.deltaTime;
             if (_tmp != null)
