@@ -1,7 +1,7 @@
-using AIWE.Player;
+using Gridlock.Player;
 using UnityEngine;
 
-namespace AIWE.Loot
+namespace Gridlock.Loot
 {
     public class ModulePickup : MonoBehaviour
     {

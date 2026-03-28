@@ -1,11 +1,11 @@
 using System.Collections.Generic;
-using AIWE.Interfaces;
-using AIWE.Modules;
-using AIWE.Modules.Triggers;
-using AIWE.NodeEditor.Data;
+using Gridlock.Interfaces;
+using Gridlock.Modules;
+using Gridlock.Modules.Triggers;
+using Gridlock.NodeEditor.Data;
 using UnityEngine;
 
-namespace AIWE.Towers
+namespace Gridlock.Towers
 {
     public class TowerExecutor : MonoBehaviour
     {

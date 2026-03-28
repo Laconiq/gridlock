@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 21a61634c95ea86498f8e4fd3be1e707, type: 3}
   m_Name: TestEnemy
-  m_EditorClassIdentifier: Assembly-CSharp::AIWE.Enemies.EnemyDefinition
+  m_EditorClassIdentifier: Assembly-CSharp::Gridlock.Enemies.EnemyDefinition
   enemyId: test_enemy
   maxHP: 50
   moveSpeed: 2

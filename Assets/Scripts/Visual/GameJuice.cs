@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 
-namespace AIWE.Visual
+namespace Gridlock.Visual
 {
     [DefaultExecutionOrder(200)]
     public class GameJuice : MonoBehaviour

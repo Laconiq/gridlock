@@ -1,9 +1,9 @@
 using System;
-using AIWE.Modules;
+using Gridlock.Modules;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace AIWE.Loot
+namespace Gridlock.Loot
 {
     [Serializable]
     public class LootEntry

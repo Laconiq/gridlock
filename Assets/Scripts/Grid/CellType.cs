@@ -1,4 +1,4 @@
-namespace AIWE.Grid
+namespace Gridlock.Grid
 {
     public enum CellType : byte
     {

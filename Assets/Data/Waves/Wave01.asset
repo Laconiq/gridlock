@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7b35553518f1ac440b46cc27ca01affe, type: 3}
   m_Name: Wave01
-  m_EditorClassIdentifier: Assembly-CSharp::AIWE.Enemies.WaveDefinition
+  m_EditorClassIdentifier: Assembly-CSharp::Gridlock.Enemies.WaveDefinition
   entries:
   - enemy: {fileID: 11400000, guid: cd57b41af6a3db14cae76432139233f8, type: 2}
     count: 10

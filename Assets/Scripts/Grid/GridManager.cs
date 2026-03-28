@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using AIWE.Core;
+using Gridlock.Core;
 using UnityEngine;
 
-namespace AIWE.Grid
+namespace Gridlock.Grid
 {
     public class GridManager : MonoBehaviour
     {

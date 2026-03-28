@@ -1,11 +1,11 @@
 using System;
 using System.Collections;
-using AIWE.Combat;
-using AIWE.Interfaces;
-using AIWE.Loot;
+using Gridlock.Combat;
+using Gridlock.Interfaces;
+using Gridlock.Loot;
 using UnityEngine;
 
-namespace AIWE.Enemies
+namespace Gridlock.Enemies
 {
     public class EnemyHealth : MonoBehaviour, IDamageable
     {

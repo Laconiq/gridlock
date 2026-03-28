@@ -1,4 +1,4 @@
-# AIWE — Level Design Guide
+# Gridlock — Level Design Guide
 
 Guide de conception de niveaux pour un Tower Defense isométrique sur grille.
 
@@ -20,7 +20,7 @@ Guide de conception de niveaux pour un Tower Defense isométrique sur grille.
 Les niveaux sont des `GridDefinition` ScriptableObjects éditables dans l'Inspector (Odin).
 
 - **Fichiers** : `Assets/Data/Levels/`
-- **Création** : menu `AIWE/Create Test Grid Level` ou clic droit → Create → AIWE → Grid Definition
+- **Création** : menu `Gridlock/Create Test Grid Level` ou clic droit → Create → Gridlock → Grid Definition
 
 ### Structure
 

@@ -1,9 +1,9 @@
-using AIWE.Modules;
-using AIWE.NodeEditor.Data;
+using Gridlock.Modules;
+using Gridlock.NodeEditor.Data;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace AIWE.NodeEditor.UI
+namespace Gridlock.NodeEditor.UI
 {
     public class ModulePaletteItem
     {

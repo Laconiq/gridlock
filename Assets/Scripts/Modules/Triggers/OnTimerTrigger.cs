@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace AIWE.Modules.Triggers
+namespace Gridlock.Modules.Triggers
 {
     [Serializable]
     public class OnTimerTrigger : TriggerInstance

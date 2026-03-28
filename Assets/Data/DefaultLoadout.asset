@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 75d205f89f8d62f4a8a8028dde68c649, type: 3}
   m_Name: DefaultLoadout
-  m_EditorClassIdentifier: Assembly-CSharp::AIWE.Player.DefaultLoadout
+  m_EditorClassIdentifier: Assembly-CSharp::Gridlock.Player.DefaultLoadout
   entries:
   - module: {fileID: 11400000, guid: 0491fd2a70c0b5d49b30d7f08353720d, type: 2}
     count: 3

@@ -1,7 +1,7 @@
-using AIWE.NodeEditor.Data;
+using Gridlock.NodeEditor.Data;
 using UnityEngine;
 
-namespace AIWE.Modules
+namespace Gridlock.Modules
 {
     public abstract class ModuleDefinition : ScriptableObject
     {

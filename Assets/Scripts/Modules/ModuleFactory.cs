@@ -1,11 +1,11 @@
 using System.Collections.Generic;
-using AIWE.Interfaces;
-using AIWE.Modules.Effects;
-using AIWE.Modules.Triggers;
-using AIWE.Modules.Zones;
+using Gridlock.Interfaces;
+using Gridlock.Modules.Effects;
+using Gridlock.Modules.Triggers;
+using Gridlock.Modules.Zones;
 using UnityEngine;
 
-namespace AIWE.Modules
+namespace Gridlock.Modules
 {
     public static class ModuleFactory
     {

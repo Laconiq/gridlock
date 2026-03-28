@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8491512ba60f2e140887510f324b2710, type: 3}
   m_Name: Player
-  m_EditorClassIdentifier: Assembly-CSharp::AIWE.Towers.ChassisDefinition
+  m_EditorClassIdentifier: Assembly-CSharp::Gridlock.Towers.ChassisDefinition
   chassisId: player
   displayName: Player
   maxTriggers: 2

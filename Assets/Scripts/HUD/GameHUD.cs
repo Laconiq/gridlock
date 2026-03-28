@@ -1,12 +1,12 @@
 using System.Collections;
-using AIWE.Core;
-using AIWE.Player;
+using Gridlock.Core;
+using Gridlock.Player;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace AIWE.HUD
+namespace Gridlock.HUD
 {
-    [AddComponentMenu("AIWE/UI/Game HUD")]
+    [AddComponentMenu("Gridlock/UI/Game HUD")]
     [RequireComponent(typeof(UIDocument))]
     public class GameHUD : MonoBehaviour
     {

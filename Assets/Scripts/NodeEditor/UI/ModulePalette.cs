@@ -1,10 +1,10 @@
 using System.Collections.Generic;
-using AIWE.Modules;
-using AIWE.NodeEditor.Data;
-using AIWE.Player;
+using Gridlock.Modules;
+using Gridlock.NodeEditor.Data;
+using Gridlock.Player;
 using UnityEngine.UIElements;
 
-namespace AIWE.NodeEditor.UI
+namespace Gridlock.NodeEditor.UI
 {
     public class ModulePalette
     {

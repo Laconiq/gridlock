@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 07e2b07144a16654290178f920476ad0, type: 3}
   m_Name: OnEnemyEnterRange
-  m_EditorClassIdentifier: Assembly-CSharp::AIWE.Modules.Triggers.TriggerDefinition
+  m_EditorClassIdentifier: Assembly-CSharp::Gridlock.Modules.Triggers.TriggerDefinition
   moduleId: on_enemy_enter_range
   displayName: On Enemy Enter
   icon: {fileID: 21300000, guid: c41b2b8a99f73be47869d9b691ca74cb, type: 3}
@@ -24,7 +24,7 @@ MonoBehaviour:
     version: 2
     RefIds:
     - rid: 684771300558454786
-      type: {class: OnEnemyEnterRangeTrigger, ns: AIWE.Modules.Triggers, asm: Assembly-CSharp}
+      type: {class: OnEnemyEnterRangeTrigger, ns: Gridlock.Modules.Triggers, asm: Assembly-CSharp}
       data:
         range: 10
         cooldown: 0.5

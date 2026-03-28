@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace AIWE.Grid
+namespace Gridlock.Grid
 {
     [Serializable]
     public class PathDefinition

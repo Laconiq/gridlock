@@ -47,7 +47,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3dbe39f6f6ca5da479d5b30cf2bfe44d, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AIWE.Player.PlayerController
+  m_EditorClassIdentifier: Assembly-CSharp::Gridlock.Player.PlayerController
 --- !u!114 &5316730252319613843
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -59,7 +59,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f80908d50060e5f4aa128adcf1517771, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AIWE.Player.PlayerInteraction
+  m_EditorClassIdentifier: Assembly-CSharp::Gridlock.Player.PlayerInteraction
   interactionMask:
     serializedVersion: 2
     m_Bits: 55
@@ -74,7 +74,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cd291fef75ba4d64ea33fa5f9cda3267, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AIWE.Player.PlayerInventory
+  m_EditorClassIdentifier: Assembly-CSharp::Gridlock.Player.PlayerInventory
   defaultLoadout: {fileID: 11400000, guid: 08549fe28abdd5042ad7010b462c707c, type: 2}
   moduleRegistry: {fileID: 11400000, guid: 22193429fd66e25468601df6db58c91d, type: 2}
 --- !u!114 &644552361602483174
@@ -88,7 +88,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 66c12ed5b20200a4c8ee5ea61bf4c389, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AIWE.RadialMenu.RadialMenuController
+  m_EditorClassIdentifier: Assembly-CSharp::Gridlock.RadialMenu.RadialMenuController
 --- !u!114 &4507887512255378201
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -100,4 +100,4 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cfd80bbeaa3dca143bbd7f9f8d1bd2fe, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AIWE.Player.PlayerInputProvider
+  m_EditorClassIdentifier: Assembly-CSharp::Gridlock.Player.PlayerInputProvider

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace AIWE.Player
+namespace Gridlock.Player
 {
     public class PlayerInputProvider : MonoBehaviour
     {

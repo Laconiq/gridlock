@@ -1,10 +1,10 @@
-using AIWE.Interfaces;
-using AIWE.NodeEditor.UI;
-using AIWE.Player;
-using AIWE.Towers;
+using Gridlock.Interfaces;
+using Gridlock.NodeEditor.UI;
+using Gridlock.Player;
+using Gridlock.Towers;
 using UnityEngine;
 
-namespace AIWE.NodeEditor
+namespace Gridlock.NodeEditor
 {
     public class NodeEditorController : MonoBehaviour
     {

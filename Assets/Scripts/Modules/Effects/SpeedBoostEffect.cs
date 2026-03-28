@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using AIWE.Combat;
-using AIWE.Interfaces;
+using Gridlock.Combat;
+using Gridlock.Interfaces;
 using UnityEngine;
 
-namespace AIWE.Modules.Effects
+namespace Gridlock.Modules.Effects
 {
     [Serializable]
     public class SpeedBoostEffect : EffectInstance

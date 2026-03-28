@@ -1,8 +1,8 @@
 using System.Collections;
-using AIWE.Core;
+using Gridlock.Core;
 using UnityEngine;
 
-namespace AIWE.Player
+namespace Gridlock.Player
 {
     public class PlayerController : MonoBehaviour
     {

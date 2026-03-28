@@ -1,9 +1,9 @@
 using System;
-using AIWE.NodeEditor.Data;
+using Gridlock.NodeEditor.Data;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace AIWE.RadialMenu
+namespace Gridlock.RadialMenu
 {
     public class RadialSegment : VisualElement
     {

@@ -1,8 +1,8 @@
-using AIWE.Core;
-using AIWE.Enemies;
+using Gridlock.Core;
+using Gridlock.Enemies;
 using UnityEngine;
 
-namespace AIWE.AI
+namespace Gridlock.AI
 {
     [RequireComponent(typeof(EnemyController))]
     public class EnemyAI : MonoBehaviour

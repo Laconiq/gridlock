@@ -1,9 +1,9 @@
-using AIWE.Visual;
+using Gridlock.Visual;
 using UnityEngine;
 
-namespace AIWE.Enemies
+namespace Gridlock.Enemies
 {
-    [CreateAssetMenu(menuName = "AIWE/Enemy Definition")]
+    [CreateAssetMenu(menuName = "Gridlock/Enemy Definition")]
     public class EnemyDefinition : ScriptableObject
     {
         [Header("Identity")]

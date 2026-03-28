@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using AIWE.Interfaces;
-using AIWE.Player;
+using Gridlock.Interfaces;
+using Gridlock.Player;
 using UnityEngine;
 
-namespace AIWE.Modules.Zones
+namespace Gridlock.Modules.Zones
 {
     [Serializable]
     public class AlliesInRangeZone : ZoneInstance

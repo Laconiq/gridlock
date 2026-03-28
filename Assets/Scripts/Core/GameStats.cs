@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace AIWE.Core
+namespace Gridlock.Core
 {
     public class GameStats : MonoBehaviour
     {

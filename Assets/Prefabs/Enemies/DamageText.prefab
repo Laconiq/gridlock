@@ -193,6 +193,6 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c53905f5dfc944b46a8ec4633af010b2, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AIWE.Enemies.DamageTextFloat
+  m_EditorClassIdentifier: Assembly-CSharp::Gridlock.Enemies.DamageTextFloat
   riseSpeed: 1.5
   fadeSpeed: 2

@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8a1c3c72cec01a9459c67d8de2b64bf7, type: 3}
   m_Name: TestGrid
-  m_EditorClassIdentifier: Assembly-CSharp::AIWE.Grid.GridDefinition
+  m_EditorClassIdentifier: Assembly-CSharp::Gridlock.Grid.GridDefinition
   width: 24
   height: 14
   cellSize: 2

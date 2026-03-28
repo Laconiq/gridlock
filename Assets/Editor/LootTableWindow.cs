@@ -1,10 +1,10 @@
-using AIWE.Loot;
+using Gridlock.Loot;
 using Sirenix.OdinInspector.Editor;
 using UnityEditor;
 using UnityEditor.Callbacks;
 using UnityEngine;
 
-namespace AIWE.Editor
+namespace Gridlock.Editor
 {
     public class LootTableWindow : OdinEditorWindow
     {

@@ -1,9 +1,9 @@
 using System.Collections.Generic;
-using AIWE.NodeEditor.Data;
+using Gridlock.NodeEditor.Data;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace AIWE.NodeEditor.UI
+namespace Gridlock.NodeEditor.UI
 {
     public class MinimapWidget
     {

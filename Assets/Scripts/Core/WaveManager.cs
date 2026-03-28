@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
-using AIWE.Enemies;
-using AIWE.HUD;
+using Gridlock.Enemies;
+using Gridlock.HUD;
 using UnityEngine;
 
-namespace AIWE.Core
+namespace Gridlock.Core
 {
     public class WaveManager : MonoBehaviour
     {

@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
-using AIWE.Core;
-using AIWE.Enemies;
-using AIWE.Grid;
-using AIWE.Interfaces;
+using Gridlock.Core;
+using Gridlock.Enemies;
+using Gridlock.Grid;
+using Gridlock.Interfaces;
 using UnityEngine;
 
-namespace AIWE.Modules.Zones
+namespace Gridlock.Modules.Zones
 {
     [Serializable]
     public class LastInPathZone : ZoneInstance

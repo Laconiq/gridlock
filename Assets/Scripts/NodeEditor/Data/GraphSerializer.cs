@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace AIWE.NodeEditor.Data
+namespace Gridlock.NodeEditor.Data
 {
     public static class GraphSerializer
     {

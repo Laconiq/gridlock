@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
-using AIWE.NodeEditor.Data;
+using Gridlock.NodeEditor.Data;
 using UnityEngine;
 
-namespace AIWE.RadialMenu
+namespace Gridlock.RadialMenu
 {
     public class RadialMenuCanvas
     {

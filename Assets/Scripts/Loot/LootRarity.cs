@@ -1,4 +1,4 @@
-namespace AIWE.Loot
+namespace Gridlock.Loot
 {
     public enum LootRarity
     {

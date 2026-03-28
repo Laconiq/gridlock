@@ -1,7 +1,7 @@
 using TMPro;
 using UnityEngine;
 
-namespace AIWE.Enemies
+namespace Gridlock.Enemies
 {
     public class EnemyHitFeedback : MonoBehaviour
     {

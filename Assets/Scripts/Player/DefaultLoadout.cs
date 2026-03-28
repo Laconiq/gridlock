@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
-using AIWE.Modules;
+using Gridlock.Modules;
 using UnityEngine;
 
-namespace AIWE.Player
+namespace Gridlock.Player
 {
-    [CreateAssetMenu(menuName = "AIWE/Default Loadout")]
+    [CreateAssetMenu(menuName = "Gridlock/Default Loadout")]
     public class DefaultLoadout : ScriptableObject
     {
         [Serializable]

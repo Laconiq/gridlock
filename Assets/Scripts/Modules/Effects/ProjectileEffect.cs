@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using AIWE.Interfaces;
+using Gridlock.Interfaces;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace AIWE.Modules.Effects
+namespace Gridlock.Modules.Effects
 {
     [Serializable]
     public class ProjectileEffect : EffectInstance

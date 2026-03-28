@@ -70,7 +70,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 100ca5a674bf81444a254aa8803bf79e, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AIWE.Towers.TowerChassis
+  m_EditorClassIdentifier: Assembly-CSharp::Gridlock.Towers.TowerChassis
   definition: {fileID: 11400000, guid: ef449c25eadd554489bf3c3056d9f311, type: 2}
   firePoint: {fileID: 4093815563506613825}
 --- !u!114 &6857266715922580223
@@ -84,7 +84,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f0d1832243d6d7242bb286b5f1514277, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AIWE.Towers.TowerInteractable
+  m_EditorClassIdentifier: Assembly-CSharp::Gridlock.Towers.TowerInteractable
 --- !u!114 &8588930336834771211
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -96,7 +96,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ceeac58dd4313ab4fb07f4773e1684ea, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AIWE.Towers.TowerExecutor
+  m_EditorClassIdentifier: Assembly-CSharp::Gridlock.Towers.TowerExecutor
   moduleRegistry: {fileID: 11400000, guid: 22193429fd66e25468601df6db58c91d, type: 2}
 --- !u!33 &5860436355741958959
 MeshFilter:

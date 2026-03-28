@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b3969250729414740a689eeeaff38034, type: 3}
   m_Name: DefaultTowerGraph
-  m_EditorClassIdentifier: Assembly-CSharp::AIWE.Player.DefaultWeaponGraph
+  m_EditorClassIdentifier: Assembly-CSharp::Gridlock.Player.DefaultWeaponGraph
   graph:
     nodes:
     - nodeId: tower_timer

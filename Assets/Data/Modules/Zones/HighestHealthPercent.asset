@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 882f4c9d4d8dc6d41b15c92588e156b2, type: 3}
   m_Name: HighestHealthPercent
-  m_EditorClassIdentifier: Assembly-CSharp::AIWE.Modules.Zones.ZoneDefinition
+  m_EditorClassIdentifier: Assembly-CSharp::Gridlock.Modules.Zones.ZoneDefinition
   moduleId: highest_health_percent
   displayName: Highest Health %
   icon: {fileID: 0}
@@ -25,6 +25,6 @@ MonoBehaviour:
     version: 2
     RefIds:
     - rid: 500000000000000002
-      type: {class: HighestHealthPercentZone, ns: AIWE.Modules.Zones, asm: Assembly-CSharp}
+      type: {class: HighestHealthPercentZone, ns: Gridlock.Modules.Zones, asm: Assembly-CSharp}
       data:
         cooldown: 0.5

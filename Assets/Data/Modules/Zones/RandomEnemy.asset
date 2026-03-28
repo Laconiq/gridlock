@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 882f4c9d4d8dc6d41b15c92588e156b2, type: 3}
   m_Name: RandomEnemy
-  m_EditorClassIdentifier: Assembly-CSharp::AIWE.Modules.Zones.ZoneDefinition
+  m_EditorClassIdentifier: Assembly-CSharp::Gridlock.Modules.Zones.ZoneDefinition
   moduleId: random_enemy
   displayName: Random Enemy
   icon: {fileID: 0}
@@ -25,6 +25,6 @@ MonoBehaviour:
     version: 2
     RefIds:
     - rid: 200000000000000005
-      type: {class: RandomEnemyZone, ns: AIWE.Modules.Zones, asm: Assembly-CSharp}
+      type: {class: RandomEnemyZone, ns: Gridlock.Modules.Zones, asm: Assembly-CSharp}
       data:
         cooldown: 0.3

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace AIWE.NodeEditor.Data
+namespace Gridlock.NodeEditor.Data
 {
     [Serializable]
     public class NodeGraphData

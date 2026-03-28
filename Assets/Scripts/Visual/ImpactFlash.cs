@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace AIWE.Visual
+namespace Gridlock.Visual
 {
     public class ImpactFlash : MonoBehaviour
     {

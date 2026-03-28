@@ -1,11 +1,11 @@
 using System;
-using AIWE.AI;
-using AIWE.Combat;
-using AIWE.Core;
-using AIWE.Interfaces;
+using Gridlock.AI;
+using Gridlock.Combat;
+using Gridlock.Core;
+using Gridlock.Interfaces;
 using UnityEngine;
 
-namespace AIWE.Enemies
+namespace Gridlock.Enemies
 {
     public class EnemyController : MonoBehaviour, ITargetable
     {

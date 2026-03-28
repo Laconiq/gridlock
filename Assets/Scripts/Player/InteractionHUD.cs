@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace AIWE.Player
+namespace Gridlock.Player
 {
     [RequireComponent(typeof(UIDocument))]
     public class InteractionHUD : MonoBehaviour

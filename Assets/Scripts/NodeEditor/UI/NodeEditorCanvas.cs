@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
-using AIWE.Modules;
-using AIWE.NodeEditor.Data;
-using AIWE.UI;
+using Gridlock.Modules;
+using Gridlock.NodeEditor.Data;
+using Gridlock.UI;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace AIWE.NodeEditor.UI
+namespace Gridlock.NodeEditor.UI
 {
     public class NodeEditorCanvas
     {

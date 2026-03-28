@@ -1,6 +1,6 @@
-using AIWE.Combat;
+using Gridlock.Combat;
 
-namespace AIWE.Interfaces
+namespace Gridlock.Interfaces
 {
     public interface IDamageable
     {

@@ -1,11 +1,11 @@
 using System.Collections.Generic;
-using AIWE.NodeEditor.Data;
+using Gridlock.NodeEditor.Data;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace AIWE.Modules.Zones
+namespace Gridlock.Modules.Zones
 {
-    [CreateAssetMenu(menuName = "AIWE/Modules/Zone")]
+    [CreateAssetMenu(menuName = "Gridlock/Modules/Zone")]
     public class ZoneDefinition : ModuleDefinition
     {
         [SerializeReference, ListDrawerSettings(ShowFoldout = true), InlineProperty]

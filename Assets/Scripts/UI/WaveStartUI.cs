@@ -1,8 +1,8 @@
-using AIWE.Core;
+using Gridlock.Core;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace AIWE.UI
+namespace Gridlock.UI
 {
     [RequireComponent(typeof(UIDocument))]
     public class WaveStartUI : MonoBehaviour

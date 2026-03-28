@@ -1,8 +1,8 @@
 using UnityEngine;
 
-namespace AIWE.Towers
+namespace Gridlock.Towers
 {
-    [CreateAssetMenu(menuName = "AIWE/Chassis Definition")]
+    [CreateAssetMenu(menuName = "Gridlock/Chassis Definition")]
     public class ChassisDefinition : ScriptableObject
     {
         public string chassisId;

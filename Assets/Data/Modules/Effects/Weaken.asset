@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8d7c8f099edca454fa787de466c3812a, type: 3}
   m_Name: Weaken
-  m_EditorClassIdentifier: Assembly-CSharp::AIWE.Modules.Effects.EffectDefinition
+  m_EditorClassIdentifier: Assembly-CSharp::Gridlock.Modules.Effects.EffectDefinition
   moduleId: weaken
   displayName: Weaken
   icon: {fileID: 0}
@@ -24,6 +24,6 @@ MonoBehaviour:
     version: 2
     RefIds:
     - rid: 300000000000000002
-      type: {class: WeakenEffect, ns: AIWE.Modules.Effects, asm: Assembly-CSharp}
+      type: {class: WeakenEffect, ns: Gridlock.Modules.Effects, asm: Assembly-CSharp}
       data:
         cooldown: 0

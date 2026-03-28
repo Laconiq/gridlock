@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace AIWE.Grid
+namespace Gridlock.Grid
 {
     [DefaultExecutionOrder(150)]
     public class GridWarpManager : MonoBehaviour

@@ -1,7 +1,7 @@
-using AIWE.Grid;
+using Gridlock.Grid;
 using UnityEngine;
 
-namespace AIWE.Visual
+namespace Gridlock.Visual
 {
     /// <summary>
     /// Makes this object follow the grid warp surface.

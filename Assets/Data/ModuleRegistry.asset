@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 71ac57e631a4edb4097d3c273a316588, type: 3}
   m_Name: ModuleRegistry
-  m_EditorClassIdentifier: Assembly-CSharp::AIWE.Modules.ModuleRegistry
+  m_EditorClassIdentifier: Assembly-CSharp::Gridlock.Modules.ModuleRegistry
   allModules:
   - {fileID: 11400000, guid: a3f0f241c1fc2574a8e113aefa452e78, type: 2}
   - {fileID: 11400000, guid: 5c0336525b06c774e9ada62c4d92049a, type: 2}

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace AIWE.Interfaces
+namespace Gridlock.Interfaces
 {
     public interface ITargetable
     {

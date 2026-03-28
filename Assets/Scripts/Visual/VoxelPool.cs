@@ -1,8 +1,8 @@
-using AIWE.Core;
-using AIWE.Grid;
+using Gridlock.Core;
+using Gridlock.Grid;
 using UnityEngine;
 
-namespace AIWE.Visual
+namespace Gridlock.Visual
 {
     public class VoxelPool : MonoBehaviour
     {

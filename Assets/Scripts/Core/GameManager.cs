@@ -1,10 +1,10 @@
 using System;
-using AIWE.Enemies;
-using AIWE.Loot;
-using AIWE.Towers;
+using Gridlock.Enemies;
+using Gridlock.Loot;
+using Gridlock.Towers;
 using UnityEngine;
 
-namespace AIWE.Core
+namespace Gridlock.Core
 {
     public class GameManager : MonoBehaviour
     {

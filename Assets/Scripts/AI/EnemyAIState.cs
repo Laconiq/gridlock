@@ -1,4 +1,4 @@
-namespace AIWE.AI
+namespace Gridlock.AI
 {
     public enum EnemyAIState : byte
     {

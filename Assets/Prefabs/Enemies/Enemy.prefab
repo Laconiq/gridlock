@@ -70,7 +70,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ad47e1e69abec4946bee54e8c706a7f0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AIWE.Enemies.EnemyController
+  m_EditorClassIdentifier: Assembly-CSharp::Gridlock.Enemies.EnemyController
   moveSpeed: 3
 --- !u!114 &534131846976979409
 MonoBehaviour:
@@ -83,7 +83,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d975bf74c890d8f44b239c5231d2dae2, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AIWE.Enemies.EnemyHealth
+  m_EditorClassIdentifier: Assembly-CSharp::Gridlock.Enemies.EnemyHealth
   lootTable: {fileID: 0}
   pickupPrefab: {fileID: 0}
   deathAnimDuration: 2
@@ -98,7 +98,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6fbcf6a010bf0b64fb3bf260fc015718, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AIWE.Combat.StatusEffectManager
+  m_EditorClassIdentifier: Assembly-CSharp::Gridlock.Combat.StatusEffectManager
 --- !u!114 &1850341928324409245
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -110,7 +110,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0b6e56cf66ea477419e1701259a63e47, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AIWE.Enemies.EnemyHitFeedback
+  m_EditorClassIdentifier: Assembly-CSharp::Gridlock.Enemies.EnemyHitFeedback
   flashDuration: 0.1
   flashIntensity: 8
   damageTextPrefab: {fileID: 0}
@@ -127,7 +127,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4bf22a04e49dd15499809aad9709f4b4, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AIWE.AI.EnemyAI
+  m_EditorClassIdentifier: Assembly-CSharp::Gridlock.AI.EnemyAI
   waypointReachDistance: 1.5
 --- !u!1 &3395165169789545910
 GameObject:

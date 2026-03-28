@@ -1,11 +1,11 @@
 using System.Collections.Generic;
-using AIWE.NodeEditor.Data;
+using Gridlock.NodeEditor.Data;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace AIWE.Modules.Effects
+namespace Gridlock.Modules.Effects
 {
-    [CreateAssetMenu(menuName = "AIWE/Modules/Effect")]
+    [CreateAssetMenu(menuName = "Gridlock/Modules/Effect")]
     public class EffectDefinition : ModuleDefinition
     {
         [SerializeReference, ListDrawerSettings(ShowFoldout = true), InlineProperty]

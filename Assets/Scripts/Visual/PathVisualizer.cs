@@ -1,6 +1,6 @@
-using AIWE.AI;
-using AIWE.Core;
-using AIWE.Grid;
+using Gridlock.AI;
+using Gridlock.Core;
+using Gridlock.Grid;
 using UnityEngine;
 
 public class PathVisualizer : MonoBehaviour

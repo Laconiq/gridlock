@@ -2,9 +2,9 @@ using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace AIWE.Grid
+namespace Gridlock.Grid
 {
-    [CreateAssetMenu(menuName = "AIWE/Grid Definition")]
+    [CreateAssetMenu(menuName = "Gridlock/Grid Definition")]
     public class GridDefinition : ScriptableObject, ISerializationCallbackReceiver
     {
         [Header("Grid")]

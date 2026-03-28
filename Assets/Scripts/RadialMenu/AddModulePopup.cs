@@ -1,11 +1,11 @@
 using System;
-using AIWE.Modules;
-using AIWE.NodeEditor.Data;
-using AIWE.Player;
+using Gridlock.Modules;
+using Gridlock.NodeEditor.Data;
+using Gridlock.Player;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace AIWE.RadialMenu
+namespace Gridlock.RadialMenu
 {
     public class AddModulePopup
     {

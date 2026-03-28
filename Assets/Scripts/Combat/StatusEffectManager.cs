@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using AIWE.Interfaces;
+using Gridlock.Interfaces;
 using UnityEngine;
 
-namespace AIWE.Combat
+namespace Gridlock.Combat
 {
     public class StatusEffectManager : MonoBehaviour
     {

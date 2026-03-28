@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace AIWE.Modules
+namespace Gridlock.Modules
 {
-    [CreateAssetMenu(menuName = "AIWE/Module Registry")]
+    [CreateAssetMenu(menuName = "Gridlock/Module Registry")]
     public class ModuleRegistry : ScriptableObject
     {
         [SerializeField] private List<ModuleDefinition> allModules = new();

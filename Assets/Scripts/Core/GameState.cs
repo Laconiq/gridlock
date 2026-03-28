@@ -1,4 +1,4 @@
-namespace AIWE.Core
+namespace Gridlock.Core
 {
     public enum GameState
     {

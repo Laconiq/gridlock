@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace AIWE.UI
+namespace Gridlock.UI
 {
     public class GridBackground : VisualElement
     {

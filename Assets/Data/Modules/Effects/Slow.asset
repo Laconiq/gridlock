@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8d7c8f099edca454fa787de466c3812a, type: 3}
   m_Name: Slow
-  m_EditorClassIdentifier: Assembly-CSharp::AIWE.Modules.Effects.EffectDefinition
+  m_EditorClassIdentifier: Assembly-CSharp::Gridlock.Modules.Effects.EffectDefinition
   moduleId: slow
   displayName: Slow
   icon: {fileID: 21300000, guid: a248862cd5ac0554bbe508c9900e448b, type: 3}
@@ -24,7 +24,7 @@ MonoBehaviour:
     version: 2
     RefIds:
     - rid: 684771300558454791
-      type: {class: SlowEffect, ns: AIWE.Modules.Effects, asm: Assembly-CSharp}
+      type: {class: SlowEffect, ns: Gridlock.Modules.Effects, asm: Assembly-CSharp}
       data:
         slowFactor: 0.5
         duration: 3

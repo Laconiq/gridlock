@@ -1,8 +1,8 @@
-using AIWE.Core;
+using Gridlock.Core;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace AIWE.HUD
+namespace Gridlock.HUD
 {
     public class HUDWaveInfo
     {

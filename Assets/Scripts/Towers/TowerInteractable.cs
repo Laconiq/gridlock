@@ -1,9 +1,9 @@
-using AIWE.Interfaces;
-using AIWE.NodeEditor.UI;
-using AIWE.Player;
+using Gridlock.Interfaces;
+using Gridlock.NodeEditor.UI;
+using Gridlock.Player;
 using UnityEngine;
 
-namespace AIWE.Towers
+namespace Gridlock.Towers
 {
     [RequireComponent(typeof(TowerChassis))]
     public class TowerInteractable : MonoBehaviour, IInteractable

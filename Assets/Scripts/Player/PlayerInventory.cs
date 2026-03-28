@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using AIWE.Modules;
+using Gridlock.Modules;
 using UnityEngine;
 
-namespace AIWE.Player
+namespace Gridlock.Player
 {
     [Serializable]
     public struct ModuleSlot : IEquatable<ModuleSlot>

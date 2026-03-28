@@ -272,7 +272,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: aff05ac5ef6b8ce41bb1b3cf8d59f2d6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AIWE.Loot.ModulePickup
+  m_EditorClassIdentifier: Assembly-CSharp::Gridlock.Loot.ModulePickup
   rotationSpeed: 90
   bobAmplitude: 0.15
   bobFrequency: 2

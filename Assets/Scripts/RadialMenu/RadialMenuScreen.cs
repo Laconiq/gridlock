@@ -1,14 +1,14 @@
 using System.Collections.Generic;
-using AIWE.Interfaces;
-using AIWE.Modules;
-using AIWE.NodeEditor.Data;
-using AIWE.Player;
+using Gridlock.Interfaces;
+using Gridlock.Modules;
+using Gridlock.NodeEditor.Data;
+using Gridlock.Player;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace AIWE.RadialMenu
+namespace Gridlock.RadialMenu
 {
-    [AddComponentMenu("AIWE/UI/Radial Menu")]
+    [AddComponentMenu("Gridlock/UI/Radial Menu")]
     [RequireComponent(typeof(UIDocument))]
     public class RadialMenuScreen : MonoBehaviour
     {

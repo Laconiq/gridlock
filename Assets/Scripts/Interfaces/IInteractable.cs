@@ -1,4 +1,4 @@
-namespace AIWE.Interfaces
+namespace Gridlock.Interfaces
 {
     public interface IInteractable
     {

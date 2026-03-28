@@ -1,9 +1,9 @@
 using System.Collections;
-using AIWE.Interfaces;
+using Gridlock.Interfaces;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace AIWE.Player
+namespace Gridlock.Player
 {
     public class PlayerInteraction : MonoBehaviour
     {

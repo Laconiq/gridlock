@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using AIWE.Modules;
+using Gridlock.Modules;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace AIWE.Loot
+namespace Gridlock.Loot
 {
-    [CreateAssetMenu(menuName = "AIWE/Loot Table")]
+    [CreateAssetMenu(menuName = "Gridlock/Loot Table")]
     public class LootTable : ScriptableObject
     {
         [Serializable]

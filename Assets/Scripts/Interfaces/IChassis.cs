@@ -1,7 +1,7 @@
-using AIWE.NodeEditor.Data;
+using Gridlock.NodeEditor.Data;
 using UnityEngine;
 
-namespace AIWE.Interfaces
+namespace Gridlock.Interfaces
 {
     public interface IChassis
     {

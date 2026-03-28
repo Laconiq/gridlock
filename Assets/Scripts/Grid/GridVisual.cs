@@ -1,7 +1,7 @@
-using AIWE.Core;
+using Gridlock.Core;
 using UnityEngine;
 
-namespace AIWE.Grid
+namespace Gridlock.Grid
 {
     public class GridVisual : MonoBehaviour
     {

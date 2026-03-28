@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace AIWE.Core
+namespace Gridlock.Core
 {
     public static class ServiceLocator
     {

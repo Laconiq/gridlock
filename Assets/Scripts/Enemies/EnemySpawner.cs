@@ -1,11 +1,11 @@
 using System;
 using System.Collections;
-using AIWE.AI;
-using AIWE.Core;
-using AIWE.Grid;
+using Gridlock.AI;
+using Gridlock.Core;
+using Gridlock.Grid;
 using UnityEngine;
 
-namespace AIWE.Enemies
+namespace Gridlock.Enemies
 {
     public class EnemySpawner : MonoBehaviour
     {

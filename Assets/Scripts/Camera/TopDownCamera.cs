@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace AIWE.CameraSystem
+namespace Gridlock.CameraSystem
 {
     public class TopDownCamera : MonoBehaviour
     {

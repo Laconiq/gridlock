@@ -1,12 +1,12 @@
 using System.Collections.Generic;
-using AIWE.Interfaces;
-using AIWE.Modules.Effects;
-using AIWE.Modules.Triggers;
-using AIWE.Modules.Zones;
-using AIWE.NodeEditor.Data;
+using Gridlock.Interfaces;
+using Gridlock.Modules.Effects;
+using Gridlock.Modules.Triggers;
+using Gridlock.Modules.Zones;
+using Gridlock.NodeEditor.Data;
 using UnityEngine;
 
-namespace AIWE.Modules
+namespace Gridlock.Modules
 {
     public class TriggerChain
     {

@@ -1,11 +1,11 @@
-using AIWE.Core;
-using AIWE.UI;
+using Gridlock.Core;
+using Gridlock.UI;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace AIWE.HUD
+namespace Gridlock.HUD
 {
-    [AddComponentMenu("AIWE/UI/Game Over Screen")]
+    [AddComponentMenu("Gridlock/UI/Game Over Screen")]
     [RequireComponent(typeof(UIDocument))]
     public class GameOverScreen : MonoBehaviour
     {

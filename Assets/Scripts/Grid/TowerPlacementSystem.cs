@@ -1,14 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
-using AIWE.Core;
-using AIWE.Interfaces;
-using AIWE.NodeEditor.Data;
-using AIWE.Towers;
+using Gridlock.Core;
+using Gridlock.Interfaces;
+using Gridlock.NodeEditor.Data;
+using Gridlock.Towers;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
-namespace AIWE.Grid
+namespace Gridlock.Grid
 {
     public class TowerPlacementSystem : MonoBehaviour
     {

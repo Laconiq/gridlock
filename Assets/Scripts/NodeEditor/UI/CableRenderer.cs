@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace AIWE.NodeEditor.UI
+namespace Gridlock.NodeEditor.UI
 {
     public class CableRenderer : VisualElement
     {

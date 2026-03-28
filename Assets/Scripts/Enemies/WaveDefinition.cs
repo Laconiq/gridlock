@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace AIWE.Enemies
+namespace Gridlock.Enemies
 {
-    [CreateAssetMenu(menuName = "AIWE/Wave Definition")]
+    [CreateAssetMenu(menuName = "Gridlock/Wave Definition")]
     public class WaveDefinition : ScriptableObject
     {
         [Serializable]

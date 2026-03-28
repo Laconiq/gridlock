@@ -1,11 +1,11 @@
 using System.Collections.Generic;
-using AIWE.NodeEditor.Data;
+using Gridlock.NodeEditor.Data;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace AIWE.Modules.Triggers
+namespace Gridlock.Modules.Triggers
 {
-    [CreateAssetMenu(menuName = "AIWE/Modules/Trigger")]
+    [CreateAssetMenu(menuName = "Gridlock/Modules/Trigger")]
     public class TriggerDefinition : ModuleDefinition
     {
         [SerializeReference, ListDrawerSettings(ShowFoldout = true), InlineProperty]

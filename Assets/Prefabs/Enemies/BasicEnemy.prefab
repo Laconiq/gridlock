@@ -86,7 +86,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dad8f557ef69e4d49ba803a4534aa9d5, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AIWE.Visual.VoxelDeathEffect
+  m_EditorClassIdentifier: Assembly-CSharp::Gridlock.Visual.VoxelDeathEffect
   voxelSize: 0.07
   explosionForce: 3
   voxelLifetime: 1.2

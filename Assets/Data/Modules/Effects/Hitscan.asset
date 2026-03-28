@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8d7c8f099edca454fa787de466c3812a, type: 3}
   m_Name: Hitscan
-  m_EditorClassIdentifier: Assembly-CSharp::AIWE.Modules.Effects.EffectDefinition
+  m_EditorClassIdentifier: Assembly-CSharp::Gridlock.Modules.Effects.EffectDefinition
   moduleId: hitscan
   displayName: Hitscan
   icon: {fileID: 21300000, guid: 5b027040907535249b9e0a4c747f9c44, type: 3}
@@ -24,6 +24,6 @@ MonoBehaviour:
     version: 2
     RefIds:
     - rid: 684771300558454790
-      type: {class: HitscanEffect, ns: AIWE.Modules.Effects, asm: Assembly-CSharp}
+      type: {class: HitscanEffect, ns: Gridlock.Modules.Effects, asm: Assembly-CSharp}
       data:
         damage: 20

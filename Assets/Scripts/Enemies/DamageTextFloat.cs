@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace AIWE.Enemies
+namespace Gridlock.Enemies
 {
     public class DamageTextFloat : MonoBehaviour
     {

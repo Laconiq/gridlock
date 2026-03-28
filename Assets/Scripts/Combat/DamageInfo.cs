@@ -1,4 +1,4 @@
-namespace AIWE.Combat
+namespace Gridlock.Combat
 {
     public struct DamageInfo
     {

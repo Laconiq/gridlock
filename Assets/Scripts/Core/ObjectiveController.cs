@@ -1,10 +1,10 @@
 using System;
-using AIWE.Combat;
-using AIWE.Grid;
-using AIWE.Interfaces;
+using Gridlock.Combat;
+using Gridlock.Grid;
+using Gridlock.Interfaces;
 using UnityEngine;
 
-namespace AIWE.Core
+namespace Gridlock.Core
 {
     public class ObjectiveController : MonoBehaviour, IDamageable
     {

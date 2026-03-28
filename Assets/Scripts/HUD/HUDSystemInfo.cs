@@ -1,10 +1,10 @@
-using AIWE.Core;
-using AIWE.NodeEditor.UI;
-using AIWE.Player;
+using Gridlock.Core;
+using Gridlock.NodeEditor.UI;
+using Gridlock.Player;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace AIWE.HUD
+namespace Gridlock.HUD
 {
     public class HUDSystemInfo
     {

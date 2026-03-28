@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using AIWE.Interfaces;
+using Gridlock.Interfaces;
 using UnityEngine;
 
-namespace AIWE.Modules.Zones
+namespace Gridlock.Modules.Zones
 {
     [Serializable]
     public class SelfTargetZone : ZoneInstance

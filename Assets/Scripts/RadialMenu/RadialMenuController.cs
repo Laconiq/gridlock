@@ -1,10 +1,10 @@
-using AIWE.NodeEditor.UI;
-using AIWE.Player;
-using AIWE.Towers;
+using Gridlock.NodeEditor.UI;
+using Gridlock.Player;
+using Gridlock.Towers;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace AIWE.RadialMenu
+namespace Gridlock.RadialMenu
 {
     public class RadialMenuController : MonoBehaviour
     {

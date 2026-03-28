@@ -1,7 +1,7 @@
-using AIWE.Player;
+using Gridlock.Player;
 using UnityEngine;
 
-namespace AIWE.Core
+namespace Gridlock.Core
 {
     public class SimpleGameBootstrap : MonoBehaviour
     {

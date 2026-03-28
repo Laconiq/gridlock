@@ -1,11 +1,11 @@
-using AIWE.Interfaces;
-using AIWE.Modules;
-using AIWE.NodeEditor.Data;
-using AIWE.Player;
+using Gridlock.Interfaces;
+using Gridlock.Modules;
+using Gridlock.NodeEditor.Data;
+using Gridlock.Player;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace AIWE.NodeEditor.UI
+namespace Gridlock.NodeEditor.UI
 {
     [RequireComponent(typeof(UIDocument))]
     public class NodeEditorScreen : MonoBehaviour

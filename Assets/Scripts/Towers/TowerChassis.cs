@@ -1,8 +1,8 @@
-using AIWE.Interfaces;
-using AIWE.NodeEditor.Data;
+using Gridlock.Interfaces;
+using Gridlock.NodeEditor.Data;
 using UnityEngine;
 
-namespace AIWE.Towers
+namespace Gridlock.Towers
 {
     public class TowerChassis : MonoBehaviour, IChassis
     {

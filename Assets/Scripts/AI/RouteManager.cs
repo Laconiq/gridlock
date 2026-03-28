@@ -1,8 +1,8 @@
-using AIWE.Core;
-using AIWE.Grid;
+using Gridlock.Core;
+using Gridlock.Grid;
 using UnityEngine;
 
-namespace AIWE.AI
+namespace Gridlock.AI
 {
     public class RouteManager : MonoBehaviour
     {

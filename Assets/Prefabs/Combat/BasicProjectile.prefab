@@ -68,7 +68,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f44c34dbac724ac4599302e30a2fd4ac, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AIWE.Combat.Projectile
+  m_EditorClassIdentifier: Assembly-CSharp::Gridlock.Combat.Projectile
   maxLifetime: 5
 --- !u!96 &8039293914760116423
 TrailRenderer:

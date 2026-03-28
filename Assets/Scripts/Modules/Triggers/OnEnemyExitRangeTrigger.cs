@@ -1,8 +1,8 @@
 using System;
-using AIWE.Interfaces;
+using Gridlock.Interfaces;
 using UnityEngine;
 
-namespace AIWE.Modules.Triggers
+namespace Gridlock.Modules.Triggers
 {
     [Serializable]
     public class OnEnemyExitRangeTrigger : TriggerInstance

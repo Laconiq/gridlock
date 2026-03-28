@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace AIWE.NodeEditor.UI
+namespace Gridlock.NodeEditor.UI
 {
     public static class DesignConstants
     {

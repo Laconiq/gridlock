@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-AIWE is an **isometric grid-based Tower Defense** built in Unity 6 (6000.3.10f1) with URP. The player defends an objective against enemy waves by placing up to 5 towers anywhere on the grid and configuring them via a visual node editor. Isometric orthographic camera (30° pitch, 45° yaw). Enemies are tetrahedrons that follow predefined paths on the grid (classic TD — no AI targeting/chasing). Towers are cubes with default URP/Lit material. Neon aesthetic with Geometry Wars-style grid deformation, bloom, screen shake, and chromatic aberration.
+Gridlock is an **isometric grid-based Tower Defense** built in Unity 6 (6000.3.10f1) with URP. The player defends an objective against enemy waves by placing up to 5 towers anywhere on the grid and configuring them via a visual node editor. Isometric orthographic camera (30° pitch, 45° yaw). Enemies are tetrahedrons that follow predefined paths on the grid (classic TD — no AI targeting/chasing). Towers are cubes with default URP/Lit material. Neon aesthetic with Geometry Wars-style grid deformation, bloom, screen shake, and chromatic aberration.
 
 ## Stack & Tools
 
@@ -306,7 +306,7 @@ Enemies drop `ModulePickup` on death. Pickups have a magnet behavior: after a sh
 
 ## Editor Tools
 
-These are `#if UNITY_EDITOR` menu items under `AIWE/`:
+These are `#if UNITY_EDITOR` menu items under `Gridlock/`:
 - **Create Test Grid Level** — Generates a 24x14 GridDefinition SO with S-path and tower slots
 - **Bake Meshes into Prefabs** — Assigns Tetrahedron/Cube/Sphere meshes + Default-Lit material to enemy/tower/projectile prefabs (uses `GetComponentInChildren`)
 - **Fix Tower Prefab References** — Links ChassisDefinition, FirePoint, ModuleRegistry on tower prefab
