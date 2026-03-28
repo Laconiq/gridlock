@@ -15,11 +15,6 @@ public static class FixTowerPrefab
         {
             var so = new SerializedObject(chassis);
 
-            var defProp = so.FindProperty("definition");
-            var defAsset = AssetDatabase.LoadAssetAtPath<Gridlock.Towers.ChassisDefinition>("Assets/Data/Chassis/Sentinelle.asset");
-            if (defAsset != null)
-                defProp.objectReferenceValue = defAsset;
-
             var fpProp = so.FindProperty("firePoint");
             var fp = contents.transform.Find("FirePoint");
             if (fp != null)
@@ -41,7 +36,7 @@ public static class FixTowerPrefab
 
         PrefabUtility.SaveAsPrefabAsset(contents, path);
         PrefabUtility.UnloadPrefabContents(contents);
-        Debug.Log("[FixTowerPrefab] Assigned ChassisDefinition, FirePoint, ModuleRegistry");
+        Debug.Log("[FixTowerPrefab] Assigned FirePoint, ModuleRegistry");
     }
 }
 #endif

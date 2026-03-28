@@ -800,7 +800,7 @@ MonoBehaviour:
   maxTowers: 5
   towerLayerMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 55
 --- !u!114 &725435684
 MonoBehaviour:
   m_ObjectHideFlags: 0

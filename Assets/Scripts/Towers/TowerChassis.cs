@@ -6,16 +6,16 @@ namespace Gridlock.Towers
 {
     public class TowerChassis : MonoBehaviour, IChassis
     {
-        [SerializeField] private ChassisDefinition definition;
+        [SerializeField] private int maxTriggers = 3;
+        [SerializeField] private float baseRange = 10f;
         [SerializeField] private Transform firePoint;
 
         private string _serializedGraph;
         private NodeGraphData _cachedGraph;
 
-        public ChassisDefinition Definition => definition;
-        public int MaxTriggers => definition != null ? definition.maxTriggers : 1;
+        public int MaxTriggers => maxTriggers;
         public Transform FirePoint => firePoint;
-        public float BaseRange => definition != null ? definition.baseRange : 10f;
+        public float BaseRange => baseRange;
 
         private void Start()
         {

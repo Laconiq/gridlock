@@ -181,7 +181,7 @@ Trigger (WHEN) ──► Zone (WHERE/WHO) ──► Effect (WHAT)
 3. Builds `TriggerChain → ZoneChain → List<EffectInstance>` tree (max depth 8)
 4. Each frame, triggers tick. On fire → zones select targets → effects execute on targets
 
-**Tower prefab requirements:** `TowerChassis` needs `definition` (ChassisDefinition SO) and `firePoint` (child Transform). `TowerExecutor` needs `moduleRegistry` (ModuleRegistry SO). These are baked into the prefab via `FixTowerPrefab` editor tool.
+**Tower prefab requirements:** `TowerChassis` has `maxTriggers` and `baseRange` as `[SerializeField]` fields, plus `firePoint` (child Transform). `TowerExecutor` needs `moduleRegistry` (ModuleRegistry SO). These are baked into the prefab via `FixTowerPrefab` editor tool.
 
 ### Tower interaction flow
 
@@ -276,7 +276,7 @@ Enemies drop `ModulePickup` on death. Pickups have a magnet behavior: after a sh
 - `Assets/Scenes/GameScene.unity` — Main game scene (build index 0)
 - `Assets/Data/Modules/` — Module definition SOs (Triggers/, Zones/, Effects/)
 - `Assets/Data/ModuleRegistry.asset` — Registry referencing all module definitions
-- `Assets/Data/Chassis/Sentinelle.asset` — Default tower ChassisDefinition
+- `Assets/Scripts/Towers/TowerChassis.cs` — Tower config (maxTriggers, baseRange, node graph)
 - `Assets/Data/DefaultLoadout.asset` — Starter module kit given to players on spawn
 - `Assets/Scripts/Camera/CameraSetup.cs` — Isometric camera setup (30°, 45°)
 - `Assets/Scripts/Camera/TopDownCamera.cs` — Camera pan/zoom with New Input System
@@ -309,7 +309,7 @@ Enemies drop `ModulePickup` on death. Pickups have a magnet behavior: after a sh
 These are `#if UNITY_EDITOR` menu items under `Gridlock/`:
 - **Create Test Grid Level** — Generates a 24x14 GridDefinition SO with S-path and tower slots
 - **Bake Meshes into Prefabs** — Assigns Tetrahedron/Cube/Sphere meshes + Default-Lit material to enemy/tower/projectile prefabs (uses `GetComponentInChildren`)
-- **Fix Tower Prefab References** — Links ChassisDefinition, FirePoint, ModuleRegistry on tower prefab
+- **Fix Tower Prefab References** — Links FirePoint, ModuleRegistry on tower prefab
 - **Assign Default Material to Prefabs** — Sets Unity's default URP/Lit material on all gameplay prefabs (uses `GetComponentInChildren`)
 
 ## Removed Systems
