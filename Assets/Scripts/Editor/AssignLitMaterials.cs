@@ -12,7 +12,7 @@ public static class AssignLitMaterials
         var defaultMat = tempCube.GetComponent<MeshRenderer>().sharedMaterial;
         Object.DestroyImmediate(tempCube);
 
-        AssignToPrefab("Assets/Prefabs/Enemies/BasicEnemy.prefab", defaultMat);
+        AssignToPrefab("Assets/Prefabs/Enemies/Enemy.prefab", defaultMat);
         AssignToPrefab("Assets/Prefabs/Towers/TowerPrefab.prefab", defaultMat);
         AssignToPrefab("Assets/Prefabs/Combat/BasicProjectile.prefab", defaultMat);
 

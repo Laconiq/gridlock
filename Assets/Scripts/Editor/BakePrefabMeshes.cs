@@ -20,7 +20,7 @@ public static class BakePrefabMeshes
         var mesh = GetOrCreateMesh("Assets/Meshes/Tetrahedron.asset", CreateTetrahedron);
         var defaultMat = GetDefaultLitMaterial();
 
-        string path = "Assets/Prefabs/Enemies/BasicEnemy.prefab";
+        string path = "Assets/Prefabs/Enemies/Enemy.prefab";
         var contents = PrefabUtility.LoadPrefabContents(path);
 
         var mf = contents.GetComponent<MeshFilter>();

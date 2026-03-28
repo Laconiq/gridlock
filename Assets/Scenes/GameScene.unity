@@ -334,7 +334,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1aab556ed6c6e9a42b1775411b1ba306, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AIWE.Enemies.EnemySpawner
-  enemyPrefab: {fileID: 2552856530296388220, guid: f14ee77fe58bcea43abac29152e482df, type: 3}
+  enemyPrefab: {fileID: 2680337931059742813, guid: f14ee77fe58bcea43abac29152e482df, type: 3}
 --- !u!114 &31284985
 MonoBehaviour:
   m_ObjectHideFlags: 0
