@@ -20,15 +20,14 @@ namespace AIWE.CameraSystem
 
         private Camera _camera;
         private Controls _controls;
-        private Quaternion _yawRotation;
+        private Vector3 _camRight;
+        private Vector3 _camUp;
         private bool _isPanning;
         private float _targetSize;
 
         private void Awake()
         {
             _camera = GetComponent<Camera>();
-            _yawRotation = Quaternion.Euler(0f, transform.eulerAngles.y, 0f);
-
             _controls = new Controls();
         }
 
@@ -72,7 +71,10 @@ namespace AIWE.CameraSystem
             var delta = _controls.Player.CameraDelta.ReadValue<Vector2>();
             if (delta.sqrMagnitude < 0.01f) return;
 
-            var move = _yawRotation * new Vector3(-delta.x, 0f, -delta.y) * (dragSpeed * _camera.orthographicSize * Time.deltaTime);
+            var right = transform.right;
+            var up = Vector3.Cross(right, Vector3.up).normalized;
+
+            var move = (-delta.x * right - delta.y * up) * (dragSpeed * _camera.orthographicSize * Time.deltaTime);
             transform.position += move;
         }
 
