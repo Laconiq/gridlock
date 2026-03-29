@@ -858,7 +858,7 @@ MonoBehaviour:
     m_Bits: 55
   validPlacementColor: {r: 0.2, g: 1, b: 0.5, a: 1}
   invalidPlacementColor: {r: 1, g: 0.2, b: 0.2, a: 1}
-  defaultPreset: {fileID: 11400000, guid: 3668e10acfbcb5c4c9b574ed4e827248, type: 2}
+  defaultPreset: {fileID: 0}
 --- !u!114 &725435684
 MonoBehaviour:
   m_ObjectHideFlags: 0

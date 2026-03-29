@@ -3,6 +3,7 @@ using Gridlock.Core;
 using Gridlock.Enemies;
 using Gridlock.Grid;
 using Gridlock.Interfaces;
+using Gridlock.Mods.Pipeline;
 using Gridlock.Towers;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -25,7 +26,8 @@ namespace Gridlock.Mods
         private readonly List<SynergyEffect> _activeSynergies = new();
         private GridManager _gridManager;
 
-        private ProjectileConfig _cachedConfig;
+        private ModPipeline _cachedPipeline;
+        private ModContext _cachedBaseCtx;
         private bool _configDirty = true;
 
         public List<ModSlotData> ModSlots => modSlots;
@@ -50,16 +52,14 @@ namespace Gridlock.Mods
 
             if (_configDirty)
             {
-                _cachedConfig = ChainCompiler.Compile(modSlots, _chassis.BaseDamage, _activeSynergies);
+                (_cachedPipeline, _cachedBaseCtx) = PipelineCompiler.Compile(modSlots, _chassis.BaseDamage, _activeSynergies);
                 _configDirty = false;
             }
 
             float fireRate = Mathf.Clamp(_chassis.FireRate, minFireRate, maxFireRate);
 
             if (_activeSynergies.Contains(SynergyEffect.Machinegun))
-                fireRate *= 2f;
-
-            fireRate = Mathf.Min(fireRate, maxFireRate);
+                fireRate = Mathf.Min(fireRate * 2f, maxFireRate);
 
             float interval = 1f / fireRate;
             _fireTimer += Time.deltaTime;
@@ -68,9 +68,8 @@ namespace Gridlock.Mods
             var target = SelectTarget();
             if (target == null) return;
 
-            _fireTimer -= interval;
-
-            SpawnProjectile(_cachedConfig, target);
+            _fireTimer = 0f;
+            SpawnProjectile(target);
         }
 
         public void ApplyPreset(ModSlotPreset newPreset)
@@ -113,7 +112,6 @@ namespace Gridlock.Mods
                 if (distSq > rangeSq) continue;
 
                 float score = EvaluateTarget(entry, distSq);
-
                 if (score < bestScore)
                 {
                     bestScore = score;
@@ -127,78 +125,32 @@ namespace Gridlock.Mods
 
         private float EvaluateTarget(EnemyEntry entry, float distSqToTower)
         {
-            switch (targetingMode)
+            return targetingMode switch
             {
-                case TargetingMode.First:
-                    return EvaluateFirst(entry);
-
-                case TargetingMode.Last:
-                    return -EvaluateFirst(entry);
-
-                case TargetingMode.Nearest:
-                    return distSqToTower;
-
-                case TargetingMode.Strongest:
-                    return entry.Health != null ? -entry.Health.CurrentHP : 0f;
-
-                case TargetingMode.Weakest:
-                    return entry.Health != null ? entry.Health.CurrentHP : float.MaxValue;
-
-                default:
-                    return distSqToTower;
-            }
+                TargetingMode.First => -entry.Controller.RouteIndex,
+                TargetingMode.Last => entry.Controller.RouteIndex,
+                TargetingMode.Nearest => distSqToTower,
+                TargetingMode.Strongest => entry.Health != null ? -entry.Health.CurrentHP : 0f,
+                TargetingMode.Weakest => entry.Health != null ? entry.Health.CurrentHP : float.MaxValue,
+                _ => distSqToTower
+            };
         }
 
-        private float EvaluateFirst(EnemyEntry entry)
-        {
-            return -entry.Controller.RouteIndex;
-        }
-
-        [SerializeField] private float splitArcDegrees = 30f;
-
-        private void SpawnProjectile(ProjectileConfig config, ITargetable target)
+        private void SpawnProjectile(ITargetable target)
         {
             if (projectilePrefab == null) return;
 
             Transform fp = _chassis.FirePoint != null ? _chassis.FirePoint : transform;
             Vector3 spawnPos = fp.position;
+            spawnPos.y = 0.5f;
 
-            var singleConfig = config.DeepCopy();
-            singleConfig.split = false;
+            var go = Instantiate(projectilePrefab, spawnPos, Quaternion.identity);
+            var proj = go.GetComponent<ModProjectile>();
+            if (proj == null) return;
 
-            if (config.split)
-            {
-                int count = config.splitCount;
-                if (_activeSynergies.Contains(SynergyEffect.Barrage))
-                    count = 5;
-
-                Vector3 baseDir = (target.Position - spawnPos).normalized;
-                if (baseDir.sqrMagnitude < 0.001f) baseDir = fp.forward;
-
-                float startAngle = -splitArcDegrees / 2f;
-                float step = count > 1 ? splitArcDegrees / (count - 1) : 0f;
-
-                for (int i = 0; i < count; i++)
-                {
-                    float angle = startAngle + step * i;
-                    var dir = Quaternion.AngleAxis(angle, Vector3.up) * baseDir;
-
-                    var go = Instantiate(projectilePrefab, spawnPos, Quaternion.LookRotation(dir));
-                    var proj = go.GetComponent<ModProjectile>();
-                    if (proj != null)
-                    {
-                        proj.Initialize(singleConfig, target, spawnPos, _activeSynergies);
-                        proj.OverrideDirection(dir);
-                    }
-                }
-            }
-            else
-            {
-                var go = Instantiate(projectilePrefab, spawnPos, Quaternion.identity);
-                var proj = go.GetComponent<ModProjectile>();
-                if (proj != null)
-                    proj.Initialize(singleConfig, target, spawnPos, _activeSynergies);
-            }
+            var pipeline = _cachedPipeline.Clone();
+            var ctx = _cachedBaseCtx.CloneForSub(1f);
+            proj.Initialize(pipeline, ctx, target, spawnPos);
         }
     }
 }
