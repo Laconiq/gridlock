@@ -16,9 +16,9 @@ namespace Gridlock.Enemies
 
         private EnemyHealth _health;
         private MeshRenderer _renderer;
+        private Material _materialInstance;
         private Color _baseEmission;
         private float _flashTimer;
-        private bool _emissionCached;
 
         private static readonly int EmissionColor = Shader.PropertyToID("_EmissionColor");
 
@@ -32,38 +32,38 @@ namespace Gridlock.Enemies
         {
             if (_health != null)
             {
-                _health._currentHPChanged += OnHPChanged;
+                _health.CurrentHPChanged += OnHPChanged;
                 _health.OnDeath += OnDeath;
             }
 
+            if (_renderer != null)
+            {
+                _materialInstance = _renderer.material;
+                if (_materialInstance.HasColor(EmissionColor))
+                    _baseEmission = _materialInstance.GetColor(EmissionColor);
+            }
         }
 
         private void OnDisable()
         {
             if (_health != null)
             {
-                _health._currentHPChanged -= OnHPChanged;
+                _health.CurrentHPChanged -= OnHPChanged;
                 _health.OnDeath -= OnDeath;
             }
         }
 
         private void Update()
         {
-            if (!_emissionCached && _renderer != null && _renderer.material.HasColor(EmissionColor))
-            {
-                _baseEmission = _renderer.material.GetColor(EmissionColor);
-                _emissionCached = true;
-            }
-
             if (_flashTimer <= 0f) return;
 
             _flashTimer -= Time.deltaTime;
             float t = Mathf.Clamp01(_flashTimer / flashDuration);
 
-            if (_renderer != null && _renderer.material.HasColor(EmissionColor))
+            if (_materialInstance != null && _materialInstance.HasColor(EmissionColor))
             {
                 var col = Color.Lerp(_baseEmission, Color.white * flashIntensity, t);
-                _renderer.material.SetColor(EmissionColor, col);
+                _materialInstance.SetColor(EmissionColor, col);
             }
         }
 
@@ -75,8 +75,8 @@ namespace Gridlock.Enemies
 
         private void OnDeath()
         {
-            if (_renderer != null && _renderer.material.HasColor(EmissionColor))
-                _renderer.material.SetColor(EmissionColor, Color.white * flashIntensity * 2f);
+            if (_materialInstance != null && _materialInstance.HasColor(EmissionColor))
+                _materialInstance.SetColor(EmissionColor, Color.white * flashIntensity * 2f);
         }
 
         private void SpawnDamageText(float damage)

@@ -31,9 +31,11 @@ namespace Gridlock.Modules
             List<ZoneChain> zoneChains,
             ModuleRegistry registry,
             IChassis chassis,
-            int depth = 0)
+            int depth = 0,
+            HashSet<string> visited = null)
         {
             if (depth >= MaxChainDepth) return;
+            visited ??= new HashSet<string>();
 
             foreach (var conn in graph.connections)
             {
@@ -41,6 +43,7 @@ namespace Gridlock.Modules
 
                 var targetNode = graph.nodes.Find(n => n.nodeId == conn.toNodeId);
                 if (targetNode == null) continue;
+                if (!visited.Add(targetNode.nodeId)) continue;
 
                 if (targetNode.category == ModuleCategory.Zone)
                 {
@@ -51,8 +54,8 @@ namespace Gridlock.Modules
                     if (zones.Count == 0) continue;
 
                     var zoneChain = new ZoneChain { Zone = zones[0] };
-                    CollectEffects(graph, targetNode.nodeId, zoneChain.Effects, registry, chassis);
-                    BuildZoneChains(graph, targetNode.nodeId, zoneChain.ChainedZones, registry, chassis, depth + 1);
+                    CollectEffects(graph, targetNode.nodeId, zoneChain.Effects, registry, chassis, 0, visited);
+                    BuildZoneChains(graph, targetNode.nodeId, zoneChain.ChainedZones, registry, chassis, depth + 1, visited);
                     zoneChains.Add(zoneChain);
                 }
             }
@@ -64,22 +67,25 @@ namespace Gridlock.Modules
             List<EffectInstance> effects,
             ModuleRegistry registry,
             IChassis chassis,
-            int depth = 0)
+            int depth = 0,
+            HashSet<string> visited = null)
         {
             if (depth >= MaxChainDepth) return;
+            visited ??= new HashSet<string>();
 
             foreach (var conn in graph.connections)
             {
                 if (conn.fromNodeId != fromNodeId) continue;
                 var effNode = graph.nodes.Find(n => n.nodeId == conn.toNodeId);
                 if (effNode?.category != ModuleCategory.Effect) continue;
+                if (!visited.Add(effNode.nodeId)) continue;
 
                 var effDef = registry.GetById(effNode.moduleDefId) as EffectDefinition;
                 if (effDef == null) continue;
 
                 var effInstances = ModuleFactory.CreateEffects(effDef, chassis);
                 effects.AddRange(effInstances);
-                CollectEffects(graph, effNode.nodeId, effects, registry, chassis, depth + 1);
+                CollectEffects(graph, effNode.nodeId, effects, registry, chassis, depth + 1, visited);
             }
         }
 

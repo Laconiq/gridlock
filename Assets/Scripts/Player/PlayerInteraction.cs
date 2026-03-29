@@ -81,7 +81,7 @@ namespace Gridlock.Player
 
             IInteractable found = null;
 
-            var mousePos = Mouse.current.position.ReadValue();
+            var mousePos = _controls.Player.PointerPosition.ReadValue<Vector2>();
             var ray = cam.ScreenPointToRay(mousePos);
 
             if (Physics.Raycast(ray, out var hit, 1000f, interactionMask))

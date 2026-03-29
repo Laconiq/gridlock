@@ -25,6 +25,8 @@ namespace Gridlock.Modules
             {
                 if (mod != null && !string.IsNullOrEmpty(mod.moduleId))
                 {
+                    if (_lookup.ContainsKey(mod.moduleId))
+                        Debug.LogWarning($"[ModuleRegistry] Duplicate moduleId '{mod.moduleId}' — overwriting");
                     _lookup[mod.moduleId] = mod;
                 }
             }

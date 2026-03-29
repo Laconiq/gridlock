@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Gridlock.Interfaces;
 using Gridlock.Modules;
@@ -13,6 +14,7 @@ namespace Gridlock.Towers
 
         private IChassis _chassis;
         private readonly List<TriggerChain> _triggerChains = new();
+        private readonly List<(TriggerInstance trigger, Action handler)> _triggerSubscriptions = new();
         private bool _initialized;
 
         private void Start()
@@ -31,6 +33,9 @@ namespace Gridlock.Towers
 
         private void ClearChains()
         {
+            foreach (var (trigger, handler) in _triggerSubscriptions)
+                trigger.OnTriggered -= handler;
+            _triggerSubscriptions.Clear();
             _triggerChains.Clear();
             _initialized = false;
         }
@@ -56,7 +61,9 @@ namespace Gridlock.Towers
                 {
                     var chain = new TriggerChain { Trigger = triggerInstance };
                     ChainBuilder.BuildZoneChains(graph, node.nodeId, chain.ZoneChains, moduleRegistry, _chassis);
-                    chain.Trigger.OnTriggered += () => ExecuteChain(chain);
+                    Action handler = () => ExecuteChain(chain);
+                    chain.Trigger.OnTriggered += handler;
+                    _triggerSubscriptions.Add((triggerInstance, handler));
                     _triggerChains.Add(chain);
                 }
             }

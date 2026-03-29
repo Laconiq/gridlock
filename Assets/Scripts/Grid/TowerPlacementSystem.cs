@@ -15,6 +15,8 @@ namespace Gridlock.Grid
         [SerializeField] private GameObject towerPrefab;
         [SerializeField] private int maxTowers = 5;
         [SerializeField] private LayerMask towerLayerMask = ~0;
+        [SerializeField] private Color validPlacementColor = new(0.2f, 1f, 0.5f, 1f);
+        [SerializeField] private Color invalidPlacementColor = new(1f, 0.2f, 0.2f, 1f);
 
         private GridManager _gridManager;
         private Camera _camera;
@@ -131,9 +133,7 @@ namespace Gridlock.Grid
             snapPos.y = 0.3f;
             _preview.transform.position = snapPos;
 
-            _previewRenderer.material.color = valid
-                ? new Color(0.2f, 1f, 0.5f, 1f)
-                : new Color(1f, 0.2f, 0.2f, 1f);
+            _previewRenderer.material.color = valid ? validPlacementColor : invalidPlacementColor;
         }
 
         private void TryPlaceTower(Ray ray)

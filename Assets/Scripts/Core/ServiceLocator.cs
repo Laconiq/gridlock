@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Gridlock.Core
 {
@@ -9,6 +10,8 @@ namespace Gridlock.Core
 
         public static void Register<T>(T service) where T : class
         {
+            if (_services.ContainsKey(typeof(T)))
+                Debug.LogWarning($"[ServiceLocator] Overwriting {typeof(T).Name}");
             _services[typeof(T)] = service;
         }
 

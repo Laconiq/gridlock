@@ -16,7 +16,7 @@ namespace Gridlock.Player
             return ModuleId == other.ModuleId && Count == other.Count;
         }
 
-        public override int GetHashCode() => ModuleId?.GetHashCode() ?? 0;
+        public override int GetHashCode() => System.HashCode.Combine(ModuleId, Count);
     }
 
     public class PlayerInventory : MonoBehaviour

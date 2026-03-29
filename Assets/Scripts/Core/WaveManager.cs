@@ -41,6 +41,12 @@ namespace Gridlock.Core
             var gm = GameManager.Instance;
             if (gm != null)
                 gm.OnStateChanged -= OnGameStateChanged;
+
+            if (spawner != null)
+            {
+                spawner.OnEnemyDespawned -= HandleEnemyDespawned;
+                spawner.OnSpawningComplete -= HandleSpawningComplete;
+            }
         }
 
         private void OnGameStateChanged(GameState prev, GameState current)
@@ -55,7 +61,12 @@ namespace Gridlock.Core
 
             var waveIndex = _currentWave % waves.Count;
             var wave = waves[waveIndex];
-            if (wave.entries == null || wave.entries.Count == 0) return;
+            if (wave.entries == null || wave.entries.Count == 0)
+            {
+                Debug.LogError($"[WaveManager] Wave {_currentWave} has no entries — returning to Preparing");
+                GameManager.Instance?.SetState(GameState.Preparing);
+                return;
+            }
             var total = wave.entries.Sum(e => e.count);
 
             _aliveCount = total;

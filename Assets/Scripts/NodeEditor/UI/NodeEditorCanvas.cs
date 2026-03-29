@@ -157,7 +157,9 @@ namespace Gridlock.NodeEditor.UI
 
             if (nodeData.category == ModuleCategory.Trigger)
             {
-                int triggerCount = _graph.nodes.FindAll(n => n.category == ModuleCategory.Trigger).Count;
+                int triggerCount = 0;
+                foreach (var n in _graph.nodes)
+                    if (n.category == ModuleCategory.Trigger) triggerCount++;
                 if (triggerCount >= _maxTriggers)
                 {
                     Debug.LogWarning($"[NodeEditor] Max triggers ({_maxTriggers}) reached");

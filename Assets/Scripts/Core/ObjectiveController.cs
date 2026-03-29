@@ -35,7 +35,7 @@ namespace Gridlock.Core
             ServiceLocator.Register(this);
 
             var gridManager = ServiceLocator.Get<GridManager>();
-            _maxHP = gridManager != null ? gridManager.Definition.ObjectiveHP : defaultHP;
+            _maxHP = gridManager?.Definition != null ? gridManager.Definition.ObjectiveHP : defaultHP;
         }
 
         private void Start()
@@ -57,6 +57,12 @@ namespace Gridlock.Core
         public void ResetHP()
         {
             SetHP(_maxHP);
+        }
+
+        public void Heal(float amount)
+        {
+            if (!IsAlive) return;
+            SetHP(Mathf.Min(_currentHP + amount, _maxHP));
         }
 
         public void TakeDamage(DamageInfo damage)

@@ -18,6 +18,8 @@ namespace Gridlock.HUD
         private Button _rebootButton;
         private Button _disconnectButton;
         private float _sessionStartTime;
+        private Coroutine _waitCoroutine;
+        private bool _subscribedToGameManager;
 
         private void Awake()
         {
@@ -48,7 +50,7 @@ namespace Gridlock.HUD
             if (_disconnectButton != null)
                 _disconnectButton.clicked += OnDisconnectClicked;
 
-            StartCoroutine(WaitForGameManager());
+            _waitCoroutine = StartCoroutine(WaitForGameManager());
         }
 
         private System.Collections.IEnumerator WaitForGameManager()
@@ -57,18 +59,30 @@ namespace Gridlock.HUD
                 yield return null;
 
             GameManager.Instance.OnStateChanged += OnStateChanged;
+            _subscribedToGameManager = true;
+            _waitCoroutine = null;
         }
 
         private void OnDisable()
         {
+            if (_waitCoroutine != null)
+            {
+                StopCoroutine(_waitCoroutine);
+                _waitCoroutine = null;
+            }
+
             if (_rebootButton != null)
                 _rebootButton.clicked -= OnRebootClicked;
             if (_disconnectButton != null)
                 _disconnectButton.clicked -= OnDisconnectClicked;
 
-            var gm = GameManager.Instance;
-            if (gm != null)
-                gm.OnStateChanged -= OnStateChanged;
+            if (_subscribedToGameManager)
+            {
+                var gm = GameManager.Instance;
+                if (gm != null)
+                    gm.OnStateChanged -= OnStateChanged;
+                _subscribedToGameManager = false;
+            }
         }
 
         private void OnStateChanged(GameState previous, GameState current)

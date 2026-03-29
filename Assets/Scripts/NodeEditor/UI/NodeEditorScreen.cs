@@ -216,8 +216,18 @@ namespace Gridlock.NodeEditor.UI
             popup.Show(_root);
         }
 
+        private void OnDisable()
+        {
+            if (_canvas != null)
+            {
+                _canvas.OnNodeAdded -= OnCanvasNodeAdded;
+                _canvas.OnNodeRemoved -= OnCanvasNodeRemoved;
+            }
+        }
+
         private void OnDestroy()
         {
+            if (_instance == this) _instance = null;
             _controls?.Dispose();
         }
     }

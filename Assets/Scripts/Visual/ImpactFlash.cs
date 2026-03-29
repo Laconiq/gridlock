@@ -9,16 +9,34 @@ namespace Gridlock.Visual
         private MeshRenderer _renderer;
         private Light _light;
 
+        private static Mesh _sharedSphereMesh;
+        private static Shader _cachedShader;
+
         public static void Spawn(Vector3 position, Color color, float size = 0.4f, float duration = 0.15f)
         {
-            var go = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            go.name = "ImpactFlash";
+            if (_sharedSphereMesh == null)
+            {
+                var tmp = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                _sharedSphereMesh = tmp.GetComponent<MeshFilter>().sharedMesh;
+                Destroy(tmp);
+            }
+            if (_cachedShader == null)
+            {
+                _cachedShader = Shader.Find("Custom/VectorGlow");
+                if (_cachedShader == null)
+                {
+                    Debug.LogWarning("[ImpactFlash] Shader 'Custom/VectorGlow' not found — skipping spawn");
+                    return;
+                }
+            }
+
+            var go = new GameObject("ImpactFlash");
             go.transform.position = position;
             go.transform.localScale = Vector3.one * size;
-            Destroy(go.GetComponent<Collider>());
+            go.AddComponent<MeshFilter>().sharedMesh = _sharedSphereMesh;
 
-            var mr = go.GetComponent<MeshRenderer>();
-            mr.material = new Material(Shader.Find("Custom/VectorGlow"));
+            var mr = go.AddComponent<MeshRenderer>();
+            mr.material = new Material(_cachedShader);
             mr.material.SetColor("_Color", color);
             mr.material.SetColor("_EmissionColor", color);
             mr.material.SetFloat("_EmissionIntensity", 8f);

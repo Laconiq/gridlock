@@ -16,7 +16,7 @@ namespace Gridlock.Modules.Effects
             var objective = Core.ObjectiveController.Instance;
             if (objective != null && objective.IsAlive)
             {
-                objective.ResetHP();
+                objective.Heal(healAmount);
             }
         }
 

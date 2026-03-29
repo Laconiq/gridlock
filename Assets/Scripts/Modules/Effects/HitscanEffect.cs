@@ -17,7 +17,7 @@ namespace Gridlock.Modules.Effects
             {
                 if (target == null || !target.IsAlive || target.Transform == null) continue;
 
-                var damageable = target.Transform.GetComponent<IDamageable>();
+                var damageable = target.Transform.GetComponentInParent<IDamageable>();
                 if (damageable != null)
                     damageable.TakeDamage(new DamageInfo(damage, DamageType.Hitscan));
             }

@@ -42,7 +42,7 @@ namespace Gridlock.Enemies
             _statusEffects = GetComponent<StatusEffectManager>();
             _floatY = transform.position.y;
 
-            var wf = gameObject.AddComponent<Visual.WarpFollower>();
+            var wf = GetComponent<Visual.WarpFollower>() ?? gameObject.AddComponent<Visual.WarpFollower>();
             wf.SetBaseY(_floatY);
         }
 

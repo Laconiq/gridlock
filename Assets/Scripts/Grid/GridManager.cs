@@ -97,7 +97,7 @@ namespace Gridlock.Grid
 
         public CellType GetRuntimeCell(int x, int y)
         {
-            if (x < 0 || x >= gridDefinition.Width || y < 0 || y >= gridDefinition.Height)
+            if (_runtimeCells == null || x < 0 || x >= gridDefinition.Width || y < 0 || y >= gridDefinition.Height)
                 return CellType.Blocked;
             return _runtimeCells[y * gridDefinition.Width + x];
         }
@@ -163,7 +163,9 @@ namespace Gridlock.Grid
         {
             var ab = b - a;
             var ap = point - a;
-            float t = Mathf.Clamp01(Vector3.Dot(ap, ab) / Vector3.Dot(ab, ab));
+            float denom = Vector3.Dot(ab, ab);
+            if (denom < 0.0001f) return Vector3.Distance(point, a);
+            float t = Mathf.Clamp01(Vector3.Dot(ap, ab) / denom);
             var closest = a + ab * t;
             return Vector3.Distance(point, closest);
         }

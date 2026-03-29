@@ -32,7 +32,7 @@ namespace Gridlock.Visual
         {
             if (_health != null)
             {
-                _health._currentHPChanged += OnHit;
+                _health.CurrentHPChanged += OnHit;
                 _health.OnDeath += OnDeath;
             }
         }
@@ -41,7 +41,7 @@ namespace Gridlock.Visual
         {
             if (_health != null)
             {
-                _health._currentHPChanged -= OnHit;
+                _health.CurrentHPChanged -= OnHit;
                 _health.OnDeath -= OnDeath;
             }
         }

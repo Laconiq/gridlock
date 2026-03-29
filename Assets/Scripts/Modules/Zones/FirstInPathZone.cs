@@ -21,8 +21,11 @@ namespace Gridlock.Modules.Zones
             if (!_objectiveCached)
             {
                 var gridManager = ServiceLocator.Get<GridManager>();
-                if (gridManager != null) _objectivePosition = gridManager.ObjectivePosition;
-                _objectiveCached = true;
+                if (gridManager != null)
+                {
+                    _objectivePosition = gridManager.ObjectivePosition;
+                    _objectiveCached = true;
+                }
             }
 
             int count = Physics.OverlapSphereNonAlloc(origin, range, SharedOverlapBuffer);

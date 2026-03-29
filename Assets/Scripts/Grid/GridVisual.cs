@@ -17,6 +17,7 @@ namespace Gridlock.Grid
         private Texture2D _cellMap;
         private Material _instanceMaterial;
         private GridManager _gridManager;
+        private bool _cellMapDirty;
 
         private static readonly int CellMapId = Shader.PropertyToID("_CellMap");
         private static readonly int GridOriginId = Shader.PropertyToID("_GridOrigin");
@@ -103,7 +104,16 @@ namespace Gridlock.Grid
         {
             if (_cellMap == null) return;
             _cellMap.SetPixel(x, y, GetCellColor(type));
-            _cellMap.Apply();
+            _cellMapDirty = true;
+        }
+
+        private void LateUpdate()
+        {
+            if (_cellMapDirty && _cellMap != null)
+            {
+                _cellMap.Apply();
+                _cellMapDirty = false;
+            }
         }
 
         private Color GetCellColor(CellType type) => type switch

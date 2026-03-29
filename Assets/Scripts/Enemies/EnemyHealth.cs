@@ -21,7 +21,7 @@ namespace Gridlock.Enemies
         public bool IsAlive => _currentHP > 0f;
 
         public event Action OnDeath;
-        public event Action<float> _currentHPChanged;
+        public event Action<float> CurrentHPChanged;
 
         private void Awake()
         {
@@ -53,7 +53,7 @@ namespace Gridlock.Enemies
 
             if (_currentHP < previous)
             {
-                _currentHPChanged?.Invoke(previous - _currentHP);
+                CurrentHPChanged?.Invoke(previous - _currentHP);
 
                 var juice = Visual.GameJuice.Instance;
                 if (juice != null)
