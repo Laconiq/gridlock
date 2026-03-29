@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Gridlock.Audio;
 using Gridlock.Modules;
 using Gridlock.NodeEditor.Data;
 using Gridlock.UI;
@@ -217,6 +218,7 @@ namespace Gridlock.NodeEditor.UI
 
             widget.Root.AddToClassList("node--dragging");
             widget.Root.BringToFront();
+            SoundManager.Instance?.PlayUI(SoundType.NodeGrab);
 
             _viewport.CapturePointer(evt.pointerId);
             _connectionLayer.MarkDirtyRepaint();
@@ -267,6 +269,7 @@ namespace Gridlock.NodeEditor.UI
                         nodeToRemove.Root.RemoveFromHierarchy();
                     });
 
+                    SoundManager.Instance?.PlayUI(SoundType.NodeRemove);
                     string moduleDefId = nodeData.moduleDefId;
                     _graph.nodes.RemoveAll(n => n.nodeId == nodeToRemove.NodeId);
                     _graph.connections.RemoveAll(c =>
@@ -284,6 +287,7 @@ namespace Gridlock.NodeEditor.UI
             else
             {
                 ReturnNodeToContent(cursorPanel);
+                SoundManager.Instance?.PlayUI(SoundType.NodeDrop);
             }
 
             _draggedNode = null;
@@ -334,8 +338,11 @@ namespace Gridlock.NodeEditor.UI
         {
             if (_graph == null) return;
 
-            _graph.connections.RemoveAll(c => c.toNodeId == toNodeId && c.toPort == toPort);
+            bool hadExisting = _graph.connections.RemoveAll(c => c.toNodeId == toNodeId && c.toPort == toPort) > 0;
+            if (hadExisting)
+                SoundManager.Instance?.PlayUI(SoundType.PortDisconnect);
 
+            SoundManager.Instance?.PlayUI(SoundType.PortConnect);
             _graph.connections.Add(new ConnectionData
             {
                 fromNodeId = fromNodeId,

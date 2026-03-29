@@ -1,3 +1,4 @@
+using Gridlock.Audio;
 using Gridlock.Interfaces;
 using UnityEngine;
 
@@ -64,6 +65,7 @@ namespace Gridlock.Combat
                     damageable.TakeDamage(new DamageInfo(_damage, DamageType.Projectile));
 
                 Visual.ImpactFlash.Spawn(hit.point, new Color(0f, 1f, 1f));
+                SoundManager.Instance?.Play(SoundType.ProjectileImpact, hit.point);
                 Destroy(gameObject);
             }
         }

@@ -1,3 +1,4 @@
+using Gridlock.Audio;
 using Gridlock.CameraSystem;
 using Gridlock.Interfaces;
 using Gridlock.Modules;
@@ -88,6 +89,8 @@ namespace Gridlock.NodeEditor.UI
 
             TopDownCamera.Instance?.SetInputEnabled(false);
 
+            SoundManager.Instance?.PlayUI(SoundType.EditorOpen);
+
             _root?.schedule.Execute(() =>
             {
                 _panelLeft?.AddToClassList("panel-left--open");
@@ -110,6 +113,7 @@ namespace Gridlock.NodeEditor.UI
             if (!_isOpen) return;
             _isOpen = false;
             _canvas?.PauseAnimations();
+            SoundManager.Instance?.PlayUI(SoundType.EditorClose);
 
             _panelLeft?.RemoveFromClassList("panel-left--open");
             _panelRight?.RemoveFromClassList("panel-right--open");

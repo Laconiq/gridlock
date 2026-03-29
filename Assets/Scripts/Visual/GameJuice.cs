@@ -1,3 +1,4 @@
+using Gridlock.Audio;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
@@ -88,6 +89,7 @@ namespace Gridlock.Visual
         public void OnEnemyHit(Vector3 position)
         {
             Shake(hitShakeDuration, hitShakeIntensity);
+            SoundManager.Instance?.Play(SoundType.EnemyHit, position);
 
             var warp = Grid.GridWarpManager.Instance;
             if (warp != null)
@@ -101,6 +103,7 @@ namespace Gridlock.Visual
             _chromaticTarget = killChromaticIntensity;
             if (_bloom != null)
                 _bloom.intensity.value = _baseBloomIntensity + killBloomBoost;
+            SoundManager.Instance?.Play(SoundType.EnemyDeath, position);
 
             var warp = Grid.GridWarpManager.Instance;
             if (warp != null)
@@ -109,6 +112,8 @@ namespace Gridlock.Visual
 
         public void OnTowerFired(Vector3 position)
         {
+            SoundManager.Instance?.Play(SoundType.TowerFire, position);
+
             var warp = Grid.GridWarpManager.Instance;
             if (warp != null)
                 warp.DropStone(position, 1.5f, 2f, new Color(0f, 1f, 1f));
@@ -116,6 +121,8 @@ namespace Gridlock.Visual
 
         public void OnTowerPlaced(Vector3 position)
         {
+            SoundManager.Instance?.Play(SoundType.TowerPlace, position);
+
             var warp = Grid.GridWarpManager.Instance;
             if (warp != null)
                 warp.Shockwave(position, 5f, 3f, new Color(0f, 1f, 0.7f));

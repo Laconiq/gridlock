@@ -1,4 +1,5 @@
 using System;
+using Gridlock.Audio;
 using Gridlock.Combat;
 using Gridlock.Grid;
 using Gridlock.Interfaces;
@@ -61,6 +62,8 @@ namespace Gridlock.Core
         public void TakeDamage(DamageInfo damage)
         {
             if (!IsAlive) return;
+
+            SoundManager.Instance?.Play(SoundType.ObjectiveHit);
 
             float newHP = Mathf.Max(0f, _currentHP - damage.Amount);
             SetHP(newHP);

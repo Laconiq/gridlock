@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 8600339989166948754}
   - component: {fileID: 5316730252319613843}
   - component: {fileID: 6989580229809042815}
-  - component: {fileID: 644552361602483174}
   - component: {fileID: 4507887512255378201}
   m_Layer: 0
   m_Name: PlayerPrefab
@@ -77,18 +76,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Gridlock.Player.PlayerInventory
   defaultLoadout: {fileID: 11400000, guid: 08549fe28abdd5042ad7010b462c707c, type: 2}
   moduleRegistry: {fileID: 11400000, guid: 22193429fd66e25468601df6db58c91d, type: 2}
---- !u!114 &644552361602483174
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7362235884474108154}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 66c12ed5b20200a4c8ee5ea61bf4c389, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Gridlock.RadialMenu.RadialMenuController
 --- !u!114 &4507887512255378201
 MonoBehaviour:
   m_ObjectHideFlags: 0
