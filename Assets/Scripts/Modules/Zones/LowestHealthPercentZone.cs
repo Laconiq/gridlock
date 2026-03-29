@@ -11,25 +11,26 @@ namespace Gridlock.Modules.Zones
     {
         public override List<ITargetable> SelectTargets(Vector3 origin, float range)
         {
-            var result = new List<ITargetable>();
-            int count = Physics.OverlapSphereNonAlloc(origin, range, SharedOverlapBuffer);
+            var result = new List<ITargetable>(1);
+            float rangeSqr = range * range;
 
             ITargetable lowest = null;
             float lowestPercent = float.MaxValue;
 
-            for (int i = 0; i < count; i++)
+            var entries = EnemyRegistry.All;
+            for (int i = 0; i < entries.Count; i++)
             {
-                var target = SharedOverlapBuffer[i].GetComponentInParent<ITargetable>();
-                if (target == null || !target.IsAlive) continue;
+                var entry = entries[i];
+                if (!entry.Controller.IsAlive || entry.Health == null || entry.Health.MaxHP <= 0f) continue;
 
-                var health = SharedOverlapBuffer[i].GetComponentInParent<EnemyHealth>();
-                if (health == null || health.MaxHP <= 0f) continue;
+                float distSqr = (entry.Controller.Position - origin).sqrMagnitude;
+                if (distSqr > rangeSqr) continue;
 
-                float percent = health.CurrentHP / health.MaxHP;
+                float percent = entry.Health.CurrentHP / entry.Health.MaxHP;
                 if (percent < lowestPercent)
                 {
                     lowestPercent = percent;
-                    lowest = target;
+                    lowest = entry.Controller;
                 }
             }
 

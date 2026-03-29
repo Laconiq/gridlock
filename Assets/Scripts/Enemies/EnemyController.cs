@@ -44,6 +44,13 @@ namespace Gridlock.Enemies
 
             var wf = GetComponent<Visual.WarpFollower>() ?? gameObject.AddComponent<Visual.WarpFollower>();
             wf.SetBaseY(_floatY);
+
+            EnemyRegistry.Register(this, _health);
+        }
+
+        private void OnDestroy()
+        {
+            EnemyRegistry.Unregister(this);
         }
 
         public void Setup(EnemyDefinition definition)

@@ -8,7 +8,7 @@ namespace Gridlock.Modules.Zones
     [Serializable]
     public abstract class ZoneInstance
     {
-        protected static readonly Collider[] SharedOverlapBuffer = new Collider[64];
+        protected static readonly List<ITargetable> SharedResultBuffer = new(16);
 
         [NonSerialized] public ZoneDefinition Definition;
         [NonSerialized] public IChassis Owner;

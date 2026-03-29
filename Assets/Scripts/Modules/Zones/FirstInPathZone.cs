@@ -16,7 +16,7 @@ namespace Gridlock.Modules.Zones
 
         public override List<ITargetable> SelectTargets(Vector3 origin, float range)
         {
-            var result = new List<ITargetable>();
+            var result = new List<ITargetable>(1);
 
             if (!_objectiveCached)
             {
@@ -28,22 +28,25 @@ namespace Gridlock.Modules.Zones
                 }
             }
 
-            int count = Physics.OverlapSphereNonAlloc(origin, range, SharedOverlapBuffer);
+            float rangeSqr = range * range;
 
             ITargetable first = null;
             float closestToObjective = float.MaxValue;
 
-            for (int i = 0; i < count; i++)
+            var entries = EnemyRegistry.All;
+            for (int i = 0; i < entries.Count; i++)
             {
-                if (SharedOverlapBuffer[i].GetComponentInParent<EnemyController>() == null) continue;
-                var target = SharedOverlapBuffer[i].GetComponentInParent<ITargetable>();
-                if (target == null || !target.IsAlive) continue;
+                var entry = entries[i];
+                if (!entry.Controller.IsAlive) continue;
 
-                var dist = Vector3.Distance(target.Position, _objectivePosition);
-                if (dist < closestToObjective)
+                float distSqr = (entry.Controller.Position - origin).sqrMagnitude;
+                if (distSqr > rangeSqr) continue;
+
+                float distToObj = Vector3.Distance(entry.Controller.Position, _objectivePosition);
+                if (distToObj < closestToObjective)
                 {
-                    closestToObjective = dist;
-                    first = target;
+                    closestToObjective = distToObj;
+                    first = entry.Controller;
                 }
             }
 

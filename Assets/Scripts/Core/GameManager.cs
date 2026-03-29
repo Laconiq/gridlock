@@ -55,6 +55,7 @@ namespace Gridlock.Core
         {
             foreach (var enemy in FindObjectsByType<EnemyController>(FindObjectsInactive.Exclude))
                 Destroy(enemy.gameObject);
+            EnemyRegistry.Clear();
 
             foreach (var pickup in FindObjectsByType<ModulePickup>(FindObjectsInactive.Exclude))
                 Destroy(pickup.gameObject);

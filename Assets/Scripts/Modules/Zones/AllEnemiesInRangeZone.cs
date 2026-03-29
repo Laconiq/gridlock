@@ -12,17 +12,17 @@ namespace Gridlock.Modules.Zones
         public override List<ITargetable> SelectTargets(Vector3 origin, float range)
         {
             var result = new List<ITargetable>();
-            var seen = new HashSet<ITargetable>();
-            int count = Physics.OverlapSphereNonAlloc(origin, range, SharedOverlapBuffer);
+            float rangeSqr = range * range;
 
-            for (int i = 0; i < count; i++)
+            var entries = EnemyRegistry.All;
+            for (int i = 0; i < entries.Count; i++)
             {
-                if (SharedOverlapBuffer[i].GetComponentInParent<EnemyController>() == null) continue;
-                var target = SharedOverlapBuffer[i].GetComponentInParent<ITargetable>();
-                if (target != null && target.IsAlive && seen.Add(target))
-                {
-                    result.Add(target);
-                }
+                var entry = entries[i];
+                if (!entry.Controller.IsAlive) continue;
+
+                float distSqr = (entry.Controller.Position - origin).sqrMagnitude;
+                if (distSqr <= rangeSqr)
+                    result.Add(entry.Controller);
             }
 
             return result;
