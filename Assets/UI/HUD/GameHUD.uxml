@@ -1,8 +1,8 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements">
-    <Style src="DesignTokensHUD.uss" />
+    <Style src="../DesignTokens.uss" />
     <Style src="GameHUD.uss" />
 
-    <ui:VisualElement name="hud-root" class="hud-root" picking-mode="Ignore">
+    <ui:VisualElement name="hud-root" class="gridlock-ui hud-root" picking-mode="Ignore">
 
         <!-- ============ TOP BAR ============ -->
         <ui:VisualElement class="hud__top-bar" picking-mode="Ignore">
@@ -64,33 +64,29 @@
 
         </ui:VisualElement>
 
-        <!-- ============ MIDDLE AREA (event log left, empty center, info right) ============ -->
-        <ui:VisualElement class="hud__middle" picking-mode="Ignore">
+        <!-- ============ MIDDLE SPACER ============ -->
+        <ui:VisualElement class="hud__middle" picking-mode="Ignore" />
 
-            <!-- Left: Event Log -->
+        <!-- ============ CENTER: WAVE ANNOUNCEMENT ============ -->
+        <ui:Label name="announcement-label" class="hud__announcement" picking-mode="Ignore" style="display: none;" />
+
+        <!-- ============ BOTTOM: EVENT LOG + STATUS ============ -->
+        <ui:VisualElement class="hud__footer" picking-mode="Ignore">
+
+            <!-- Event Log -->
             <ui:VisualElement class="hud__log-panel" picking-mode="Ignore">
                 <ui:VisualElement class="hud__log-header" picking-mode="Ignore">
                     <ui:Label text=">" class="hud__log-icon" picking-mode="Ignore" />
                     <ui:Label text="SYS_LOG" class="hud__log-title" picking-mode="Ignore" />
                 </ui:VisualElement>
-                <ui:VisualElement name="event-log" class="hud__event-log" picking-mode="Ignore">
-                    <!-- Populated dynamically -->
-                </ui:VisualElement>
+                <ui:VisualElement name="event-log" class="hud__event-log" picking-mode="Ignore" />
             </ui:VisualElement>
 
-        </ui:VisualElement>
-
-        <!-- ============ CENTER: WAVE ANNOUNCEMENT ============ -->
-        <ui:Label name="announcement-label" class="hud__announcement" picking-mode="Ignore" style="display: none;" />
-
-        <!-- ============ BOTTOM BAR: TOWER SELECTION ============ -->
-        <ui:VisualElement class="hud__bottom-bar" picking-mode="Ignore">
-            <ui:VisualElement class="hud__bottom-bar-inner" picking-mode="Ignore">
+            <!-- Status bar -->
+            <ui:VisualElement class="hud__bottom-bar" picking-mode="Ignore">
                 <ui:Label text="// SYSTEM_OK" class="hud__bottom-status" picking-mode="Ignore" />
-                <ui:VisualElement name="tower-bar" class="hud__tower-bar" picking-mode="Ignore">
-                    <!-- Tower buttons populated dynamically by TowerSelectionBar -->
-                </ui:VisualElement>
             </ui:VisualElement>
+
         </ui:VisualElement>
 
     </ui:VisualElement>

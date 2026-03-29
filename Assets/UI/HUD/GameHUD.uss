@@ -6,8 +6,12 @@
 
 /* === ROOT LAYOUT === */
 .hud-root {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
     flex-direction: column;
-    justify-content: space-between;
 }
 
 /* ============================================================
@@ -194,10 +198,11 @@
    ============================================================ */
 .hud__middle {
     flex-grow: 1;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: flex-end;
-    padding: 16px 24px;
+}
+
+.hud__footer {
+    flex-direction: column;
+    align-items: stretch;
 }
 
 /* --- Event Log Panel (left side) --- */
@@ -264,6 +269,7 @@
    BOTTOM BAR
    ============================================================ */
 .hud__bottom-bar {
+    align-self: stretch;
     background-color: rgba(14, 14, 15, 0.92);
     border-top-width: 1px;
     border-top-color: rgba(0, 255, 255, 0.2);

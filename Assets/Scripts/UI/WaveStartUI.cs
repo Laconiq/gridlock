@@ -21,6 +21,10 @@ namespace Gridlock.UI
             _root = _uiDocument.rootVisualElement;
             if (_root == null) return;
 
+            _root.pickingMode = PickingMode.Ignore;
+            if (_root.parent != null)
+                _root.parent.pickingMode = PickingMode.Ignore;
+
             _startButton = _root.Q<Button>("start-wave-btn");
             if (_startButton != null)
                 _startButton.clicked += OnStartWaveClicked;

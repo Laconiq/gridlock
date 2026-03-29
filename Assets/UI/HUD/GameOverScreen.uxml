@@ -1,8 +1,8 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements">
-    <Style src="DesignTokensHUD.uss" />
+    <Style src="../DesignTokens.uss" />
     <Style src="GameOverScreen.uss" />
 
-    <ui:VisualElement name="gameover-root" class="hud-root go__root" style="display: none;">
+    <ui:VisualElement name="gameover-root" class="gridlock-ui hud-root go__root" picking-mode="Ignore" style="display: none;">
 
         <!-- Decorative: trace route (top-right) -->
         <ui:VisualElement class="go__deco-trace" picking-mode="Ignore">

@@ -2,15 +2,12 @@ using System;
 using System.Collections;
 using Gridlock.Combat;
 using Gridlock.Interfaces;
-using Gridlock.Loot;
 using UnityEngine;
 
 namespace Gridlock.Enemies
 {
     public class EnemyHealth : MonoBehaviour, IDamageable
     {
-        [SerializeField] private LootTable lootTable;
-        [SerializeField] private GameObject pickupPrefab;
         [SerializeField] private float deathAnimDuration = 2f;
 
         private float _currentHP = 100f;
@@ -74,7 +71,6 @@ namespace Gridlock.Enemies
                 juice.OnEnemyKilled(transform.position);
 
             OnDeath?.Invoke();
-            SpawnDrop();
             StartCoroutine(DespawnAfterDeathAnim());
         }
 
@@ -87,19 +83,6 @@ namespace Gridlock.Enemies
             yield return new WaitForSeconds(deathAnimDuration);
 
             Destroy(gameObject);
-        }
-
-        private void SpawnDrop()
-        {
-            if (lootTable == null || pickupPrefab == null) return;
-
-            var drop = lootTable.Roll();
-            if (drop == null) return;
-
-            var go = Instantiate(pickupPrefab, transform.position, Quaternion.identity);
-
-            var pickup = go.GetComponent<ModulePickup>();
-            pickup?.Initialize(drop.moduleId, transform.position);
         }
     }
 }

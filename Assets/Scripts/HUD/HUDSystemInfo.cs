@@ -1,6 +1,6 @@
 using Gridlock.Core;
-using Gridlock.NodeEditor.UI;
 using Gridlock.Player;
+using Gridlock.UI;
 using UnityEngine;
 using UnityEngine.UIElements;
 

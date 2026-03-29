@@ -18,6 +18,16 @@ namespace Gridlock.Combat
             _damageable = GetComponent<IDamageable>();
         }
 
+        public bool HasEffectOfType(StatusEffectType type)
+        {
+            for (int i = 0; i < _activeEffects.Count; i++)
+            {
+                if (_activeEffects[i].Data.Type == type)
+                    return true;
+            }
+            return false;
+        }
+
         public void ApplyEffect(StatusEffectData data)
         {
             _activeEffects.Add(new ActiveStatusEffect

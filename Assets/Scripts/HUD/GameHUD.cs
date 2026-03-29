@@ -43,6 +43,10 @@ namespace Gridlock.HUD
             _root = _uiDocument.rootVisualElement;
             if (_root == null) return;
 
+            _root.pickingMode = PickingMode.Ignore;
+            if (_root.parent != null)
+                _root.parent.pickingMode = PickingMode.Ignore;
+
             _playerStatus = new HUDPlayerStatus(
                 _root.Q<Label>("self-name"),
                 _root.Q("self-hp-fill"),
