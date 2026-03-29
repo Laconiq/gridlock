@@ -1,5 +1,7 @@
 using System.Collections;
 using Gridlock.Interfaces;
+using Gridlock.Towers;
+using Gridlock.Visual;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -14,6 +16,7 @@ namespace Gridlock.Player
         private InteractionHUD _interactionHUD;
         private bool _inputEnabled;
         private Camera _cachedCamera;
+        private TowerRangeIndicator _activeRange;
 
         public IInteractable CurrentInteractable => _currentInteractable;
 
@@ -27,6 +30,7 @@ namespace Gridlock.Player
                 {
                     _currentInteractable = null;
                     if (_interactionHUD != null) _interactionHUD.Hide();
+                    if (_activeRange != null) { _activeRange.Hide(); _activeRange = null; }
                 }
             }
         }
@@ -89,6 +93,22 @@ namespace Gridlock.Player
             {
                 _currentInteractable = found;
                 UpdateHUD();
+                UpdateRangeIndicator();
+            }
+        }
+
+        private void UpdateRangeIndicator()
+        {
+            if (_activeRange != null)
+            {
+                _activeRange.Hide();
+                _activeRange = null;
+            }
+
+            if (_currentInteractable is TowerInteractable tower)
+            {
+                _activeRange = tower.GetComponent<TowerRangeIndicator>();
+                _activeRange?.Show();
             }
         }
 

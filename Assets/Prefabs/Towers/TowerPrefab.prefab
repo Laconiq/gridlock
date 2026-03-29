@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 8588930336834771211}
   - component: {fileID: 5860436355741958959}
   - component: {fileID: 8608928232267479782}
+  - component: {fileID: 1234567890123456789}
   m_Layer: 0
   m_Name: TowerPrefab
   m_TagString: Untagged
@@ -156,6 +157,25 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &1234567890123456789
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4165849237337852782}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f03f31a6237ea4d99954d97331368ff7, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::Gridlock.Visual.TowerRangeIndicator
+  lineMaterial: {fileID: 2100000, guid: 62d27c3107934465ab8ff63391defe82, type: 2}
+  segments: 48
+  lineWidth: 0.06
+  lineY: 0.12
+  pulseSpeed: 2
+  pulseMin: 0.3
+  pulseMax: 0.7
 --- !u!1 &6931350410310232637
 GameObject:
   m_ObjectHideFlags: 0
