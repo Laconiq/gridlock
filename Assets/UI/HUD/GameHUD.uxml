@@ -5,7 +5,7 @@
     <ui:VisualElement name="hud-root" class="gridlock-ui hud-root" picking-mode="Ignore">
 
         <!-- ============ TOP BAR ============ -->
-        <ui:VisualElement class="hud__top-bar" picking-mode="Ignore">
+        <Gridlock.UI.BlurPanel class="hud__top-bar" picking-mode="Ignore">
 
             <!-- Left cluster: title + system info -->
             <ui:VisualElement class="hud__top-bar-left" picking-mode="Ignore">
@@ -62,7 +62,7 @@
                 </ui:VisualElement>
             </ui:VisualElement>
 
-        </ui:VisualElement>
+        </Gridlock.UI.BlurPanel>
 
         <!-- ============ MIDDLE SPACER ============ -->
         <ui:VisualElement class="hud__middle" picking-mode="Ignore" />
@@ -74,18 +74,18 @@
         <ui:VisualElement class="hud__footer" picking-mode="Ignore">
 
             <!-- Event Log -->
-            <ui:VisualElement class="hud__log-panel" picking-mode="Ignore">
+            <Gridlock.UI.BlurPanel class="hud__log-panel" picking-mode="Ignore">
                 <ui:VisualElement class="hud__log-header" picking-mode="Ignore">
                     <ui:Label text=">" class="hud__log-icon" picking-mode="Ignore" />
                     <ui:Label text="SYS_LOG" class="hud__log-title" picking-mode="Ignore" />
                 </ui:VisualElement>
                 <ui:VisualElement name="event-log" class="hud__event-log" picking-mode="Ignore" />
-            </ui:VisualElement>
+            </Gridlock.UI.BlurPanel>
 
             <!-- Status bar -->
-            <ui:VisualElement class="hud__bottom-bar" picking-mode="Ignore">
+            <Gridlock.UI.BlurPanel class="hud__bottom-bar" picking-mode="Ignore">
                 <ui:Label text="// SYSTEM_OK" class="hud__bottom-status" picking-mode="Ignore" />
-            </ui:VisualElement>
+            </Gridlock.UI.BlurPanel>
 
         </ui:VisualElement>
 

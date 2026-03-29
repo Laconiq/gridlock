@@ -22,9 +22,8 @@
     justify-content: space-between;
     align-items: center;
     padding: 10px 24px;
-    background-color: rgba(14, 14, 15, 0.92);
     border-bottom-width: 1px;
-    border-bottom-color: rgba(0, 255, 255, 0.2);
+    border-bottom-color: var(--glass-border);
 }
 
 /* --- Left cluster: title + sys info --- */
@@ -210,9 +209,9 @@
     max-width: 280px;
     flex-direction: column;
     padding: 10px 14px;
-    background-color: rgba(14, 14, 15, 0.75);
     border-left-width: 2px;
     border-left-color: var(--primary);
+    border-radius: var(--glass-radius);
 }
 
 .hud__log-header {
@@ -270,9 +269,8 @@
    ============================================================ */
 .hud__bottom-bar {
     align-self: stretch;
-    background-color: rgba(14, 14, 15, 0.92);
     border-top-width: 1px;
-    border-top-color: rgba(0, 255, 255, 0.2);
+    border-top-color: var(--glass-border);
     padding: 8px 24px;
 }
 
@@ -341,17 +339,17 @@
     font-size: 16px;
     -unity-font-style: bold;
     color: var(--primary);
-    background-color: rgba(0, 255, 255, 0.08);
-    border-width: 2px;
-    border-color: var(--primary);
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+    border-color: rgba(0, 0, 0, 0);
     letter-spacing: 4px;
     text-transform: uppercase;
     text-shadow: 0 0 12px rgba(0, 255, 255, 0.6);
 }
 
 .wave-start-btn:hover {
-    background-color: rgba(0, 255, 255, 0.2);
-    border-color: rgb(0, 255, 255);
+    background-color: rgba(0, 255, 255, 0.1);
+    border-color: rgba(0, 0, 0, 0);
 }
 
 .wave-start-btn:active {

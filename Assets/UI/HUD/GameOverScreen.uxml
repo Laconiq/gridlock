@@ -2,7 +2,7 @@
     <Style src="../DesignTokens.uss" />
     <Style src="GameOverScreen.uss" />
 
-    <ui:VisualElement name="gameover-root" class="gridlock-ui hud-root go__root" picking-mode="Ignore" style="display: none;">
+    <Gridlock.UI.BlurPanel name="gameover-root" class="gridlock-ui hud-root go__root" picking-mode="Ignore" style="display: none;">
 
         <!-- Decorative: trace route (top-right) -->
         <ui:VisualElement class="go__deco-trace" picking-mode="Ignore">
@@ -86,5 +86,5 @@
             <ui:Label text="SYNC_LOST" class="go__deco-sync-text" picking-mode="Ignore" />
         </ui:VisualElement>
 
-    </ui:VisualElement>
+    </Gridlock.UI.BlurPanel>
 </ui:UXML>

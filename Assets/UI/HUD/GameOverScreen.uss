@@ -5,10 +5,8 @@
     top: 0;
     right: 0;
     bottom: 0;
-    background-color: var(--surface);
     align-items: center;
     justify-content: center;
-    overflow: hidden;
 }
 
 /* ─── Decorative: trace route (top-right) ─── */

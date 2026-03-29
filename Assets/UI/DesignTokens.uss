@@ -52,6 +52,13 @@
     --color-target:             #8ff5ff;
     --color-effect:             #2ff801;
 
+    /* === GLASS / BLUR === */
+    --glass-border:             rgba(0, 238, 252, 0.15);
+    --glass-border-accent:      rgba(0, 238, 252, 0.3);
+    --glass-radius:             6px;
+    --glass-inner-bg:           rgba(14, 16, 20, 0.45);
+    --glass-inner-bg-hover:     rgba(30, 30, 35, 0.5);
+
     /* === SPACING === */
     --space-xs:                 4px;
     --space-sm:                 8px;
@@ -86,6 +93,11 @@
 
     /* === FONT === */
     -unity-font-definition: url("project://database/Assets/UI/NodeEditor/Fonts/SpaceGrotesk-Variable.ttf");
+}
+
+/* Blur panel fallback — overridden at runtime when blur texture is available */
+.blur-panel {
+    background-color: var(--surface);
 }
 
 /* Legacy class aliases so existing UXML files keep working */

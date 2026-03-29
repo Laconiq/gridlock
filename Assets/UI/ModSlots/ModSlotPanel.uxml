@@ -7,7 +7,7 @@
     <Style src="ModSlotPanel.uss" />
 
     <ui:VisualElement name="modslot-root" class="gridlock-ui modslot-root" picking-mode="Ignore">
-        <ui:VisualElement class="panel">
+        <Gridlock.UI.BlurPanel class="panel">
 
             <!-- TOP: Stats bar (fixed height) -->
             <ui:VisualElement class="stats-bar">
@@ -74,7 +74,7 @@
                 <ui:Button name="save-btn" text="FINALIZE_CONFIGURATION" class="btn-finalize" />
             </ui:VisualElement>
 
-        </ui:VisualElement>
+        </Gridlock.UI.BlurPanel>
     </ui:VisualElement>
 
 </ui:UXML>

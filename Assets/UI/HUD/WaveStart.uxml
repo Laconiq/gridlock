@@ -3,6 +3,8 @@
     <Style src="GameHUD.uss" />
 
     <ui:VisualElement class="gridlock-ui" picking-mode="Ignore" style="justify-content: flex-end; align-items: center; padding-bottom: 80px;">
-        <ui:Button name="start-wave-btn" text="[ START WAVE ]" class="wave-start-btn" />
+        <Gridlock.UI.BlurPanel style="border-radius: 6px; border-width: 2px; border-color: rgba(0, 238, 252, 0.3); overflow: hidden;">
+            <ui:Button name="start-wave-btn" text="[ START WAVE ]" class="wave-start-btn" />
+        </Gridlock.UI.BlurPanel>
     </ui:VisualElement>
 </ui:UXML>

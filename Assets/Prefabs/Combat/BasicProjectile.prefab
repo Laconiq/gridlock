@@ -106,7 +106,7 @@ TrailRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Time: 1
+  m_Time: 0.5
   m_PreviewTimeScale: 1
   m_Parameters:
     serializedVersion: 3
@@ -245,23 +245,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 18b38690c50a65048b14c4c8bab26d91, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Gridlock.Mods.ModProjectile
-  maxLifetime: 5
-  homingTurnSpeed: 8
-  shockChainRadius: 3
-  defaultChainCount: 1
-  teslaChainCount: 3
-  burnDamage: 5
-  burnDuration: 3
-  burnTickInterval: 0.5
-  frostSlowValue: 0.5
-  frostDuration: 2
-  blizzardStunDuration: 0.5
-  leechPercent: 0.2
-  vampireLeechPercent: 0.4
-  voidHPPercent: 0.08
-  lowHPThreshold: 0.3
-  splitArcDegrees: 120
-  pulseInterval: 0.3
-  delayDuration: 0.5
-  impactColor: {r: 0, g: 1, b: 1, a: 1}
   baseHitRadius: 0.5

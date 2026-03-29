@@ -7,16 +7,16 @@
     bottom: 0;
     align-items: center;
     justify-content: center;
-    background-color: rgba(0, 0, 0, 0.8);
+    background-color: rgba(0, 0, 0, 0.6);
     display: none;
 }
 
 /* === PANEL: fixed-size centered card === */
 .panel {
     width: 900px;
-    background-color: #0e0e0f;
     border-width: 1px;
-    border-color: rgba(0, 238, 252, 0.2);
+    border-color: var(--glass-border);
+    border-radius: var(--glass-radius);
     flex-direction: column;
 }
 
@@ -27,7 +27,7 @@
     height: 48px;
     padding-left: 16px;
     padding-right: 16px;
-    background-color: #0a0a0a;
+    background-color: rgba(6, 8, 10, 0.5);
     border-bottom-width: 1px;
     border-bottom-color: rgba(72, 72, 73, 0.4);
 }
@@ -51,7 +51,7 @@
     align-items: center;
     margin-right: 16px;
     padding: 2px 8px;
-    background-color: #131314;
+    background-color: rgba(14, 16, 20, 0.5);
     border-width: 1px;
     border-color: rgba(72, 72, 73, 0.3);
 }
@@ -234,9 +234,9 @@
     width: 82px;
     height: 68px;
     margin: 2px;
-    background-color: #131314;
+    background-color: rgba(14, 16, 20, 0.5);
     border-width: 1px;
-    border-color: #484849;
+    border-color: rgba(72, 72, 73, 0.4);
     justify-content: center;
     align-items: center;
     transition: background-color 0.1s, border-color 0.1s;
@@ -268,7 +268,7 @@
     width: 220px;
     padding: 12px 16px;
     flex-direction: column;
-    background-color: #0a0a0a;
+    background-color: rgba(6, 8, 10, 0.4);
 }
 
 .info-panel__name {
@@ -302,7 +302,7 @@
 /* === SLOTS SECTION (bottom) === */
 .slots-section {
     padding: 12px 16px;
-    background-color: #131314;
+    background-color: rgba(14, 16, 20, 0.4);
 }
 
 .slot-bar {
@@ -318,7 +318,7 @@
     height: 80px;
     margin-left: 3px;
     margin-right: 3px;
-    background-color: #131314;
+    background-color: rgba(14, 16, 20, 0.5);
     border-width: 1px;
     border-color: #00deec;
     justify-content: center;
@@ -431,7 +431,7 @@
     flex-direction: row;
     align-items: center;
     padding: 10px 16px;
-    background-color: #0a0a0a;
+    background-color: rgba(6, 8, 10, 0.5);
     border-top-width: 1px;
     border-top-color: rgba(72, 72, 73, 0.4);
 }
