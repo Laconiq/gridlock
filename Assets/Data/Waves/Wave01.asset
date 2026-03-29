@@ -14,6 +14,42 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Gridlock.Enemies.WaveDefinition
   entries:
   - enemy: {fileID: 11400000, guid: cd57b41af6a3db14cae76432139233f8, type: 2}
-    count: 10
+    count: 1
     spawnInterval: 2
     delayBeforeGroup: 0
+  - enemy: {fileID: 11400000, guid: e052073a36e144f0aa92cef54ca9809e, type: 2}
+    count: 1
+    spawnInterval: 2
+    delayBeforeGroup: 2
+  - enemy: {fileID: 11400000, guid: cd57b41af6a3db14cae76432139233f8, type: 2}
+    count: 1
+    spawnInterval: 2
+    delayBeforeGroup: 2
+  - enemy: {fileID: 11400000, guid: e052073a36e144f0aa92cef54ca9809e, type: 2}
+    count: 1
+    spawnInterval: 2
+    delayBeforeGroup: 2
+  - enemy: {fileID: 11400000, guid: cd57b41af6a3db14cae76432139233f8, type: 2}
+    count: 1
+    spawnInterval: 2
+    delayBeforeGroup: 2
+  - enemy: {fileID: 11400000, guid: e052073a36e144f0aa92cef54ca9809e, type: 2}
+    count: 1
+    spawnInterval: 2
+    delayBeforeGroup: 2
+  - enemy: {fileID: 11400000, guid: cd57b41af6a3db14cae76432139233f8, type: 2}
+    count: 1
+    spawnInterval: 2
+    delayBeforeGroup: 2
+  - enemy: {fileID: 11400000, guid: e052073a36e144f0aa92cef54ca9809e, type: 2}
+    count: 1
+    spawnInterval: 2
+    delayBeforeGroup: 2
+  - enemy: {fileID: 11400000, guid: cd57b41af6a3db14cae76432139233f8, type: 2}
+    count: 1
+    spawnInterval: 2
+    delayBeforeGroup: 2
+  - enemy: {fileID: 11400000, guid: e052073a36e144f0aa92cef54ca9809e, type: 2}
+    count: 1
+    spawnInterval: 2
+    delayBeforeGroup: 2
