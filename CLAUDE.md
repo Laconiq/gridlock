@@ -312,6 +312,37 @@ These are `#if UNITY_EDITOR` menu items under `Gridlock/`:
 - **Fix Tower Prefab References** — Links FirePoint, ModuleRegistry on tower prefab
 - **Assign Default Material to Prefabs** — Sets Unity's default URP/Lit material on all gameplay prefabs (uses `GetComponentInChildren`)
 
+## Mod Slots System (feature/mod-slots-system branch)
+
+New projectile-building system replacing the node editor. See `docs/GAME_DESIGN.md` for full design.
+
+### Architecture
+
+Towers fire automatically. The player builds the **projectile** via a chain of mods in slots.
+
+```
+Tower fires → target selected (TargetingMode enum) → mod chain compiled (ChainCompiler)
+→ ProjectileConfig built → ModProjectile spawned with config
+```
+
+**Key files:**
+- `Assets/Scripts/Mods/ModType.cs` — All mod + event enums with extension methods
+- `Assets/Scripts/Mods/ModSlotData.cs` — Serializable slot data
+- `Assets/Scripts/Mods/ProjectileConfig.cs` — Runtime projectile configuration struct
+- `Assets/Scripts/Mods/ChainCompiler.cs` — Compiles slot chain → ProjectileConfig (handles stages, synergies, mod-dependent event validation)
+- `Assets/Scripts/Mods/SynergyDef.cs` — Adjacency synergy table (Q-UP inspired)
+- `Assets/Scripts/Mods/ModSlotPreset.cs` — ScriptableObject presets for testing
+- `Assets/Scripts/Mods/ModSlotExecutor.cs` — Tower component: targeting + fire timer + chain compilation
+- `Assets/Scripts/Mods/ModProjectile.cs` — Projectile with all behaviors (homing, pierce, bounce, split, elements, events, sub-projectile spawning)
+- `Assets/Scripts/Enemies/EnemyRegistry.cs` — Static enemy registry for O(n) targeting (no physics queries)
+- `Assets/Data/ModPresets/` — Preset SOs for testing
+
+### Targeting (no more Zone nodes)
+Simple `TargetingMode` enum on tower: First, Nearest, Strongest, Weakest, Last. Uses `EnemyRegistry` for O(n) lookups.
+
+### Chain evaluation rule
+Mods before an Event = main projectile traits. Mods after an Event = sub-projectile traits. Events divide the chain into stages. Max 3 event stages.
+
 ## Removed Systems
 
 The following systems have been intentionally removed:

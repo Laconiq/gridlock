@@ -114,27 +114,36 @@ Le *dwell time* est le temps qu'un ennemi passe exposé aux défenses. Plus le p
 
 ## Placement stratégique
 
-### Avec 5 tours max
+### Positions de valeur
 
-Le joueur a 5 tours. La clé du level design est de créer des **positions de valeur inégale** :
+Le level design doit creer des **positions de valeur inegale** :
 
 - **Position premium** : couvre 2+ segments du path (virage, intersection, switchback)
 - **Position standard** : couvre 1 segment
-- **Position piège** : semble bonne mais ne couvre qu'un angle
+- **Position piege** : semble bonne mais ne couvre qu'un angle
 
-### Créer des choix
+### Creer des choix
 
 Le joueur doit se demander :
-- Couvrir l'entrée ou la sortie ?
+- Couvrir l'entree ou la sortie ?
 - Concentrer les tours ou les disperser ?
-- Défense en profondeur (tours espacées) ou killzone (tours groupées) ?
+- Defense en profondeur (tours espacees) ou killzone (tours groupees) ?
+- Ou placer les tours de setup (Frost/Burn) vs les tours de payoff (If-Frozen/If-Burning) ?
+
+### Synergies inter-tours et placement
+
+Le systeme de Mod Slots encourage les **combos inter-tours** via les events conditionnels (⟐ If-Burning, ⟐ If-Frozen, etc.). Le level design doit creer des zones ou :
+- Plusieurs tours ont des portees qui se chevauchent (pour que les conditionnels fonctionnent)
+- Les tours de setup (debut du path) preparent les ennemis pour les tours de payoff (fin du path)
+- Les intersections de paths sont des positions premium pour les tours AOE (Wide) et les conditionnels
 
 ### Tips
 
-- **Switchbacks** : quand le path repasse devant la même zone, une tour bien placée couvre les deux passages
-- **Virages** : les positions à l'intérieur du virage ont un meilleur coverage
+- **Switchbacks** : quand le path repasse devant la meme zone, une tour bien placee couvre les deux passages
+- **Virages** : les positions a l'interieur du virage ont un meilleur coverage
 - **Intersections** : si deux paths se croisent, la position centrale couvre les deux
 - Les cases `TowerSlot` peuvent guider le joueur vers les bonnes positions (optionnel)
+- **Killzones** : regrouper 3+ tours sur un segment pour maximiser les synergies conditionnelles
 
 ---
 
