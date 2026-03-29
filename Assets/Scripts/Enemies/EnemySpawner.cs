@@ -88,8 +88,15 @@ namespace Gridlock.Enemies
 
             if (tracked)
             {
-                if (controller != null) controller.OnReachedObjective += () => OnEnemyDespawned?.Invoke();
-                if (health != null) health.OnDeath += () => OnEnemyDespawned?.Invoke();
+                bool despawned = false;
+                void NotifyDespawn()
+                {
+                    if (despawned) return;
+                    despawned = true;
+                    OnEnemyDespawned?.Invoke();
+                }
+                if (controller != null) controller.OnReachedObjective += NotifyDespawn;
+                if (health != null) health.OnDeath += NotifyDespawn;
             }
         }
     }

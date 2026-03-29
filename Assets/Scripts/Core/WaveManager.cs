@@ -84,6 +84,7 @@ namespace Gridlock.Core
 
         private void HandleEnemyDespawned()
         {
+            if (_aliveCount <= 0) return;
             _aliveCount--;
             _enemiesRemaining = _aliveCount;
             CheckWaveComplete();

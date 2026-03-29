@@ -17,6 +17,7 @@ namespace Gridlock.Loot
         private float _spawnTime;
         private bool _magnetActive;
         private Camera _mainCamera;
+        private static PlayerInventory _cachedInventory;
 
         public void Initialize(string moduleId, Vector3 position)
         {
@@ -61,10 +62,10 @@ namespace Gridlock.Loot
 
                     if (Vector3.Distance(transform.position, target) < 1f)
                     {
-                        var inventory = FindAnyObjectByType<PlayerInventory>();
-                        if (inventory != null)
+                        _cachedInventory ??= FindAnyObjectByType<PlayerInventory>();
+                        if (_cachedInventory != null)
                         {
-                            inventory.AddModule(_moduleId);
+                            _cachedInventory.AddModule(_moduleId);
                             Debug.Log($"[ModulePickup] Auto-collected {_moduleId}");
                         }
                         Destroy(gameObject);

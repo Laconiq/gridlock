@@ -19,6 +19,7 @@ namespace Gridlock.Enemies
         private Material _materialInstance;
         private Color _baseEmission;
         private float _flashTimer;
+        private Camera _cachedCamera;
 
         private static readonly int EmissionColor = Shader.PropertyToID("_EmissionColor");
 
@@ -26,6 +27,7 @@ namespace Gridlock.Enemies
         {
             _health = GetComponent<EnemyHealth>();
             _renderer = GetComponentInChildren<MeshRenderer>();
+            _cachedCamera = Camera.main;
         }
 
         private void OnEnable()
@@ -86,8 +88,7 @@ namespace Gridlock.Enemies
             var pos = transform.position + Vector3.up * textOffsetZ;
             pos += new Vector3(Random.Range(-0.3f, 0.3f), 0f, Random.Range(-0.3f, 0.3f));
 
-            var cam = Camera.main;
-            var rot = cam != null ? cam.transform.rotation : Quaternion.identity;
+            var rot = _cachedCamera != null ? _cachedCamera.transform.rotation : Quaternion.identity;
             var go = Instantiate(damageTextPrefab, pos, rot);
             var tmp = go.GetComponent<TextMeshPro>();
             if (tmp != null)

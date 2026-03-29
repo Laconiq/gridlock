@@ -175,6 +175,8 @@ namespace Gridlock.Enemies
 
         public void NotifyReachedObjective()
         {
+            if (!IsAlive) return;
+
             var objective = ServiceLocator.Get<ObjectiveController>();
             if (objective != null)
                 objective.TakeDamage(new DamageInfo(_objectiveDamage, DamageType.Direct));

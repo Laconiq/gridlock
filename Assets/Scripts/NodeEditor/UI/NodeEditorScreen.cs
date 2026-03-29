@@ -28,6 +28,7 @@ namespace Gridlock.NodeEditor.UI
 
         private NodeEditorCanvas _canvas;
         private ModulePalette _palette;
+        private System.Collections.Generic.Dictionary<string, int> _openNodeCounts;
 
         public bool IsOpen => _isOpen;
 
@@ -98,6 +99,18 @@ namespace Gridlock.NodeEditor.UI
             });
 
             var graph = chassis.GetNodeGraph();
+
+            _openNodeCounts = new System.Collections.Generic.Dictionary<string, int>();
+            if (graph?.nodes != null)
+            {
+                foreach (var n in graph.nodes)
+                {
+                    if (n.isFixed) continue;
+                    _openNodeCounts.TryGetValue(n.moduleDefId, out int c);
+                    _openNodeCounts[n.moduleDefId] = c + 1;
+                }
+            }
+
             _canvas?.LoadGraph(graph, chassis.MaxTriggers);
             _palette?.Initialize(_playerInventory);
 
@@ -141,21 +154,9 @@ namespace Gridlock.NodeEditor.UI
 
             var graph = _canvas.GetCurrentGraph();
 
-            if (_playerInventory != null)
+            if (_playerInventory != null && _openNodeCounts != null)
             {
-                var oldGraph = _currentChassis.GetNodeGraph();
-                var oldCounts = new System.Collections.Generic.Dictionary<string, int>();
                 var newCounts = new System.Collections.Generic.Dictionary<string, int>();
-
-                if (oldGraph?.nodes != null)
-                {
-                    foreach (var n in oldGraph.nodes)
-                    {
-                        if (n.isFixed) continue;
-                        oldCounts.TryGetValue(n.moduleDefId, out int c);
-                        oldCounts[n.moduleDefId] = c + 1;
-                    }
-                }
 
                 foreach (var n in graph.nodes)
                 {
@@ -165,12 +166,12 @@ namespace Gridlock.NodeEditor.UI
                 }
 
                 var allIds = new System.Collections.Generic.HashSet<string>();
-                foreach (var k in oldCounts.Keys) allIds.Add(k);
+                foreach (var k in _openNodeCounts.Keys) allIds.Add(k);
                 foreach (var k in newCounts.Keys) allIds.Add(k);
 
                 foreach (var id in allIds)
                 {
-                    oldCounts.TryGetValue(id, out int oldC);
+                    _openNodeCounts.TryGetValue(id, out int oldC);
                     newCounts.TryGetValue(id, out int newC);
                     int delta = newC - oldC;
                     if (delta > 0)

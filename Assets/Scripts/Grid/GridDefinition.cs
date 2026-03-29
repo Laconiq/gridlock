@@ -52,6 +52,7 @@ namespace Gridlock.Grid
         public CellType[] CloneCells()
         {
             var source = _originalCells ?? cells;
+            if (source == null) return new CellType[width * height];
             return (CellType[])source.Clone();
         }
 

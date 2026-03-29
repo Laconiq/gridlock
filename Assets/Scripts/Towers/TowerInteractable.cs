@@ -9,6 +9,7 @@ namespace Gridlock.Towers
     public class TowerInteractable : MonoBehaviour, IInteractable
     {
         private TowerChassis _chassis;
+        private PlayerInventory _cachedInventory;
 
         public TowerChassis Chassis => _chassis;
 
@@ -33,8 +34,8 @@ namespace Gridlock.Towers
             var editor = NodeEditorScreen.Instance;
             if (editor == null || editor.IsOpen) return;
 
-            var inventory = FindAnyObjectByType<PlayerInventory>();
-            editor.Open(_chassis, inventory, transform);
+            _cachedInventory ??= FindAnyObjectByType<PlayerInventory>();
+            editor.Open(_chassis, _cachedInventory, transform);
         }
     }
 }

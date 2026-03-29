@@ -7,6 +7,7 @@ namespace Gridlock.Combat
     public class Projectile : MonoBehaviour
     {
         [SerializeField] private float maxLifetime = 5f;
+        [SerializeField] private LayerMask hitMask = ~0;
 
         private Vector3 _direction;
         private float _speed;
@@ -58,7 +59,7 @@ namespace Gridlock.Combat
 
             if (!_dealsDamage) return;
 
-            if (Physics.SphereCast(transform.position - _direction * 0.1f, 0.15f, _direction, out var hit, _speed * Time.deltaTime + 0.2f))
+            if (Physics.SphereCast(transform.position - _direction * 0.1f, 0.15f, _direction, out var hit, _speed * Time.deltaTime + 0.2f, hitMask))
             {
                 var damageable = hit.collider.GetComponentInParent<IDamageable>();
                 if (damageable != null)
