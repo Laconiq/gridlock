@@ -102,15 +102,6 @@ public partial class @Controls: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""OpenRadialMenu"",
-                    ""type"": ""Button"",
-                    ""id"": ""c1d2e3f4-0001-4000-8000-000000000050"",
-                    ""expectedControlType"": ""Button"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
                     ""name"": ""CameraPan"",
                     ""type"": ""Button"",
                     ""id"": ""a0a0a0a0-0001-4000-8000-000000000060"",
@@ -178,17 +169,6 @@ public partial class @Controls: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": ""Gamepad"",
                     ""action"": ""Interact"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""d1e2f3a4-0004-4000-8000-000000000051"",
-                    ""path"": ""<Keyboard>/r"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": ""Keyboard&Mouse"",
-                    ""action"": ""OpenRadialMenu"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -821,7 +801,6 @@ public partial class @Controls: IInputActionCollection2, IDisposable
         // Player
         m_Player = asset.FindActionMap("Player", throwIfNotFound: true);
         m_Player_Interact = m_Player.FindAction("Interact", throwIfNotFound: true);
-        m_Player_OpenRadialMenu = m_Player.FindAction("OpenRadialMenu", throwIfNotFound: true);
         m_Player_CameraPan = m_Player.FindAction("CameraPan", throwIfNotFound: true);
         m_Player_CameraDelta = m_Player.FindAction("CameraDelta", throwIfNotFound: true);
         m_Player_CameraZoom = m_Player.FindAction("CameraZoom", throwIfNotFound: true);
@@ -920,7 +899,6 @@ public partial class @Controls: IInputActionCollection2, IDisposable
     private readonly InputActionMap m_Player;
     private List<IPlayerActions> m_PlayerActionsCallbackInterfaces = new List<IPlayerActions>();
     private readonly InputAction m_Player_Interact;
-    private readonly InputAction m_Player_OpenRadialMenu;
     private readonly InputAction m_Player_CameraPan;
     private readonly InputAction m_Player_CameraDelta;
     private readonly InputAction m_Player_CameraZoom;
@@ -940,10 +918,6 @@ public partial class @Controls: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/Interact".
         /// </summary>
         public InputAction @Interact => m_Wrapper.m_Player_Interact;
-        /// <summary>
-        /// Provides access to the underlying input action "Player/OpenRadialMenu".
-        /// </summary>
-        public InputAction @OpenRadialMenu => m_Wrapper.m_Player_OpenRadialMenu;
         /// <summary>
         /// Provides access to the underlying input action "Player/CameraPan".
         /// </summary>
@@ -989,9 +963,6 @@ public partial class @Controls: IInputActionCollection2, IDisposable
             @Interact.started += instance.OnInteract;
             @Interact.performed += instance.OnInteract;
             @Interact.canceled += instance.OnInteract;
-            @OpenRadialMenu.started += instance.OnOpenRadialMenu;
-            @OpenRadialMenu.performed += instance.OnOpenRadialMenu;
-            @OpenRadialMenu.canceled += instance.OnOpenRadialMenu;
             @CameraPan.started += instance.OnCameraPan;
             @CameraPan.performed += instance.OnCameraPan;
             @CameraPan.canceled += instance.OnCameraPan;
@@ -1018,9 +989,6 @@ public partial class @Controls: IInputActionCollection2, IDisposable
             @Interact.started -= instance.OnInteract;
             @Interact.performed -= instance.OnInteract;
             @Interact.canceled -= instance.OnInteract;
-            @OpenRadialMenu.started -= instance.OnOpenRadialMenu;
-            @OpenRadialMenu.performed -= instance.OnOpenRadialMenu;
-            @OpenRadialMenu.canceled -= instance.OnOpenRadialMenu;
             @CameraPan.started -= instance.OnCameraPan;
             @CameraPan.performed -= instance.OnCameraPan;
             @CameraPan.canceled -= instance.OnCameraPan;
@@ -1340,13 +1308,6 @@ public partial class @Controls: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnInteract(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "OpenRadialMenu" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnOpenRadialMenu(InputAction.CallbackContext context);
         /// <summary>
         /// Method invoked when associated input action "CameraPan" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>

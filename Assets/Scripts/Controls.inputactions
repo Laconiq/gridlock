@@ -16,15 +16,6 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "OpenRadialMenu",
-                    "type": "Button",
-                    "id": "c1d2e3f4-0001-4000-8000-000000000050",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
                     "name": "CameraPan",
                     "type": "Button",
                     "id": "a0a0a0a0-0001-4000-8000-000000000060",
@@ -92,17 +83,6 @@
                     "processors": "",
                     "groups": "Gamepad",
                     "action": "Interact",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "d1e2f3a4-0004-4000-8000-000000000051",
-                    "path": "<Keyboard>/r",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Keyboard&Mouse",
-                    "action": "OpenRadialMenu",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
