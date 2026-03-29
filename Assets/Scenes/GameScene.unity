@@ -365,11 +365,11 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1262466362}
   - {fileID: 999092735}
   - {fileID: 1342745073}
   - {fileID: 1388573203}
   - {fileID: 239227154}
+  - {fileID: 100654880}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &71655953
@@ -451,6 +451,76 @@ MonoBehaviour:
   m_PointerBehavior: 0
   m_CursorLockBehavior: 0
   m_ScrollDeltaPerTick: 6
+--- !u!1 &100654879
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 100654880}
+  - component: {fileID: 100654882}
+  - component: {fileID: 100654881}
+  m_Layer: 0
+  m_Name: UI ModSlot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &100654880
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100654879}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 50785970}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &100654881
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100654879}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 717c618e74861624c8eaa69ec32b4dd6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Gridlock.Mods.UI.ModSlotPanel
+  focusOrthoSize: 10
+  maxSlots: 7
+--- !u!114 &100654882
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100654879}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.dll::UnityEngine.UIElements.UIDocument
+  m_PanelSettings: {fileID: 11400000, guid: 740f0dab3fc661440993d652ec8227b4, type: 2}
+  m_ParentUI: {fileID: 0}
+  sourceAsset: {fileID: 9197481963319205126, guid: 81ef717ddfe6e544c870afa31ddc0224, type: 3}
+  m_SortingOrder: 0
+  m_Position: 0
+  m_WorldSpaceSizeMode: 1
+  m_WorldSpaceWidth: 1920
+  m_WorldSpaceHeight: 1080
+  m_PivotReferenceSize: 0
+  m_Pivot: 0
+  m_WorldSpaceCollider: {fileID: 0}
 --- !u!1 &112718367
 GameObject:
   m_ObjectHideFlags: 0
@@ -484,6 +554,7 @@ MonoBehaviour:
   poolSize: 20
   masterVolume: 1
   sfxVolume: 1
+  uiVolume: 1
 --- !u!4 &112718369
 Transform:
   m_ObjectHideFlags: 0
@@ -600,6 +671,13 @@ MonoBehaviour:
   lineWidth: 0.12
   lineY: 0.15
   dotRadius: 0.2
+  pulseDuration: 0.96
+  pulseWidth: 0.15
+  pulseColor: {r: 0.56, g: 0.96, b: 1, a: 1}
+  dotFlashScale: 1.8
+  ambientPulseInterval: 4
+  ambientPulseIntervalVariance: 1.5
+  ambientPulseColor: {r: 0.35, g: 0.6, b: 0.65, a: 0.7}
 --- !u!4 &526887844
 Transform:
   m_ObjectHideFlags: 0
@@ -778,6 +856,9 @@ MonoBehaviour:
   towerLayerMask:
     serializedVersion: 2
     m_Bits: 55
+  validPlacementColor: {r: 0.2, g: 1, b: 0.5, a: 1}
+  invalidPlacementColor: {r: 1, g: 0.2, b: 0.2, a: 1}
+  defaultPreset: {fileID: 11400000, guid: 3668e10acfbcb5c4c9b574ed4e827248, type: 2}
 --- !u!114 &725435684
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -946,7 +1027,7 @@ Transform:
   m_GameObject: {fileID: 999092730}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -5.88082, y: 4.87386, z: -31.47499}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1172,90 +1253,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Gridlock.Visual.VoxelPool
   maxVoxels: 4096
   settleTime: 2
---- !u!1 &1262466356
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1262466362}
-  - component: {fileID: 1262466358}
-  - component: {fileID: 1262466357}
-  - component: {fileID: 1262466363}
-  m_Layer: 0
-  m_Name: UI Node Editor
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1262466357
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1262466356}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4cb9fb1754305754a965e39361989d90, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Gridlock.NodeEditor.NodeEditorController
-  screen: {fileID: 1262466358}
---- !u!114 &1262466358
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1262466356}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2500da3c0234d204b82cf08b2acbb49d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Gridlock.NodeEditor.UI.NodeEditorScreen
-  moduleRegistry: {fileID: 11400000, guid: 22193429fd66e25468601df6db58c91d, type: 2}
-  focusOrthoSize: 10
---- !u!4 &1262466362
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1262466356}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -5.88082, y: 4.87386, z: -31.47499}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 50785970}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1262466363
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1262466356}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.dll::UnityEngine.UIElements.UIDocument
-  m_PanelSettings: {fileID: 11400000, guid: b3dabeebc2885ce43929923551674e8e, type: 2}
-  m_ParentUI: {fileID: 0}
-  sourceAsset: {fileID: 9197481963319205126, guid: 689ae40950c7c094ebf9a5f4fe2bfbf9, type: 3}
-  m_SortingOrder: 0
-  m_Position: 0
-  m_WorldSpaceSizeMode: 1
-  m_WorldSpaceWidth: 1920
-  m_WorldSpaceHeight: 1080
-  m_PivotReferenceSize: 0
-  m_Pivot: 0
-  m_WorldSpaceCollider: {fileID: 0}
 --- !u!1 &1342745070
 GameObject:
   m_ObjectHideFlags: 0

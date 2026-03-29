@@ -10,10 +10,10 @@ GameObject:
   m_Component:
   - component: {fileID: 2466096452728443664}
   - component: {fileID: 7512745609410960920}
-  - component: {fileID: 973022355760910799}
   - component: {fileID: 8039293914760116423}
   - component: {fileID: 2428079034739864553}
   - component: {fileID: 7780314028574371214}
+  - component: {fileID: 4605390965817778414}
   m_Layer: 0
   m_Name: BasicProjectile
   m_TagString: Untagged
@@ -57,19 +57,6 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &973022355760910799
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8964244729186320260}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f44c34dbac724ac4599302e30a2fd4ac, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Gridlock.Combat.Projectile
-  maxLifetime: 5
 --- !u!96 &8039293914760116423
 TrailRenderer:
   serializedVersion: 4
@@ -237,3 +224,37 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &4605390965817778414
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8964244729186320260}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 18b38690c50a65048b14c4c8bab26d91, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Gridlock.Mods.ModProjectile
+  maxLifetime: 5
+  hitMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  homingTurnSpeed: 8
+  shockChainRadius: 3
+  defaultChainCount: 1
+  teslaChainCount: 3
+  burnDamage: 5
+  burnDuration: 3
+  burnTickInterval: 0.5
+  frostSlowValue: 0.5
+  frostDuration: 2
+  blizzardStunDuration: 0.5
+  leechPercent: 0.2
+  vampireLeechPercent: 0.4
+  voidHPPercent: 0.08
+  lowHPThreshold: 0.3
+  splitArcDegrees: 120
+  pulseInterval: 0.3
+  delayDuration: 0.5
+  impactColor: {r: 0, g: 1, b: 1, a: 1}

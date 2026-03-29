@@ -12,10 +12,10 @@ GameObject:
   - component: {fileID: 8632160606008456982}
   - component: {fileID: 7298013138993832780}
   - component: {fileID: 6857266715922580223}
-  - component: {fileID: 8588930336834771211}
   - component: {fileID: 5860436355741958959}
   - component: {fileID: 8608928232267479782}
   - component: {fileID: 1234567890123456789}
+  - component: {fileID: 5362382441613945803}
   m_Layer: 0
   m_Name: TowerPrefab
   m_TagString: Untagged
@@ -74,6 +74,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Gridlock.Towers.TowerChassis
   maxTriggers: 3
   baseRange: 10
+  baseDamage: 10
+  fireRate: 2
+  slotCount: 5
   firePoint: {fileID: 4093815563506613825}
 --- !u!114 &6857266715922580223
 MonoBehaviour:
@@ -87,19 +90,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f0d1832243d6d7242bb286b5f1514277, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Gridlock.Towers.TowerInteractable
---- !u!114 &8588930336834771211
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4165849237337852782}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceeac58dd4313ab4fb07f4773e1684ea, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Gridlock.Towers.TowerExecutor
-  moduleRegistry: {fileID: 11400000, guid: 22193429fd66e25468601df6db58c91d, type: 2}
 --- !u!33 &5860436355741958959
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -167,7 +157,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f03f31a6237ea4d99954d97331368ff7, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Gridlock.Visual.TowerRangeIndicator
   lineMaterial: {fileID: 2100000, guid: 62d27c3107934465ab8ff63391defe82, type: 2}
   segments: 48
@@ -176,6 +166,22 @@ MonoBehaviour:
   pulseSpeed: 2
   pulseMin: 0.3
   pulseMax: 0.7
+--- !u!114 &5362382441613945803
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4165849237337852782}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72247ddadcaf50148a6533d6b3fed8aa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Gridlock.Mods.ModSlotExecutor
+  preset: {fileID: 0}
+  projectilePrefab: {fileID: 8964244729186320260, guid: bc2dcf566f61fda4b8cf89fd16cf8c71, type: 3}
+  targetingMode: 0
+  modSlots: []
 --- !u!1 &6931350410310232637
 GameObject:
   m_ObjectHideFlags: 0
