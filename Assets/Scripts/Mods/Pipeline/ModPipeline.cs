@@ -55,6 +55,20 @@ namespace Gridlock.Mods.Pipeline
             return clone;
         }
 
+        public ModPipeline CloneExcludingPhase(StagePhase phase)
+        {
+            var clone = new ModPipeline();
+            foreach (var (stage, tag) in _allStages)
+            {
+                if (stage.Phase == phase) continue;
+                clone._allStages.Add((stage.Clone(), tag));
+            }
+            clone.RebuildPhaseMap();
+            foreach (var (_, tag) in clone._allStages)
+                clone._accumulatedTags |= tag;
+            return clone;
+        }
+
         private void RebuildPhaseMap()
         {
             _byPhase.Clear();

@@ -161,11 +161,12 @@ namespace Gridlock.Mods
 
             var health = hitObject.GetComponentInParent<EnemyHealth>();
             bool wasAlive = health != null && health.IsAlive;
+            float hpBeforeHit = health != null ? health.CurrentHP : 0f;
 
             damageable.TakeDamage(new DamageInfo(_ctx.Damage, DamageType.Projectile));
 
             _ctx.KilledThisHit = wasAlive && health != null && !health.IsAlive;
-            _ctx.OverkillAmount = _ctx.KilledThisHit ? -health.CurrentHP : 0f;
+            _ctx.OverkillAmount = _ctx.KilledThisHit ? Mathf.Max(0f, _ctx.Damage - hpBeforeHit) : 0f;
 
             _pipeline.RunPhase(StagePhase.OnHit, ref _ctx);
 

@@ -27,7 +27,7 @@ namespace Gridlock.Mods.Pipeline.Stages
                 {
                     Origin = ctx.Position,
                     Direction = dir,
-                    Pipeline = ctx.OwnerPipeline?.CloneExcluding<SplitStage>(),
+                    Pipeline = ctx.OwnerPipeline?.CloneExcludingPhase(StagePhase.Configure),
                     DamageScale = 1f,
                     Target = ctx.Target,
                 });

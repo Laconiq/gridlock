@@ -9,7 +9,7 @@ namespace Gridlock.Mods.Pipeline.Stages
     {
         [SerializeField] private float leechPercent = 0.2f;
 
-        public StagePhase Phase => StagePhase.PostHit;
+        public StagePhase Phase => StagePhase.OnHit;
 
         public void Execute(ref ModContext ctx)
         {
