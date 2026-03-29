@@ -107,34 +107,60 @@ namespace Gridlock.Mods.Pipeline
             return c;
         }
 
+        private static int CountAdjacentPairs(List<ModType> traits, ModType type)
+        {
+            int pairs = 0;
+            for (int i = 1; i < traits.Count; i++)
+                if (traits[i] == type && traits[i - 1] == type) pairs++;
+            return pairs;
+        }
+
         private static void AddTraitStages(List<ModType> traits, ModPipeline pipeline, List<SynergyEffect> synergies)
         {
             var set = new HashSet<ModType>(traits);
 
-            // Stackable traits — each duplicate adds another stage
-            for (int i = 0; i < CountTrait(traits, ModType.Heavy); i++)
+            // Stackable traits — count + adjacent pair bonus
+            int heavyTotal = CountTrait(traits, ModType.Heavy) + CountAdjacentPairs(traits, ModType.Heavy);
+            for (int i = 0; i < heavyTotal; i++)
                 pipeline.AddStage(new HeavyStage(), ModTags.Heavy);
-            for (int i = 0; i < CountTrait(traits, ModType.Swift); i++)
+
+            int swiftTotal = CountTrait(traits, ModType.Swift) + CountAdjacentPairs(traits, ModType.Swift);
+            for (int i = 0; i < swiftTotal; i++)
                 pipeline.AddStage(new SwiftStage(), ModTags.Swift);
 
-            // Structural traits — always 1x (behavior is count-based or singular)
-            if (set.Contains(ModType.Split))
-                pipeline.AddStage(new SplitStage(), ModTags.Split);
+            // Split — 1x stage, count + adjacent pair bonus determines projectiles
+            int splitCount = CountTrait(traits, ModType.Split);
+            if (splitCount > 0)
+            {
+                int barrageBonus = CountAdjacentPairs(traits, ModType.Split);
+                pipeline.AddStage(new SplitStage { ExtraCount = splitCount, BarrageBonus = barrageBonus }, ModTags.Split);
+            }
             if (set.Contains(ModType.Homing))
                 pipeline.AddStage(new HomingStage(), ModTags.Homing);
 
-            // Stackable elemental/effect traits
-            for (int i = 0; i < CountTrait(traits, ModType.Void); i++)
+            // Stackable elemental/effect traits — count + adjacent pair bonus
+            int voidTotal = CountTrait(traits, ModType.Void) + CountAdjacentPairs(traits, ModType.Void);
+            for (int i = 0; i < voidTotal; i++)
                 pipeline.AddStage(new VoidStage(), ModTags.Void);
-            for (int i = 0; i < CountTrait(traits, ModType.Wide); i++)
+
+            int wideTotal = CountTrait(traits, ModType.Wide) + CountAdjacentPairs(traits, ModType.Wide);
+            for (int i = 0; i < wideTotal; i++)
                 pipeline.AddStage(new WideStage(), ModTags.Wide);
-            for (int i = 0; i < CountTrait(traits, ModType.Burn); i++)
+
+            int burnTotal = CountTrait(traits, ModType.Burn) + CountAdjacentPairs(traits, ModType.Burn);
+            for (int i = 0; i < burnTotal; i++)
                 pipeline.AddStage(new BurnStage(), ModTags.Burn);
-            for (int i = 0; i < CountTrait(traits, ModType.Frost); i++)
+
+            int frostTotal = CountTrait(traits, ModType.Frost) + CountAdjacentPairs(traits, ModType.Frost);
+            for (int i = 0; i < frostTotal; i++)
                 pipeline.AddStage(new FrostStage(), ModTags.Frost);
-            for (int i = 0; i < CountTrait(traits, ModType.Shock); i++)
+
+            int shockTotal = CountTrait(traits, ModType.Shock) + CountAdjacentPairs(traits, ModType.Shock);
+            for (int i = 0; i < shockTotal; i++)
                 pipeline.AddStage(new ShockStage(), ModTags.Shock);
-            for (int i = 0; i < CountTrait(traits, ModType.Leech); i++)
+
+            int leechTotal = CountTrait(traits, ModType.Leech) + CountAdjacentPairs(traits, ModType.Leech);
+            for (int i = 0; i < leechTotal; i++)
                 pipeline.AddStage(new LeechStage(), ModTags.Leech);
 
             pipeline.AddStage(new ImpactFeedbackStage(), ModTags.None);

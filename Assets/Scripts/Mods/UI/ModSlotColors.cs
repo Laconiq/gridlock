@@ -49,7 +49,7 @@ namespace Gridlock.Mods.UI
                 ModType.Homing => "Projectile tracks the target",
                 ModType.Pierce => "Passes through enemies (max 3)",
                 ModType.Bounce => "Bounces between enemies (max 3)",
-                ModType.Split => "Splits into 3 sub-projectiles",
+                ModType.Split => "+1 extra projectile (stacks)",
                 ModType.Heavy => "x1.5 DMG, x1.3 Size, x0.7 Speed (stacks)",
                 ModType.Swift => "x1.5 Speed, x0.75 DMG (stacks)",
                 ModType.Wide => "Impact deals AOE damage (radius 2, stacks)",
@@ -100,7 +100,7 @@ namespace Gridlock.Mods.UI
                 SynergyEffect.Meteor => "HEAVY + WIDE\nAOE radius doubled, screen shake on impact",
                 SynergyEffect.ThermalShock => "BURN + FROST\nBurst damage = 50% max HP (consumes both statuses)",
                 SynergyEffect.Siphon => "SHOCK + VOID\nVoid damage heals the objective",
-                SynergyEffect.Barrage => "SPLIT + SPLIT\nSplits into 5 instead of 3+3",
+                SynergyEffect.Barrage => "SPLIT + SPLIT\n+1 bonus extra projectile",
                 SynergyEffect.Vampire => "LEECH + HEAVY\nDrain increased to 40% of damage dealt",
                 _ => ""
             };

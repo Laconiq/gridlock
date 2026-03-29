@@ -25,7 +25,7 @@ Gridlock is an **isometric grid-based Tower Defense** built in Unity 6 (6000.3.1
 
 ## Code Style
 
-- **No superfluous comments.** Only comment to explain *why* something non-obvious is done. The code should be self-documenting.
+- **No superfluous comments.** Only comment to explain *why* something non-obvious is done. The code should be self-documenting. Section headers in enums/constants are OK. Remove any comment that restates what the code does (e.g. `// clean the player prefab` before a line that obviously cleans the player prefab). When modifying a file, proactively remove superfluous comments encountered in the diff area.
 - **No custom Inspector scripts.** Do not create custom editors, property drawers, or Inspector scripts — use Odin attributes and ScriptableObjects instead. Exceptions: `#if UNITY_EDITOR`-guarded editor tools (e.g. `CreateTestGrid`, `BakePrefabMeshes`) are allowed when they serve the pipeline.
 - **Module system uses `[SerializeReference]` + Odin.** Module definitions use `[SerializeReference, ListDrawerSettings, InlineProperty] List<T>` for concrete implementations. The SO holds templates, `CreateInstance()` clones them at runtime. No string-based factory dispatch.
 - **All gameplay values are `[SerializeField]`** for live Inspector tuning. No magic numbers in code.

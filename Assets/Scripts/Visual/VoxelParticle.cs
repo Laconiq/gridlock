@@ -59,7 +59,6 @@ namespace Gridlock.Visual
             _velocity.y -= 9.81f * Time.deltaTime;
             transform.position += _velocity * Time.deltaTime;
 
-            // Grid warp floor
             float warpY = 0f;
             var warp = Grid.GridWarpManager.Instance;
             if (warp != null)
