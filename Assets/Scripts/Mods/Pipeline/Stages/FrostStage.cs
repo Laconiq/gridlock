@@ -7,7 +7,7 @@ namespace Gridlock.Mods.Pipeline.Stages
     [Serializable]
     public class FrostStage : IModStage
     {
-        [SerializeField] private float slowValue = 0.5f;
+        [SerializeField] private float slowValue = 0.65f;
         [SerializeField] private float duration = 2f;
         [SerializeField] private float blizzardStunDuration = 0.5f;
 

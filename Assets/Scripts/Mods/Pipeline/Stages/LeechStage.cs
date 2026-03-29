@@ -7,7 +7,7 @@ namespace Gridlock.Mods.Pipeline.Stages
     [Serializable]
     public class LeechStage : IModStage
     {
-        [SerializeField] private float leechPercent = 0.2f;
+        [SerializeField] private float leechPercent = 0.12f;
 
         public StagePhase Phase => StagePhase.OnHit;
 

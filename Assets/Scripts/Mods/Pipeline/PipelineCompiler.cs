@@ -99,34 +99,47 @@ namespace Gridlock.Mods.Pipeline
             return groups;
         }
 
+        private static int CountTrait(List<ModType> traits, ModType type)
+        {
+            int c = 0;
+            for (int i = 0; i < traits.Count; i++)
+                if (traits[i] == type) c++;
+            return c;
+        }
+
         private static void AddTraitStages(List<ModType> traits, ModPipeline pipeline, List<SynergyEffect> synergies)
         {
             var set = new HashSet<ModType>(traits);
 
-            if (set.Contains(ModType.Heavy))
+            // Stackable traits — each duplicate adds another stage
+            for (int i = 0; i < CountTrait(traits, ModType.Heavy); i++)
                 pipeline.AddStage(new HeavyStage(), ModTags.Heavy);
-            if (set.Contains(ModType.Swift))
+            for (int i = 0; i < CountTrait(traits, ModType.Swift); i++)
                 pipeline.AddStage(new SwiftStage(), ModTags.Swift);
+
+            // Structural traits — always 1x (behavior is count-based or singular)
             if (set.Contains(ModType.Split))
                 pipeline.AddStage(new SplitStage(), ModTags.Split);
             if (set.Contains(ModType.Homing))
                 pipeline.AddStage(new HomingStage(), ModTags.Homing);
 
-            if (set.Contains(ModType.Void))
+            // Stackable elemental/effect traits
+            for (int i = 0; i < CountTrait(traits, ModType.Void); i++)
                 pipeline.AddStage(new VoidStage(), ModTags.Void);
-            if (set.Contains(ModType.Wide))
+            for (int i = 0; i < CountTrait(traits, ModType.Wide); i++)
                 pipeline.AddStage(new WideStage(), ModTags.Wide);
-            if (set.Contains(ModType.Burn))
+            for (int i = 0; i < CountTrait(traits, ModType.Burn); i++)
                 pipeline.AddStage(new BurnStage(), ModTags.Burn);
-            if (set.Contains(ModType.Frost))
+            for (int i = 0; i < CountTrait(traits, ModType.Frost); i++)
                 pipeline.AddStage(new FrostStage(), ModTags.Frost);
-            if (set.Contains(ModType.Shock))
+            for (int i = 0; i < CountTrait(traits, ModType.Shock); i++)
                 pipeline.AddStage(new ShockStage(), ModTags.Shock);
-            if (set.Contains(ModType.Leech))
+            for (int i = 0; i < CountTrait(traits, ModType.Leech); i++)
                 pipeline.AddStage(new LeechStage(), ModTags.Leech);
 
             pipeline.AddStage(new ImpactFeedbackStage(), ModTags.None);
 
+            // Structural — 1x, count handled via PierceRemaining/BounceRemaining
             bool hasPierce = set.Contains(ModType.Pierce);
             if (!hasPierce && synergies.Contains(SynergyEffect.Railgun))
                 hasPierce = true;

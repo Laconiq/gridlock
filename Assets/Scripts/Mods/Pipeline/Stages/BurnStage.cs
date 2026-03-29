@@ -7,7 +7,7 @@ namespace Gridlock.Mods.Pipeline.Stages
     [Serializable]
     public class BurnStage : IModStage
     {
-        [SerializeField] private float burnDamage = 5f;
+        [SerializeField] private float burnDamage = 3f;
         [SerializeField] private float burnDuration = 3f;
         [SerializeField] private float burnTickInterval = 0.5f;
 

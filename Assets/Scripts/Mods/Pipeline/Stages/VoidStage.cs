@@ -8,7 +8,7 @@ namespace Gridlock.Mods.Pipeline.Stages
     [Serializable]
     public class VoidStage : IModStage
     {
-        [SerializeField] private float hpPercent = 0.08f;
+        [SerializeField] private float hpPercent = 0.05f;
 
         public StagePhase Phase => StagePhase.OnHit;
 

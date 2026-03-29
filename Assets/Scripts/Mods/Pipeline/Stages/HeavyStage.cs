@@ -6,9 +6,9 @@ namespace Gridlock.Mods.Pipeline.Stages
     [Serializable]
     public class HeavyStage : IModStage
     {
-        [SerializeField] private float damageMultiplier = 2f;
-        [SerializeField] private float speedMultiplier = 0.6f;
-        [SerializeField] private float sizeMultiplier = 1.5f;
+        [SerializeField] private float damageMultiplier = 1.5f;
+        [SerializeField] private float speedMultiplier = 0.7f;
+        [SerializeField] private float sizeMultiplier = 1.3f;
 
         public StagePhase Phase => StagePhase.Configure;
 

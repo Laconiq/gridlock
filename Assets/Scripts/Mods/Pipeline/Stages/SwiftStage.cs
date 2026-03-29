@@ -6,8 +6,8 @@ namespace Gridlock.Mods.Pipeline.Stages
     [Serializable]
     public class SwiftStage : IModStage
     {
-        [SerializeField] private float damageMultiplier = 0.6f;
-        [SerializeField] private float speedMultiplier = 1.8f;
+        [SerializeField] private float damageMultiplier = 0.75f;
+        [SerializeField] private float speedMultiplier = 1.5f;
 
         public StagePhase Phase => StagePhase.Configure;
 
