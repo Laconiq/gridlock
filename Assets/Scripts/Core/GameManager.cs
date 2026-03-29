@@ -1,6 +1,5 @@
 using System;
 using Gridlock.Enemies;
-using Gridlock.Loot;
 using Gridlock.Towers;
 using UnityEngine;
 
@@ -57,14 +56,8 @@ namespace Gridlock.Core
                 Destroy(enemy.gameObject);
             EnemyRegistry.Clear();
 
-            foreach (var pickup in FindObjectsByType<ModulePickup>(FindObjectsInactive.Exclude))
-                Destroy(pickup.gameObject);
-
             foreach (var tower in FindObjectsByType<TowerChassis>(FindObjectsInactive.Exclude))
                 Destroy(tower.gameObject);
-
-            var inventory = FindAnyObjectByType<Player.PlayerInventory>();
-            if (inventory != null) inventory.ResetToDefault();
 
             var wm = FindAnyObjectByType<WaveManager>();
             wm?.ResetWaves();

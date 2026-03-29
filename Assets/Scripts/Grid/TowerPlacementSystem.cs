@@ -2,8 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Gridlock.Core;
 using Gridlock.Interfaces;
-using Gridlock.NodeEditor.Data;
-using Gridlock.Towers;
+using Gridlock.Mods;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -17,6 +16,7 @@ namespace Gridlock.Grid
         [SerializeField] private LayerMask towerLayerMask = ~0;
         [SerializeField] private Color validPlacementColor = new(0.2f, 1f, 0.5f, 1f);
         [SerializeField] private Color invalidPlacementColor = new(1f, 0.2f, 0.2f, 1f);
+        [SerializeField] private ModSlotPreset defaultPreset;
 
         private GridManager _gridManager;
         private Camera _camera;
@@ -160,9 +160,12 @@ namespace Gridlock.Grid
             if (juice != null)
                 juice.OnTowerPlaced(snapPos);
 
-            var chassis = tower.GetComponent<TowerChassis>();
-            if (chassis != null)
-                chassis.SetNodeGraph(CreateDefaultGraph());
+            if (defaultPreset != null)
+            {
+                var executor = tower.GetComponent<ModSlotExecutor>();
+                if (executor != null)
+                    executor.ApplyPreset(defaultPreset);
+            }
 
             if (RemainingTowers <= 0)
                 _preview.SetActive(false);
@@ -203,52 +206,5 @@ namespace Gridlock.Grid
             t.localScale = targetScale;
         }
 
-        private static NodeGraphData CreateDefaultGraph()
-        {
-            var graph = new NodeGraphData();
-
-            var trigger = new NodeData
-            {
-                moduleDefId = "on_timer",
-                category = ModuleCategory.Trigger,
-                editorPosition = new Vector2(100, 200)
-            };
-
-            var zone = new NodeData
-            {
-                moduleDefId = "nearest_enemy",
-                category = ModuleCategory.Zone,
-                editorPosition = new Vector2(350, 200)
-            };
-
-            var effect = new NodeData
-            {
-                moduleDefId = "projectile",
-                category = ModuleCategory.Effect,
-                editorPosition = new Vector2(600, 200)
-            };
-
-            graph.nodes.Add(trigger);
-            graph.nodes.Add(zone);
-            graph.nodes.Add(effect);
-
-            graph.connections.Add(new ConnectionData
-            {
-                fromNodeId = trigger.nodeId,
-                toNodeId = zone.nodeId,
-                fromPort = 0,
-                toPort = 0
-            });
-
-            graph.connections.Add(new ConnectionData
-            {
-                fromNodeId = zone.nodeId,
-                toNodeId = effect.nodeId,
-                fromPort = 0,
-                toPort = 0
-            });
-
-            return graph;
-        }
     }
 }

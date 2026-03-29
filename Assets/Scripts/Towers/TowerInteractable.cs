@@ -1,6 +1,6 @@
 using Gridlock.Interfaces;
-using Gridlock.NodeEditor.UI;
-using Gridlock.Player;
+using Gridlock.Mods;
+using Gridlock.Mods.UI;
 using UnityEngine;
 
 namespace Gridlock.Towers
@@ -9,13 +9,14 @@ namespace Gridlock.Towers
     public class TowerInteractable : MonoBehaviour, IInteractable
     {
         private TowerChassis _chassis;
-        private PlayerInventory _cachedInventory;
+        private ModSlotExecutor _executor;
 
         public TowerChassis Chassis => _chassis;
 
         private void Awake()
         {
             _chassis = GetComponent<TowerChassis>();
+            _executor = GetComponent<ModSlotExecutor>();
         }
 
         public string GetPromptText()
@@ -25,17 +26,13 @@ namespace Gridlock.Towers
 
         public bool CanInteract()
         {
-            var editor = NodeEditorScreen.Instance;
-            return editor != null && !editor.IsOpen;
+            return ModSlotPanel.Instance == null || !ModSlotPanel.Instance.IsOpen;
         }
 
         public void Interact()
         {
-            var editor = NodeEditorScreen.Instance;
-            if (editor == null || editor.IsOpen) return;
-
-            _cachedInventory ??= FindAnyObjectByType<PlayerInventory>();
-            editor.Open(_chassis, _cachedInventory, transform);
+            if (_executor == null) return;
+            ModSlotPanel.Instance?.Open(_executor, transform);
         }
     }
 }

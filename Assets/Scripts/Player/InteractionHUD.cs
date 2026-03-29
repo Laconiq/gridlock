@@ -27,6 +27,10 @@ namespace Gridlock.Player
             var root = _uiDocument.rootVisualElement;
             if (root == null) return;
 
+            root.pickingMode = PickingMode.Ignore;
+            if (root.parent != null)
+                root.parent.pickingMode = PickingMode.Ignore;
+
             _prompt = root.Q("prompt");
             _keyContainer = root.Q("key-container");
             _keyFill = root.Q("key-fill");

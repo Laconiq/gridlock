@@ -30,6 +30,9 @@ namespace Gridlock.HUD
         private void OnEnable()
         {
             var root = _uiDocument.rootVisualElement;
+            root.pickingMode = PickingMode.Ignore;
+            if (root.parent != null)
+                root.parent.pickingMode = PickingMode.Ignore;
             _root = root.Q("gameover-root");
             _waveLabel = root.Q<Label>("gameover-wave");
             _killsLabel = root.Q<Label>("gameover-kills");

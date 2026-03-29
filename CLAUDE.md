@@ -312,6 +312,61 @@ These are `#if UNITY_EDITOR` menu items under `Gridlock/`:
 - **Fix Tower Prefab References** — Links FirePoint, ModuleRegistry on tower prefab
 - **Assign Default Material to Prefabs** — Sets Unity's default URP/Lit material on all gameplay prefabs (uses `GetComponentInChildren`)
 
+## Mod Slots System (feature/mod-slots-system branch)
+
+New projectile-building system replacing the node editor. See `docs/GAME_DESIGN.md` for full design.
+
+### Architecture: Pipeline + Flyweight
+
+Towers fire automatically. The player builds the **projectile** via a chain of mods in slots. The system uses a **Pipeline pattern** where each mod is an `IModStage` that runs in a specific phase.
+
+```
+Tower fires → PipelineCompiler.Compile(slots) → ModPipeline + ModContext
+→ ModProjectile.Initialize(pipeline, ctx) → Configure phase runs (Split = multi-spawn)
+→ Each frame: OnUpdate phase (homing, pulse, delay) → Move → Collision
+→ On hit: OnHit phase (damage, elements, wide, events) → PostHit phase (pierce, bounce, leech)
+→ DrainSpawns (sub-projectiles from events)
+```
+
+### Pipeline Framework (`Assets/Scripts/Mods/Pipeline/`)
+
+| File | Role |
+|------|------|
+| `IModStage.cs` | Interface: `Phase`, `Execute(ref ModContext)`, `Clone()` |
+| `StagePhase.cs` | Enum: Configure, OnUpdate, OnHit, PostHit, OnExpire |
+| `ModContext.cs` | Mutable struct flowing through pipeline (position, damage, tags, spawns) |
+| `ModTags.cs` | `[Flags]` enum — one bit per mod type for fast synergy checks |
+| `SpawnRequest.cs` | Struct for sub-projectile spawn requests pushed by event stages |
+| `ModPipeline.cs` | Ordered list of stages, grouped by phase. `RunPhase`, `Clone`, `AddStage` |
+| `PipelineCompiler.cs` | Compiles `List<ModSlotData>` → `ModPipeline` + `ModContext`. Handles event splitting, synergy application, stage ordering |
+
+### Stages (`Assets/Scripts/Mods/Pipeline/Stages/`)
+
+Each mod = 1 file, 20-40 lines, implements `IModStage`. Adding a new mod = creating 1 file + 1 enum value.
+
+**Behavior:** HomingStage, PierceStage, BounceStage, SplitStage, HeavyStage, SwiftStage, WideStage, ImpactFeedbackStage
+**Elemental:** BurnStage, FrostStage, ShockStage, VoidStage, LeechStage
+**Events:** OnHitEventStage, OnKillEventStage, OnEndEventStage, OnPierceEventStage, OnBounceEventStage, OnPulseEventStage, OnDelayEventStage, ConditionalEventStage, OnOverkillEventStage
+
+### Projectile (`Assets/Scripts/Mods/ModProjectile.cs`)
+
+Thin MonoBehaviour (~150 lines). Holds pipeline + context. Delegates all behavior to stages. Movement in XZ only at Y=0.5, WarpFollower handles grid deformation. Collision via EnemyRegistry sweep (no Physics).
+
+### Key files
+
+- `Assets/Scripts/Mods/ModType.cs` — All mod + event enums with extension methods
+- `Assets/Scripts/Mods/ModSlotData.cs` — Serializable slot data
+- `Assets/Scripts/Mods/SynergyDef.cs` — Adjacency synergy table
+- `Assets/Scripts/Mods/ModSlotExecutor.cs` — Tower component: targeting + fire timer + pipeline compilation
+- `Assets/Scripts/Mods/ModProjectile.cs` — Thin projectile MonoBehaviour
+- `Assets/Scripts/Enemies/EnemyRegistry.cs` — Static enemy registry for O(n) targeting
+
+### Targeting (no more Zone nodes)
+Simple `TargetingMode` enum on tower: First, Nearest, Strongest, Weakest, Last. Uses `EnemyRegistry` for O(n) lookups.
+
+### Chain evaluation rule
+Mods before an Event = main projectile traits (Configure/OnUpdate/OnHit/PostHit stages). Mods after an Event = sub-projectile stages (in a sub-ModPipeline held by the event stage). Events push SpawnRequests that ModProjectile drains after each hit.
+
 ## Removed Systems
 
 The following systems have been intentionally removed:
