@@ -1,5 +1,6 @@
 using System;
 using Gridlock.Core;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Gridlock.HUD
@@ -47,10 +48,6 @@ namespace Gridlock.HUD
                 gm.OnStateChanged -= HandleStateChanged;
         }
 
-        public void Refresh()
-        {
-        }
-
         private void HandleLogMessage(string message)
         {
             if (_container == null) return;
@@ -71,11 +68,7 @@ namespace Gridlock.HUD
             for (int i = 0; i < count; i++)
             {
                 int age = count - 1 - i;
-                float opacity = 1f;
-                for (int j = 0; j < age; j++)
-                    opacity *= OpacityFalloff;
-
-                _container[i].style.opacity = opacity;
+                _container[i].style.opacity = Mathf.Pow(OpacityFalloff, age);
             }
         }
 

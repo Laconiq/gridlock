@@ -1,12 +1,7 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements"
-         xsi="http://www.w3.org/2001/XMLSchema-instance"
-         engine="UnityEngine.UIElements"
-         noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd"
-         editor-extension-mode="False">
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
 
-    <ui:Template name="DesignTokens" src="project://database/Assets/UI/DesignTokens.uss" />
-    <Style src="project://database/Assets/UI/DesignTokens.uss" />
-    <Style src="project://database/Assets/UI/Inventory/InventoryPanel.uss" />
+    <ui:Style src="../DesignTokens.uss" />
+    <ui:Style src="InventoryPanel.uss" />
 
     <ui:VisualElement name="inventory-root" class="gridlock-ui" picking-mode="Ignore">
         <ui:VisualElement name="inventory-container" class="inventory-panel__root inventory-panel__root--closed">

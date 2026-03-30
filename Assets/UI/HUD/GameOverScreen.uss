@@ -1,10 +1,5 @@
 /* ─── Root ─── */
 .go__root {
-    position: absolute;
-    left: 0;
-    top: 0;
-    right: 0;
-    bottom: 0;
     align-items: center;
     justify-content: center;
 }
@@ -68,7 +63,7 @@
 
 /* ─── Badge ─── */
 .go__badge {
-    background-color: #9f0519;
+    background-color: var(--error-container);
     padding: 4px 14px;
     margin-bottom: 16px;
 }
@@ -182,14 +177,13 @@
     font-size: 11px;
     letter-spacing: 4px;
     -unity-font-style: bold;
-    border-radius: 0;
     transition-duration: 0.12s;
     transition-property: opacity, border-color, color, background-color;
 }
 
 .go__btn--primary {
     background-color: var(--primary);
-    color: #005d63;
+    color: var(--on-primary);
     border-width: 0;
     margin-right: 16px;
 }
@@ -203,7 +197,7 @@
 }
 
 .go__btn--ghost {
-    background-color: rgba(0, 0, 0, 0);
+    background-color: transparent;
     color: var(--on-surface-variant);
     border-width: 1px;
     border-color: var(--outline-variant);

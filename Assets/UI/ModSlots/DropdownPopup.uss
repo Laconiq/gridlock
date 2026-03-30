@@ -11,7 +11,6 @@
     background-color: #131314;
     border-width: 1px;
     border-color: rgba(0, 238, 252, 0.3);
-    border-radius: 0;
     padding: 4px 0;
     min-width: 140px;
 }
@@ -59,7 +58,6 @@
 .unity-base-dropdown .unity-scroller--vertical .unity-slider__dragger {
     background-color: rgba(0, 238, 252, 0.3);
     border-width: 0;
-    border-radius: 0;
 }
 
 .unity-base-dropdown .unity-scroller--vertical .unity-repeat-button {

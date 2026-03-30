@@ -3,25 +3,6 @@
    ============================================================ */
 
 .interaction-root {
-    --surface:                  #0e0e0f;
-    --surface-container:        #19191b;
-    --surface-container-high:   #201f21;
-    --primary:                  #8ff5ff;
-    --primary-container:        #00eefc;
-    --on-primary:               #005d63;
-    --on-surface:               #ffffff;
-    --on-surface-variant:       #adaaab;
-    --outline:                  #767576;
-    --outline-variant:          #484849;
-    --error:                    #ff716c;
-
-    -unity-font-definition: url("project://database/Assets/UI/Fonts/SpaceGrotesk-Variable.ttf");
-
-    position: absolute;
-    left: 0;
-    top: 0;
-    right: 0;
-    bottom: 0;
     align-items: center;
     justify-content: flex-end;
     padding-bottom: 280px;
@@ -73,19 +54,12 @@
     transition: height 0.05s;
 }
 
-.interaction__key--active .interaction__key-fill {
-    background-color: var(--primary);
-}
-
 /* === KEY LABEL === */
 .interaction__key-label {
     font-size: 22px;
     -unity-font-style: bold;
     color: var(--on-surface-variant);
     -unity-text-align: middle-center;
-    letter-spacing: 0;
-    margin: 0;
-    padding: 0;
 }
 
 .interaction__key--active .interaction__key-label {

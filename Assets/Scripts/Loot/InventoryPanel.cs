@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Gridlock.Audio;
 using Gridlock.Mods;
@@ -84,7 +83,7 @@ namespace Gridlock.Loot
 
         private void OnToggleInput(UnityEngine.InputSystem.InputAction.CallbackContext ctx)
         {
-            if (ModSlotPanel.Instance != null && ModSlotPanel.Instance.IsOpen) return;
+            if (ModSlotPanel.Instance?.IsOpen == true) return;
             Toggle();
         }
 
@@ -122,22 +121,13 @@ namespace Gridlock.Loot
             SoundManager.Instance?.PlayUI(SoundType.InventoryClose);
         }
 
-        public void OpenForEditing()
-        {
-            Open();
-        }
-
         public Vector2 GetTabScreenPosition()
         {
-            if (_tab == null) return new Vector2(Screen.width - 20f, Screen.height * 0.5f);
+            if (_tab?.panel == null)
+                return new Vector2(Screen.width - 20f, Screen.height * 0.5f);
 
-            var bound = _tab.worldBound;
-            var panel = _tab.panel;
-            if (panel == null) return new Vector2(Screen.width - 20f, Screen.height * 0.5f);
-
-            float x = bound.center.x;
-            float y = Screen.height - bound.center.y;
-            return new Vector2(x, y);
+            var center = _tab.worldBound.center;
+            return new Vector2(center.x, Screen.height - center.y);
         }
 
         public bool IsScreenPointOver(Vector2 screenPos)

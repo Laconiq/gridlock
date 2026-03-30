@@ -4,7 +4,6 @@
 
     <Gridlock.UI.BlurPanel name="gameover-root" class="gridlock-ui hud-root go__root" picking-mode="Ignore" style="display: none;">
 
-        <!-- Decorative: trace route (top-right) -->
         <ui:VisualElement class="go__deco-trace" picking-mode="Ignore">
             <ui:Label text="TRACE_ROUTE::127.0.0.1" class="go__deco-text go__deco-text--right" />
             <ui:Label text="PACKET_LOSS::100%" class="go__deco-text go__deco-text--right" />
@@ -12,26 +11,21 @@
             <ui:Label text="LAT::45.32 // LON::12.01" class="go__deco-text go__deco-text--right" />
         </ui:VisualElement>
 
-        <!-- Decorative: binary (top-left) -->
         <ui:VisualElement class="go__deco-binary" picking-mode="Ignore">
             <ui:Label text="0000 0000 0000 0001" class="go__deco-text" />
             <ui:Label text="0010 1101 0000 1111" class="go__deco-text" />
             <ui:Label text="1111 0000 1111 0000" class="go__deco-text" />
         </ui:VisualElement>
 
-        <!-- Central content -->
         <ui:VisualElement class="go__center" picking-mode="Ignore">
 
-            <!-- Badge -->
             <ui:VisualElement class="go__badge" picking-mode="Ignore">
                 <ui:Label text="HARDWARE_TIMEOUT" class="go__badge-text" picking-mode="Ignore" />
             </ui:VisualElement>
 
-            <!-- Title -->
             <ui:Label text="SYSTEM_FAILURE" class="go__title" picking-mode="Ignore" />
             <ui:Label name="gameover-subtitle" text="VOID_PROTOCOL_CONNECTION_DROPPED" class="go__subtitle" picking-mode="Ignore" />
 
-            <!-- Stats row -->
             <ui:VisualElement class="go__stats" picking-mode="Ignore">
                 <ui:VisualElement class="go__stat" picking-mode="Ignore">
                     <ui:VisualElement class="go__stat-accent go__stat-accent--cyan" picking-mode="Ignore" />
@@ -59,13 +53,11 @@
                 </ui:VisualElement>
             </ui:VisualElement>
 
-            <!-- Buttons -->
             <ui:VisualElement class="go__actions" picking-mode="Ignore">
                 <ui:Button name="gameover-reboot" text="REBOOT_SYSTEM" class="go__btn go__btn--primary" />
                 <ui:Button name="gameover-disconnect" text="TERMINATE_SESSION" class="go__btn go__btn--ghost" />
             </ui:VisualElement>
 
-            <!-- Footer -->
             <ui:VisualElement class="go__footer" picking-mode="Ignore">
                 <ui:VisualElement class="go__footer-left" picking-mode="Ignore">
                     <ui:Label name="gameover-log-id" text="LOG_ID::VP_FAIL_000_00" class="go__footer-text" picking-mode="Ignore" />
@@ -80,7 +72,6 @@
 
         </ui:VisualElement>
 
-        <!-- Decorative: sync indicator (bottom-left) -->
         <ui:VisualElement class="go__deco-sync" picking-mode="Ignore">
             <ui:VisualElement class="go__deco-sync-bar" picking-mode="Ignore" />
             <ui:Label text="SYNC_LOST" class="go__deco-sync-text" picking-mode="Ignore" />

@@ -1,17 +1,16 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements">
-    <Style src="InteractionPrompt.uss" />
+    <ui:Style src="../DesignTokens.uss" />
+    <ui:Style src="InteractionPrompt.uss" />
 
-    <ui:VisualElement name="interaction-root" class="interaction-root" picking-mode="Ignore">
+    <ui:VisualElement name="interaction-root" class="gridlock-ui interaction-root" picking-mode="Ignore">
 
         <ui:VisualElement name="prompt" class="interaction__prompt" picking-mode="Ignore">
 
-            <!-- Key indicator with fill -->
             <ui:VisualElement name="key-container" class="interaction__key" picking-mode="Ignore">
                 <ui:VisualElement name="key-fill" class="interaction__key-fill" picking-mode="Ignore" />
                 <ui:Label name="key-label" text="E" class="interaction__key-label" picking-mode="Ignore" />
             </ui:VisualElement>
 
-            <!-- Action text -->
             <ui:VisualElement class="interaction__text-group" picking-mode="Ignore">
                 <ui:Label name="action-text" text="INTERACT" class="interaction__action" picking-mode="Ignore" />
                 <ui:Label name="hold-hint" text="HOLD" class="interaction__hold-hint" picking-mode="Ignore" />

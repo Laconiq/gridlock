@@ -181,10 +181,7 @@
     -unity-font-style: bold;
     color: var(--on-surface);
     background-color: rgba(0, 0, 0, 0.5);
-    padding-left: 4px;
-    padding-right: 4px;
-    padding-top: 2px;
-    padding-bottom: 2px;
+    padding: 2px 4px;
     picking-mode: ignore;
 }
 
