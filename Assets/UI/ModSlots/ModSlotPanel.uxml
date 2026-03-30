@@ -32,28 +32,14 @@
                 </ui:VisualElement>
             </ui:VisualElement>
 
-            <!-- MIDDLE: Two columns -->
+            <!-- MIDDLE: Info panel -->
             <ui:VisualElement class="content-row">
-
-                <!-- LEFT: Inventory -->
-                <ui:VisualElement class="inventory-col">
-                    <ui:VisualElement class="section-header">
-                        <ui:VisualElement class="accent-line" />
-                        <ui:Label text="COMPONENT_STORAGE" class="section-title section-title--cyan" />
-                    </ui:VisualElement>
-                    <ui:ScrollView name="inventory-scroll" class="inventory-scroll">
-                        <ui:VisualElement name="inventory-grid" class="inventory-grid" />
-                    </ui:ScrollView>
-                </ui:VisualElement>
-
-                <!-- RIGHT: Fixed info panel -->
                 <ui:VisualElement name="info-panel" class="info-panel">
                     <ui:Label text="MODULE_INFO" class="section-title section-title--dim" />
                     <ui:Label name="info-name" text="---" class="info-panel__name" />
                     <ui:Label name="info-desc" text="Hover a module" class="info-panel__desc" />
                     <ui:Label name="info-category" text="" class="info-panel__cat" />
                 </ui:VisualElement>
-
             </ui:VisualElement>
 
             <!-- BOTTOM: Slots -->

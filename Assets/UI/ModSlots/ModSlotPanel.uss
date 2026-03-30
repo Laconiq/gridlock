@@ -7,13 +7,12 @@
     bottom: 0;
     align-items: center;
     justify-content: center;
-    background-color: rgba(0, 0, 0, 0.6);
     display: none;
 }
 
 /* === PANEL: fixed-size centered card === */
 .panel {
-    width: 900px;
+    width: 620px;
     border-width: 1px;
     border-color: var(--glass-border);
     border-radius: var(--glass-radius);
@@ -139,10 +138,9 @@
     color: #00eefc;
 }
 
-/* === CONTENT ROW: inventory (left) + info panel (right) === */
 .content-row {
     flex-direction: row;
-    height: 280px;
+    height: 140px;
     border-bottom-width: 1px;
     border-bottom-color: rgba(72, 72, 73, 0.4);
 }
@@ -263,9 +261,8 @@
     margin-top: 2px;
 }
 
-/* RIGHT: Fixed info panel */
 .info-panel {
-    width: 220px;
+    flex-grow: 1;
     padding: 12px 16px;
     flex-direction: column;
     background-color: rgba(6, 8, 10, 0.4);
@@ -310,6 +307,7 @@
     align-items: center;
     min-height: 80px;
     margin-top: 8px;
+    transition: translate 0.06s ease-out;
 }
 
 /* Individual slot */
@@ -324,7 +322,7 @@
     justify-content: center;
     align-items: center;
     overflow: visible;
-    transition: background-color 0.1s, border-color 0.1s;
+    transition: background-color 0.1s, border-color 0.1s, scale 0.08s ease-out, translate 0.08s ease-out;
 }
 
 .mod-slot:hover {
@@ -404,6 +402,7 @@
     align-items: center;
     min-height: 20px;
     margin-top: 6px;
+    transition: opacity 0.1s ease-out;
 }
 
 .synergy-label {
@@ -472,21 +471,30 @@
     background-color: rgba(143, 245, 255, 0.1);
 }
 
-/* === DRAG GHOST === */
+/* === DRAG GHOST (mirrors inventory-tile) === */
 .drag-ghost {
-    width: 80px;
-    height: 30px;
-    background-color: rgba(14, 14, 15, 0.9);
+    width: 170px;
+    height: 72px;
+    padding: 8px 12px;
+    background-color: rgba(14, 16, 20, 0.85);
     border-width: 1px;
-    border-color: #8ff5ff;
+    border-left-width: 4px;
     justify-content: center;
-    align-items: center;
-    opacity: 0.85;
+    align-items: flex-start;
+    transition: scale 0.12s ease-out, opacity 0.1s ease-out, rotate 0.12s ease-out;
 }
 
-.drag-ghost__label {
-    font-size: 8px;
+.drag-ghost__name {
+    font-size: 11px;
     -unity-font-style: bold;
+    -unity-text-align: middle-left;
+    letter-spacing: 2px;
+    text-shadow: 0 0 10px rgba(143, 245, 255, 0.5);
+}
+
+.drag-ghost__rarity {
+    font-size: 8px;
+    -unity-text-align: middle-left;
     letter-spacing: 1px;
-    -unity-text-align: middle-center;
+    margin-top: 3px;
 }
