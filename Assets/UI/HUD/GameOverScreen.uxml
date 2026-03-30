@@ -1,6 +1,6 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements">
-    <Style src="../DesignTokens.uss" />
-    <Style src="GameOverScreen.uss" />
+    <ui:Style src="../DesignTokens.uss" />
+    <ui:Style src="GameOverScreen.uss" />
 
     <Gridlock.UI.BlurPanel name="gameover-root" class="gridlock-ui hud-root go__root" picking-mode="Ignore" style="display: none;">
 

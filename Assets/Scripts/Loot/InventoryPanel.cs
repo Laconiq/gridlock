@@ -23,6 +23,7 @@ namespace Gridlock.Loot
 
         private readonly Dictionary<ModType, VisualElement> _tiles = new();
         private readonly Dictionary<ModType, Label> _badges = new();
+        private EventCallback<ClickEvent> _tabClickCallback;
 
         public bool IsOpen => _isOpen;
 
@@ -48,7 +49,8 @@ namespace Gridlock.Loot
             _tab = _root.Q("inventory-tab");
             _grid = _root.Q("inventory-grid");
 
-            _tab?.RegisterCallback<ClickEvent>(_ => Toggle());
+            _tabClickCallback = _ => Toggle();
+            _tab?.RegisterCallback(_tabClickCallback);
 
             _controls.Player.ToggleInventory.performed += OnToggleInput;
             _controls.Player.Enable();
@@ -60,6 +62,12 @@ namespace Gridlock.Loot
         private void OnDisable()
         {
             _controls.Player.ToggleInventory.performed -= OnToggleInput;
+
+            if (_tabClickCallback != null)
+            {
+                _tab?.UnregisterCallback(_tabClickCallback);
+                _tabClickCallback = null;
+            }
 
             if (_subscribed && PlayerInventory.Instance != null)
             {

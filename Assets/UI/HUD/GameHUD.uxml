@@ -1,6 +1,6 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements">
-    <Style src="../DesignTokens.uss" />
-    <Style src="GameHUD.uss" />
+    <ui:Style src="../DesignTokens.uss" />
+    <ui:Style src="GameHUD.uss" />
 
     <ui:VisualElement name="hud-root" class="gridlock-ui hud-root" picking-mode="Ignore">
 

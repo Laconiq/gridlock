@@ -25,10 +25,10 @@
                         <ui:Label text="DMG" class="stat-chip__label" />
                         <ui:Label name="stat-damage" text="10" class="stat-chip__value" />
                     </ui:VisualElement>
-                </ui:VisualElement>
-                <ui:VisualElement class="stat-chip stat-chip--tgt">
-                    <ui:Label text="TGT" class="stat-chip__label" />
-                    <ui:DropdownField name="targeting-dropdown" class="targeting-dropdown" />
+                    <ui:VisualElement class="stat-chip stat-chip--tgt">
+                        <ui:Label text="TGT" class="stat-chip__label" />
+                        <ui:DropdownField name="targeting-dropdown" class="targeting-dropdown" />
+                    </ui:VisualElement>
                 </ui:VisualElement>
             </ui:VisualElement>
 

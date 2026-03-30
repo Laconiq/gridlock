@@ -33,6 +33,9 @@ namespace Gridlock.Mods.UI
         private List<ModSlotData> _originalSlots = new();
         private TargetingMode _originalTargetingMode;
 
+        private Button _saveBtn;
+        private Button _cancelBtn;
+
         private Label _infoName;
         private Label _infoDesc;
         private Label _infoCat;
@@ -87,15 +90,16 @@ namespace Gridlock.Mods.UI
                 foreach (var mode in Enum.GetValues(typeof(TargetingMode)))
                     choices.Add(mode.ToString().ToUpperInvariant());
                 _targetingDropdown.choices = choices;
+                ResetDropdownStyles(_targetingDropdown);
             }
 
-            var saveBtn = _root.Q<Button>("save-btn");
-            if (saveBtn != null)
-                saveBtn.clicked += OnSave;
+            _saveBtn = _root.Q<Button>("save-btn");
+            if (_saveBtn != null)
+                _saveBtn.clicked += OnSave;
 
-            var cancelBtn = _root.Q<Button>("cancel-btn");
-            if (cancelBtn != null)
-                cancelBtn.clicked += OnCancel;
+            _cancelBtn = _root.Q<Button>("cancel-btn");
+            if (_cancelBtn != null)
+                _cancelBtn.clicked += OnCancel;
 
         }
 
@@ -736,6 +740,31 @@ namespace Gridlock.Mods.UI
             }
         }
 
+        private static void ResetDropdownStyles(DropdownField dropdown)
+        {
+            var s = dropdown.style;
+            s.marginTop = s.marginBottom = s.marginLeft = s.marginRight = 0;
+            s.paddingTop = s.paddingBottom = s.paddingLeft = s.paddingRight = 0;
+            s.borderTopWidth = s.borderBottomWidth = s.borderLeftWidth = s.borderRightWidth = 0;
+            s.minHeight = StyleKeyword.Auto;
+            s.minWidth = StyleKeyword.Auto;
+            s.backgroundColor = Color.clear;
+
+            var input = dropdown.Q(className: "unity-base-popup-field__input");
+            if (input != null)
+            {
+                var si = input.style;
+                si.marginTop = si.marginBottom = si.marginLeft = si.marginRight = 0;
+                si.paddingTop = si.paddingBottom = si.paddingLeft = si.paddingRight = 0;
+                si.borderTopWidth = si.borderBottomWidth = si.borderLeftWidth = si.borderRightWidth = 0;
+                si.borderTopLeftRadius = si.borderTopRightRadius = 0;
+                si.borderBottomLeftRadius = si.borderBottomRightRadius = 0;
+                si.minHeight = StyleKeyword.Auto;
+                si.minWidth = StyleKeyword.Auto;
+                si.backgroundColor = Color.clear;
+            }
+        }
+
         private void OnTargetingChanged(ChangeEvent<string> evt)
         {
             if (_targetingDropdown == null || _executor == null) return;
@@ -801,6 +830,15 @@ namespace Gridlock.Mods.UI
         private void OnCancelPerformed(UnityEngine.InputSystem.InputAction.CallbackContext ctx)
         {
             OnCancel();
+        }
+
+        private void OnDisable()
+        {
+            if (_saveBtn != null)
+                _saveBtn.clicked -= OnSave;
+
+            if (_cancelBtn != null)
+                _cancelBtn.clicked -= OnCancel;
         }
 
         private void OnDestroy()

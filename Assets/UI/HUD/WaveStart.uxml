@@ -1,9 +1,9 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements">
-    <Style src="../DesignTokens.uss" />
-    <Style src="GameHUD.uss" />
+    <ui:Style src="../DesignTokens.uss" />
+    <ui:Style src="GameHUD.uss" />
 
-    <ui:VisualElement class="gridlock-ui" picking-mode="Ignore" style="justify-content: flex-end; align-items: center; padding-bottom: 80px;">
-        <Gridlock.UI.BlurPanel style="border-radius: 6px; border-width: 2px; border-color: rgba(0, 238, 252, 0.3); overflow: hidden;">
+    <ui:VisualElement class="gridlock-ui wave-start-container" picking-mode="Ignore">
+        <Gridlock.UI.BlurPanel class="wave-start-panel">
             <ui:Button name="start-wave-btn" text="[ START WAVE ]" class="wave-start-btn" />
         </Gridlock.UI.BlurPanel>
     </ui:VisualElement>

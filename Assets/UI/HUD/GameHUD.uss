@@ -113,7 +113,7 @@
 .hud__bar-separator {
     width: 1px;
     height: 20px;
-    background-color: rgba(0, 255, 255, 0.15);
+    background-color: var(--glass-border);
     margin: 0 4px;
 }
 
@@ -300,7 +300,7 @@
     margin: 0 4px;
     background-color: rgba(0, 255, 255, 0.05);
     border-width: 1px;
-    border-color: rgba(0, 255, 255, 0.3);
+    border-color: var(--glass-border-accent);
     justify-content: center;
     align-items: center;
     cursor: pointer;
@@ -308,13 +308,13 @@
 
 .hud__tower-btn:hover {
     background-color: rgba(0, 255, 255, 0.12);
-    border-color: rgba(0, 255, 255, 0.6);
+    border-color: rgba(0, 238, 252, 0.6);
 }
 
 .hud__tower-btn--selected {
     border-color: var(--primary);
     border-width: 2px;
-    background-color: rgba(0, 255, 255, 0.15);
+    background-color: var(--glass-border);
 }
 
 .hud__tower-btn-label {
@@ -331,6 +331,22 @@
 .hud__tower-btn--slow .hud__tower-btn-label { color: rgb(0, 255, 128); }
 
 /* ============================================================
+   WAVE START LAYOUT
+   ============================================================ */
+.wave-start-container {
+    justify-content: flex-end;
+    align-items: center;
+    padding-bottom: 80px;
+}
+
+.wave-start-panel {
+    border-radius: 6px;
+    border-width: 2px;
+    border-color: var(--glass-border-accent);
+    overflow: hidden;
+}
+
+/* ============================================================
    WAVE START BUTTON
    ============================================================ */
 .wave-start-btn {
@@ -339,9 +355,9 @@
     font-size: 16px;
     -unity-font-style: bold;
     color: var(--primary);
-    background-color: rgba(0, 0, 0, 0);
+    background-color: transparent;
     border-width: 0;
-    border-color: rgba(0, 0, 0, 0);
+    border-color: transparent;
     letter-spacing: 4px;
     text-transform: uppercase;
     text-shadow: 0 0 12px rgba(0, 255, 255, 0.6);
@@ -349,7 +365,7 @@
 
 .wave-start-btn:hover {
     background-color: rgba(0, 255, 255, 0.1);
-    border-color: rgba(0, 0, 0, 0);
+    border-color: transparent;
 }
 
 .wave-start-btn:active {
