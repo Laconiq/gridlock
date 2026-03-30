@@ -80,6 +80,12 @@
     --transition-normal:        0.15s;
     --transition-slow:          0.2s;
 
+    /* === RARITY === */
+    --rarity-common:            #ffffff;
+    --rarity-uncommon:          #8ff5ff;
+    --rarity-rare:              #ff3edc;
+    --rarity-epic:              #ff7948;
+
     /* === HUD-SPECIFIC TOKENS === */
     --hud-opacity-ambient:      0.4;
     --hud-opacity-log:          0.3;

@@ -18,6 +18,11 @@ namespace Gridlock.Audio
         PortConnect,
         PortDisconnect,
         EditorOpen,
-        EditorClose
+        EditorClose,
+
+        LootDrop,
+        LootCollect,
+        InventoryOpen,
+        InventoryClose
     }
 }
