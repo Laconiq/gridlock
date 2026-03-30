@@ -23,6 +23,14 @@ Gridlock is an **isometric grid-based Tower Defense** built in Unity 6 (6000.3.1
 
 **No networking.** The project is single-player only.
 
+## UI Design Workflow
+
+When asked to create or redesign a UI screen (not minor tweaks):
+1. Use **Stitch MCP** tools to generate the design from a prompt (produces HTML/screenshot)
+2. Convert the HTML output into **UXML/USS** compatible with the existing Unity design system (`DesignTokens.uss`, `DesignConstants.cs`)
+
+For minor UI modifications (tweaking spacing, colors, adding a label), skip Stitch and edit UXML/USS directly.
+
 ## Code Style
 
 - **No superfluous comments.** Only comment to explain *why* something non-obvious is done. The code should be self-documenting. Section headers in enums/constants are OK. Remove any comment that restates what the code does (e.g. `// clean the player prefab` before a line that obviously cleans the player prefab). When modifying a file, proactively remove superfluous comments encountered in the diff area.
