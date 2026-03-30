@@ -1,15 +1,11 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements"
-         xsi="http://www.w3.org/2001/XMLSchema-instance"
-         noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd"
-         editor-extension-mode="False">
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
 
-    <Style src="../DesignTokens.uss" />
-    <Style src="ModSlotPanel.uss" />
+    <ui:Style src="../DesignTokens.uss" />
+    <ui:Style src="ModSlotPanel.uss" />
 
     <ui:VisualElement name="modslot-root" class="gridlock-ui modslot-root" picking-mode="Ignore">
         <Gridlock.UI.BlurPanel class="panel">
 
-            <!-- TOP: Stats bar (fixed height) -->
             <ui:VisualElement class="stats-bar">
                 <ui:Label name="tower-name" text="TOWER_01" class="stats-bar__name" />
                 <ui:VisualElement class="stats-bar__chips">
@@ -25,38 +21,22 @@
                         <ui:Label text="DMG" class="stat-chip__label" />
                         <ui:Label name="stat-damage" text="10" class="stat-chip__value" />
                     </ui:VisualElement>
-                </ui:VisualElement>
-                <ui:VisualElement class="stat-chip stat-chip--tgt">
-                    <ui:Label text="TGT" class="stat-chip__label" />
-                    <ui:DropdownField name="targeting-dropdown" class="targeting-dropdown" />
+                    <ui:VisualElement class="stat-chip stat-chip--tgt">
+                        <ui:Label text="TGT" class="stat-chip__label" />
+                        <ui:DropdownField name="targeting-dropdown" class="targeting-dropdown" />
+                    </ui:VisualElement>
                 </ui:VisualElement>
             </ui:VisualElement>
 
-            <!-- MIDDLE: Two columns -->
             <ui:VisualElement class="content-row">
-
-                <!-- LEFT: Inventory -->
-                <ui:VisualElement class="inventory-col">
-                    <ui:VisualElement class="section-header">
-                        <ui:VisualElement class="accent-line" />
-                        <ui:Label text="COMPONENT_STORAGE" class="section-title section-title--cyan" />
-                    </ui:VisualElement>
-                    <ui:ScrollView name="inventory-scroll" class="inventory-scroll">
-                        <ui:VisualElement name="inventory-grid" class="inventory-grid" />
-                    </ui:ScrollView>
-                </ui:VisualElement>
-
-                <!-- RIGHT: Fixed info panel -->
                 <ui:VisualElement name="info-panel" class="info-panel">
                     <ui:Label text="MODULE_INFO" class="section-title section-title--dim" />
                     <ui:Label name="info-name" text="---" class="info-panel__name" />
                     <ui:Label name="info-desc" text="Hover a module" class="info-panel__desc" />
                     <ui:Label name="info-category" text="" class="info-panel__cat" />
                 </ui:VisualElement>
-
             </ui:VisualElement>
 
-            <!-- BOTTOM: Slots -->
             <ui:VisualElement class="slots-section">
                 <ui:VisualElement class="section-header">
                     <ui:VisualElement class="accent-line accent-line--green" />
@@ -67,7 +47,6 @@
                 <ui:VisualElement name="synergy-bar" class="synergy-bar" />
             </ui:VisualElement>
 
-            <!-- ACTIONS -->
             <ui:VisualElement class="actions-bar">
                 <ui:Button name="cancel-btn" text="RESET" class="btn-reset" />
                 <ui:VisualElement class="actions-bar__spacer" />

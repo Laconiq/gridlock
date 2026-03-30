@@ -1,0 +1,65 @@
+/* Dropdown popup — applied via TSS to style popups outside UIDocument */
+
+/* Outer fullscreen blocker — must stay transparent */
+.unity-base-dropdown {
+    background-color: transparent;
+    border-width: 0;
+}
+
+/* The actual dropdown list container */
+.unity-base-dropdown .unity-scroll-view {
+    background-color: #131314;
+    border-width: 1px;
+    border-color: rgba(0, 238, 252, 0.3);
+    padding: 4px 0;
+    min-width: 140px;
+}
+
+.unity-base-dropdown .unity-base-dropdown__item {
+    background-color: transparent;
+    padding: 6px 14px;
+    border-bottom-width: 0;
+}
+
+.unity-base-dropdown .unity-base-dropdown__item:hover {
+    background-color: rgba(0, 222, 236, 0.08);
+}
+
+.unity-base-dropdown .unity-base-dropdown__label {
+    color: #adaaab;
+    font-size: 11px;
+    -unity-font-style: bold;
+    letter-spacing: 2px;
+    -unity-text-align: middle-left;
+}
+
+.unity-base-dropdown .unity-base-dropdown__item:hover > .unity-base-dropdown__label {
+    color: #00eefc;
+}
+
+.unity-base-dropdown .unity-base-dropdown__checkmark {
+    -unity-background-image-tint-color: #00eefc;
+    width: 12px;
+    height: 12px;
+}
+
+/* Scrollbar */
+.unity-base-dropdown .unity-scroller--vertical {
+    width: 4px;
+    border-left-width: 0;
+    background-color: transparent;
+}
+
+.unity-base-dropdown .unity-scroller--vertical .unity-slider__tracker {
+    background-color: transparent;
+    border-width: 0;
+}
+
+.unity-base-dropdown .unity-scroller--vertical .unity-slider__dragger {
+    background-color: rgba(0, 238, 252, 0.3);
+    border-width: 0;
+}
+
+.unity-base-dropdown .unity-scroller--vertical .unity-repeat-button {
+    display: none;
+}

@@ -120,8 +120,7 @@ namespace Gridlock.HUD
             _root.style.display = DisplayStyle.Flex;
             _root.pickingMode = PickingMode.Position;
 
-            var hud = FindAnyObjectByType<GameHUD>();
-            if (hud != null) hud.SetVisible(false);
+            GameHUD.Instance?.SetVisible(false);
         }
 
         private void Hide()
@@ -130,8 +129,7 @@ namespace Gridlock.HUD
             _root.style.display = DisplayStyle.None;
             _root.pickingMode = PickingMode.Ignore;
 
-            var hud = FindAnyObjectByType<GameHUD>();
-            if (hud != null) hud.SetVisible(true);
+            GameHUD.Instance?.SetVisible(true);
         }
 
         private void OnRebootClicked()

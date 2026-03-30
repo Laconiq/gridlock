@@ -31,18 +31,14 @@ namespace Gridlock.HUD
 
         private void RefreshWave()
         {
-            if (_waveManager == null)
-                _waveManager = Object.FindAnyObjectByType<WaveManager>();
+            _waveManager ??= Object.FindAnyObjectByType<WaveManager>();
             if (_waveManager == null) return;
-            var wm = _waveManager;
-
-            int wave = wm.CurrentWave + 1;
 
             if (_waveLabel != null)
-                _waveLabel.text = $"WAVE {wave:D2}";
+                _waveLabel.text = $"WAVE {_waveManager.CurrentWave + 1:D2}";
 
             if (_enemiesLabel != null)
-                _enemiesLabel.text = $"HOSTILES::{wm.EnemiesRemaining}";
+                _enemiesLabel.text = $"HOSTILES::{_waveManager.EnemiesRemaining}";
         }
 
         private void RefreshObjective()

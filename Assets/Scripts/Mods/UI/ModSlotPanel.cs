@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Gridlock.Audio;
 using Gridlock.CameraSystem;
+using Gridlock.Loot;
 using Gridlock.Towers;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -18,7 +19,6 @@ namespace Gridlock.Mods.UI
         private VisualElement _root;
         private VisualElement _slotBar;
         private VisualElement _synergyBar;
-        private VisualElement _inventoryGrid;
         private Label _towerNameLabel;
         private Label _statRange;
         private Label _statFireRate;
@@ -32,6 +32,9 @@ namespace Gridlock.Mods.UI
         private List<ModSlotData> _workingSlots = new();
         private List<ModSlotData> _originalSlots = new();
         private TargetingMode _originalTargetingMode;
+
+        private Button _saveBtn;
+        private Button _cancelBtn;
 
         private Label _infoName;
         private Label _infoDesc;
@@ -77,7 +80,6 @@ namespace Gridlock.Mods.UI
             _targetingDropdown = _root.Q<DropdownField>("targeting-dropdown");
             _slotBar = _root.Q("slot-bar");
             _synergyBar = _root.Q("synergy-bar");
-            _inventoryGrid = _root.Q("inventory-grid");
             _infoName = _root.Q<Label>("info-name");
             _infoDesc = _root.Q<Label>("info-desc");
             _infoCat = _root.Q<Label>("info-category");
@@ -90,16 +92,14 @@ namespace Gridlock.Mods.UI
                 _targetingDropdown.choices = choices;
             }
 
-            var saveBtn = _root.Q<Button>("save-btn");
-            if (saveBtn != null)
-                saveBtn.clicked += OnSave;
+            _saveBtn = _root.Q<Button>("save-btn");
+            if (_saveBtn != null)
+                _saveBtn.clicked += OnSave;
 
-            var cancelBtn = _root.Q<Button>("cancel-btn");
-            if (cancelBtn != null)
-                cancelBtn.clicked += OnCancel;
+            _cancelBtn = _root.Q<Button>("cancel-btn");
+            if (_cancelBtn != null)
+                _cancelBtn.clicked += OnCancel;
 
-            _uiDocument.rootVisualElement.RegisterCallback<PointerMoveEvent>(OnPointerMove);
-            _uiDocument.rootVisualElement.RegisterCallback<PointerUpEvent>(OnPointerUp);
         }
 
         public void Open(ModSlotExecutor executor, Transform towerTransform)
@@ -122,7 +122,6 @@ namespace Gridlock.Mods.UI
 
             PopulateHeader();
             RebuildSlotBar();
-            PopulateInventory();
 
             if (_towerTransform != null)
                 TopDownCamera.Instance?.FocusOn(_towerTransform.position, focusOrthoSize);
@@ -130,6 +129,8 @@ namespace Gridlock.Mods.UI
             TopDownCamera.Instance?.SetInputEnabled(false);
 
             SoundManager.Instance?.PlayUI(SoundType.EditorOpen);
+
+            InventoryPanel.Instance?.Open();
 
             _controls.Player.Disable();
             _controls.UI.Enable();
@@ -155,6 +156,8 @@ namespace Gridlock.Mods.UI
             _controls.UI.Disable();
             _controls.Player.Enable();
 
+            InventoryPanel.Instance?.Close();
+
             _executor = null;
             _towerTransform = null;
         }
@@ -179,11 +182,7 @@ namespace Gridlock.Mods.UI
                 _statDamage.text = chassis.BaseDamage.ToString("F0");
 
             if (_targetingDropdown != null)
-            {
-                _targetingDropdown.UnregisterValueChangedCallback(OnTargetingChanged);
                 _targetingDropdown.index = (int)_executor.TargetingMode;
-                _targetingDropdown.RegisterValueChangedCallback(OnTargetingChanged);
-            }
         }
 
         private void RebuildSlotBar()
@@ -201,7 +200,7 @@ namespace Gridlock.Mods.UI
                     var connector = new VisualElement();
                     connector.AddToClassList("slot-connector");
 
-                    if (i < _workingSlots.Count && i - 1 >= 0 && i - 1 < _workingSlots.Count)
+                    if (i < _workingSlots.Count && i - 1 < _workingSlots.Count)
                     {
                         bool hasSynergy = SynergyTable.Check(
                             _workingSlots[i - 1].modType,
@@ -236,28 +235,27 @@ namespace Gridlock.Mods.UI
             slot.AddToClassList("mod-slot");
             slot.userData = index;
 
-            Color modColor = ModSlotColors.GetModColor(slotData.modType);
-            string displayName = ModSlotColors.GetModDisplayName(slotData.modType);
+            var styleColor = new StyleColor(ModSlotColors.GetModColor(slotData.modType));
+
+            slot.style.borderLeftColor = styleColor;
 
             if (slotData.modType.IsEvent())
             {
                 slot.AddToClassList("mod-slot--event");
-                slot.style.borderLeftColor = new StyleColor(modColor);
 
                 var diamond = new Label("\u27D0");
                 diamond.AddToClassList("mod-slot__event-diamond");
-                diamond.style.color = new StyleColor(modColor);
+                diamond.style.color = styleColor;
                 slot.Add(diamond);
             }
             else
             {
                 slot.AddToClassList("mod-slot--trait");
-                slot.style.borderLeftColor = new StyleColor(modColor);
             }
 
-            var nameLabel = new Label(displayName);
+            var nameLabel = new Label(ModSlotColors.GetModDisplayName(slotData.modType));
             nameLabel.AddToClassList("mod-slot__name");
-            nameLabel.style.color = new StyleColor(modColor);
+            nameLabel.style.color = styleColor;
             slot.Add(nameLabel);
 
             string category = slotData.modType.IsElemental() ? "ELEMENT"
@@ -310,29 +308,20 @@ namespace Gridlock.Mods.UI
 
             for (int i = 0; i < _workingSlots.Count; i++)
             {
-                if (i > 0)
+                SynergyDef? synergy = i > 0
+                    ? SynergyTable.Check(_workingSlots[i - 1].modType, _workingSlots[i].modType)
+                    : null;
+
+                if (synergy.HasValue)
                 {
-                    var synergy = SynergyTable.Check(
-                        _workingSlots[i - 1].modType,
-                        _workingSlots[i].modType);
+                    var label = new Label(synergy.Value.synergyName);
+                    label.AddToClassList("synergy-label");
 
-                    if (synergy.HasValue)
-                    {
-                        var label = new Label(synergy.Value.synergyName);
-                        label.AddToClassList("synergy-label");
+                    var capturedSynergy = synergy.Value;
+                    label.RegisterCallback<PointerEnterEvent>(_ => ShowSynergyInfo(capturedSynergy));
+                    label.RegisterCallback<PointerLeaveEvent>(_ => ClearModInfo());
 
-                        var capturedSynergy = synergy.Value;
-                        label.RegisterCallback<PointerEnterEvent>(_ => ShowSynergyInfo(capturedSynergy));
-                        label.RegisterCallback<PointerLeaveEvent>(_ => ClearModInfo());
-
-                        _synergyBar.Add(label);
-                    }
-                    else
-                    {
-                        var spacer = new VisualElement();
-                        spacer.AddToClassList("synergy-spacer");
-                        _synergyBar.Add(spacer);
-                    }
+                    _synergyBar.Add(label);
                 }
                 else
                 {
@@ -343,84 +332,34 @@ namespace Gridlock.Mods.UI
             }
         }
 
-        private void PopulateInventory()
+        public void StartDragFromInventory(ModType modType)
         {
-            if (_inventoryGrid == null) return;
-            _inventoryGrid.Clear();
+            if (!_isOpen || _isDragging) return;
+            var panelPos = MouseToPanelPos();
+            StartDrag(DragSource.Inventory, modType, -1, panelPos);
+        }
 
-            foreach (ModType modType in Enum.GetValues(typeof(ModType)))
-            {
-                var item = new VisualElement();
-                item.AddToClassList("inventory-item");
-
-                Color modColor = ModSlotColors.GetModColor(modType);
-                item.style.borderLeftColor = new StyleColor(modColor);
-                item.style.borderRightColor = new StyleColor(modColor);
-                item.style.borderTopColor = new StyleColor(modColor);
-                item.style.borderBottomColor = new StyleColor(modColor);
-
-                var nameLabel = new Label(ModSlotColors.GetModDisplayName(modType));
-                nameLabel.AddToClassList("inventory-item__name");
-                nameLabel.style.color = new StyleColor(modColor);
-                item.Add(nameLabel);
-
-                var categoryLabel = new Label(ModSlotColors.GetModCategory(modType));
-                categoryLabel.AddToClassList("inventory-item__count");
-                item.Add(categoryLabel);
-
-                ModType capturedType = modType;
-                item.RegisterCallback<PointerDownEvent>(evt =>
-                {
-                    if (evt.button != 0) return;
-                    StartDrag(DragSource.Inventory, capturedType, -1, evt.position);
-                    evt.StopPropagation();
-                });
-
-                item.RegisterCallback<PointerEnterEvent>(_ => ShowModInfo(capturedType));
-                item.RegisterCallback<PointerLeaveEvent>(_ => ClearModInfo());
-
-                _inventoryGrid.Add(item);
-            }
+        public void ShowModInfoExternal(ModType type)
+        {
+            ShowModInfo(type);
         }
 
         private void ShowModInfo(ModType type)
         {
-            Color color = ModSlotColors.GetModColor(type);
-
-            if (_infoName != null)
-            {
-                _infoName.text = ModSlotColors.GetModDisplayName(type);
-                _infoName.style.color = new StyleColor(color);
-            }
-
-            if (_infoDesc != null)
-                _infoDesc.text = ModSlotColors.GetModDescription(type);
-
-            if (_infoCat != null)
-            {
-                _infoCat.text = ModSlotColors.GetModCategory(type);
-                _infoCat.style.color = new StyleColor(color);
-            }
+            SetInfoPanel(
+                ModSlotColors.GetModDisplayName(type),
+                ModSlotColors.GetModDescription(type),
+                ModSlotColors.GetModCategory(type),
+                ModSlotColors.GetModColor(type));
         }
 
         private void ShowSynergyInfo(SynergyDef synergy)
         {
-            Color color = new Color(0f, 0.93f, 0.99f);
-
-            if (_infoName != null)
-            {
-                _infoName.text = synergy.synergyName;
-                _infoName.style.color = new StyleColor(color);
-            }
-
-            if (_infoDesc != null)
-                _infoDesc.text = ModSlotColors.GetSynergyDescription(synergy.effect);
-
-            if (_infoCat != null)
-            {
-                _infoCat.text = "SYNERGY";
-                _infoCat.style.color = new StyleColor(color);
-            }
+            SetInfoPanel(
+                synergy.synergyName,
+                ModSlotColors.GetSynergyDescription(synergy.effect),
+                "SYNERGY",
+                new Color(0f, 0.93f, 0.99f));
         }
 
         private void ClearModInfo()
@@ -430,12 +369,62 @@ namespace Gridlock.Mods.UI
             if (_infoCat != null) _infoCat.text = "";
         }
 
+        private void SetInfoPanel(string name, string desc, string category, Color color)
+        {
+            var styleColor = new StyleColor(color);
+            if (_infoName != null)
+            {
+                _infoName.text = name;
+                _infoName.style.color = styleColor;
+            }
+            if (_infoDesc != null)
+                _infoDesc.text = desc;
+            if (_infoCat != null)
+            {
+                _infoCat.text = category;
+                _infoCat.style.color = styleColor;
+            }
+        }
+
+        private void Update()
+        {
+            if (!_isDragging) return;
+
+            var mouse = UnityEngine.InputSystem.Mouse.current;
+            if (mouse == null) return;
+
+            var panelPos = MouseToPanelPos();
+            PositionGhost(panelPos);
+
+            if (mouse.leftButton.wasReleasedThisFrame)
+                CompleteDrop(panelPos);
+        }
+
+        private Vector2 MouseToPanelPos()
+        {
+            var mouse = UnityEngine.InputSystem.Mouse.current;
+            if (mouse == null) return Vector2.zero;
+
+            var screenPos = mouse.position.ReadValue();
+            var panel = _uiDocument.rootVisualElement.panel;
+            if (panel != null)
+            {
+                var flipped = new Vector2(screenPos.x, Screen.height - screenPos.y);
+                return RuntimePanelUtils.ScreenToPanel(panel, flipped);
+            }
+
+            return new Vector2(screenPos.x, Screen.height - screenPos.y);
+        }
+
+        private VisualElement _lastHoveredSlot;
+
         private void StartDrag(DragSource source, ModType modType, int slotIndex, Vector2 pointerPos)
         {
             _isDragging = true;
             _dragSource = source;
             _dragModType = modType;
             _dragSlotIndex = slotIndex;
+            _lastHoveredSlot = null;
 
             if (source == DragSource.Slot && slotIndex >= 0 && slotIndex < _workingSlots.Count)
             {
@@ -443,76 +432,176 @@ namespace Gridlock.Mods.UI
                 RebuildSlotBar();
             }
 
-            _dragGhost = new VisualElement();
-            _dragGhost.AddToClassList("drag-ghost");
-            _dragGhost.pickingMode = PickingMode.Ignore;
+            if (source == DragSource.Inventory)
+                PlayerInventory.Instance?.RemoveMod(modType);
+
+            _dragGhost = ModTileFactory.Create(modType, "drag-ghost", blur: true);
             _dragGhost.style.position = Position.Absolute;
-
-            Color color = ModSlotColors.GetModColor(modType);
-            _dragGhost.style.borderLeftColor = new StyleColor(color);
-
-            var label = new Label(ModSlotColors.GetModDisplayName(modType));
-            label.AddToClassList("drag-ghost__label");
-            label.style.color = new StyleColor(color);
-            label.pickingMode = PickingMode.Ignore;
-            _dragGhost.Add(label);
+            _dragGhost.style.scale = new StyleScale(new Scale(Vector3.one * 0.3f));
+            _dragGhost.style.opacity = 0f;
 
             _uiDocument.rootVisualElement.Add(_dragGhost);
             PositionGhost(pointerPos);
 
-            _uiDocument.rootVisualElement.CapturePointer(PointerId.mousePointerId);
+            _dragGhost.schedule.Execute(() =>
+            {
+                if (_dragGhost == null) return;
+                _dragGhost.style.scale = new StyleScale(new Scale(Vector3.one * 1.05f));
+                _dragGhost.style.opacity = 0.92f;
+            }).ExecuteLater(16);
         }
 
         private void PositionGhost(Vector2 pointerPos)
         {
             if (_dragGhost == null) return;
-            _dragGhost.style.left = pointerPos.x - 40;
-            _dragGhost.style.top = pointerPos.y - 15;
+            _dragGhost.style.left = pointerPos.x - 85;
+            _dragGhost.style.top = pointerPos.y - 36;
+            UpdateSlotHighlight(pointerPos);
         }
 
-        private void OnPointerMove(PointerMoveEvent evt)
+        private void UpdateSlotHighlight(Vector2 panelPos)
         {
-            if (!_isDragging) return;
-            PositionGhost(evt.position);
+            if (_slotBar == null) return;
+
+            var picked = _root.panel?.Pick(panelPos);
+            var slotElement = picked != null ? FindAncestorWithClass(picked, "mod-slot") : null;
+            if (slotElement != null && !_slotBar.Contains(slotElement))
+                slotElement = null;
+
+            if (slotElement == _lastHoveredSlot) return;
+
+            CleanupHighlight();
+            _lastHoveredSlot = slotElement;
+
+            if (_lastHoveredSlot != null)
+            {
+                _lastHoveredSlot.style.scale = new StyleScale(new Scale(Vector3.one * 1.15f));
+                var borderColor = new StyleColor(ModSlotColors.GetModColor(_dragModType));
+                _lastHoveredSlot.style.borderTopColor = borderColor;
+                _lastHoveredSlot.style.borderRightColor = borderColor;
+                _lastHoveredSlot.style.borderBottomColor = borderColor;
+            }
         }
 
-        private void OnPointerUp(PointerUpEvent evt)
+        private void CompleteDrop(Vector2 panelPos)
         {
-            if (!_isDragging) return;
-            if (evt.button != 0) return;
-
-            _uiDocument.rootVisualElement.ReleasePointer(PointerId.mousePointerId);
-
-            var localPos = _root.WorldToLocal(evt.position);
-            var dropTarget = FindDropTarget(localPos);
+            var dropTarget = FindDropTarget(panelPos);
+            bool placed = dropTarget.type == DropZone.EmptySlot || dropTarget.type == DropZone.OccupiedSlot;
             HandleDrop(dropTarget);
 
-            CleanupGhost();
+            if (placed)
+                AnimateGhostPlace();
+            else
+                AnimateGhostDrop();
+
             _isDragging = false;
         }
 
-        private DropResult FindDropTarget(Vector2 localPos)
+        private void AnimateGhostPlace()
         {
-            if (_slotBar == null) return new DropResult { type = DropZone.None };
+            if (_dragGhost == null) return;
+            var ghost = _dragGhost;
+            _dragGhost = null;
 
-            var panelPos = _root.LocalToWorld(localPos);
-            var picked = _root.panel.Pick(panelPos);
-            if (picked == null) return new DropResult { type = DropZone.None };
+            ghost.style.scale = new StyleScale(new Scale(Vector3.one * 0.6f));
+            ghost.style.opacity = 0f;
+            ghost.schedule.Execute(() => ghost.RemoveFromHierarchy()).ExecuteLater(150);
 
-            var slotElement = FindAncestorWithClass(picked, "mod-slot");
-            if (slotElement != null && _slotBar.Contains(slotElement))
+            CleanupHighlight();
+            ShakeSlotBar();
+        }
+
+        private void ShakeSlotBar()
+        {
+            if (_slotBar == null) return;
+
+            int i = 0;
+            foreach (var child in _slotBar.Children())
             {
-                int index = slotElement.userData is int idx ? idx : -1;
-                bool isEmpty = slotElement.ClassListContains("mod-slot--empty");
-                return new DropResult { type = isEmpty ? DropZone.EmptySlot : DropZone.OccupiedSlot, slotIndex = index };
+                if (!child.ClassListContains("mod-slot")) { i++; continue; }
+
+                int delay = i * 25;
+                var slot = child;
+
+                float dir = (i % 2 == 0) ? -3f : 3f;
+
+                slot.schedule.Execute(() =>
+                {
+                    slot.style.scale = new StyleScale(new Scale(Vector3.one * 1.15f));
+                    slot.style.translate = new StyleTranslate(new Translate(0, new Length(dir, LengthUnit.Pixel)));
+                }).ExecuteLater(delay);
+
+                slot.schedule.Execute(() =>
+                {
+                    slot.style.scale = new StyleScale(new Scale(Vector3.one * 1.08f));
+                    slot.style.translate = new StyleTranslate(new Translate(0, new Length(-dir * 0.5f, LengthUnit.Pixel)));
+                }).ExecuteLater(delay + 80);
+
+                slot.schedule.Execute(() =>
+                {
+                    slot.style.scale = new StyleScale(new Scale(Vector3.one));
+                    slot.style.translate = new StyleTranslate(new Translate(0, 0));
+                }).ExecuteLater(delay + 160);
+
+                i++;
             }
 
-            var inventoryElement = FindAncestorWithClass(picked, "inventory-item");
-            if (inventoryElement != null)
-                return new DropResult { type = DropZone.Inventory };
+            _slotBar.style.translate = new StyleTranslate(new Translate(new Length(-2, LengthUnit.Pixel), 0));
+            _slotBar.schedule.Execute(() =>
+                _slotBar.style.translate = new StyleTranslate(new Translate(new Length(3, LengthUnit.Pixel), 0))
+            ).ExecuteLater(30);
+            _slotBar.schedule.Execute(() =>
+                _slotBar.style.translate = new StyleTranslate(new Translate(new Length(-1, LengthUnit.Pixel), 0))
+            ).ExecuteLater(70);
+            _slotBar.schedule.Execute(() =>
+                _slotBar.style.translate = new StyleTranslate(new Translate(0, 0))
+            ).ExecuteLater(120);
 
-            if (_inventoryGrid != null && (_inventoryGrid.Contains(picked) || _inventoryGrid == picked))
-                return new DropResult { type = DropZone.Inventory };
+            if (_synergyBar != null)
+            {
+                _synergyBar.style.opacity = 0.3f;
+                _synergyBar.schedule.Execute(() => _synergyBar.style.opacity = 1f).ExecuteLater(150);
+            }
+        }
+
+        private void AnimateGhostDrop()
+        {
+            if (_dragGhost == null) return;
+            var ghost = _dragGhost;
+            _dragGhost = null;
+
+            ghost.style.scale = new StyleScale(new Scale(Vector3.one * 0.2f));
+            ghost.style.opacity = 0f;
+            ghost.style.rotate = new StyleRotate(new Rotate(new Angle(8f, AngleUnit.Degree)));
+
+            ghost.schedule.Execute(() => ghost.RemoveFromHierarchy()).ExecuteLater(150);
+
+            CleanupHighlight();
+        }
+
+        private DropResult FindDropTarget(Vector2 panelPos)
+        {
+            if (_slotBar != null)
+            {
+                var picked = _root.panel?.Pick(panelPos);
+                if (picked != null)
+                {
+                    var slotElement = FindAncestorWithClass(picked, "mod-slot");
+                    if (slotElement != null && _slotBar.Contains(slotElement))
+                    {
+                        int index = slotElement.userData is int idx ? idx : -1;
+                        bool isEmpty = slotElement.ClassListContains("mod-slot--empty");
+                        return new DropResult { type = isEmpty ? DropZone.EmptySlot : DropZone.OccupiedSlot, slotIndex = index };
+                    }
+                }
+            }
+
+            var mouse = UnityEngine.InputSystem.Mouse.current;
+            if (mouse != null && InventoryPanel.Instance != null && InventoryPanel.Instance.IsOpen)
+            {
+                if (InventoryPanel.Instance.IsScreenPointOver(mouse.position.ReadValue()))
+                    return new DropResult { type = DropZone.Inventory };
+            }
 
             return new DropResult { type = DropZone.None };
         }
@@ -542,15 +631,8 @@ namespace Gridlock.Mods.UI
                     break;
 
                 case DropZone.Inventory:
-                    // Mod returned to inventory (already removed if from slot)
-                    break;
-
                 case DropZone.None:
-                    if (_dragSource == DragSource.Slot)
-                    {
-                        // Dropped outside: restore the removed slot mod
-                        RestoreDraggedSlotMod();
-                    }
+                    PlayerInventory.Instance?.AddMod(_dragModType);
                     break;
             }
 
@@ -576,13 +658,11 @@ namespace Gridlock.Mods.UI
 
             if (_dragSource == DragSource.Slot)
             {
-                // Slot was already removed during StartDrag, just insert at target
                 int insertAt = Mathf.Clamp(targetIndex, 0, _workingSlots.Count);
                 _workingSlots.Insert(insertAt, new ModSlotData { modType = _dragModType });
             }
             else
             {
-                // From inventory onto occupied slot: insert before
                 if (_workingSlots.Count >= maxSlots) return;
                 _workingSlots.Insert(targetIndex, new ModSlotData { modType = _dragModType });
             }
@@ -600,24 +680,35 @@ namespace Gridlock.Mods.UI
 
             if (_dragSource == DragSource.Slot)
                 RestoreDraggedSlotMod();
+            else if (_dragSource == DragSource.Inventory)
+                PlayerInventory.Instance?.AddMod(_dragModType);
 
             CleanupGhost();
             _isDragging = false;
             RebuildSlotBar();
         }
 
+        private void CleanupHighlight()
+        {
+            if (_lastHoveredSlot != null)
+            {
+                _lastHoveredSlot.style.scale = new StyleScale(new Scale(Vector3.one));
+                _lastHoveredSlot.style.borderTopColor = StyleKeyword.Null;
+                _lastHoveredSlot.style.borderRightColor = StyleKeyword.Null;
+                _lastHoveredSlot.style.borderBottomColor = StyleKeyword.Null;
+                _lastHoveredSlot = null;
+            }
+        }
+
         private void CleanupGhost()
         {
+            CleanupHighlight();
+
             if (_dragGhost != null)
             {
                 _dragGhost.RemoveFromHierarchy();
                 _dragGhost = null;
             }
-        }
-
-        private void OnTargetingChanged(ChangeEvent<string> evt)
-        {
-            if (_targetingDropdown == null || _executor == null) return;
         }
 
         private void OnSave()
@@ -635,14 +726,60 @@ namespace Gridlock.Mods.UI
 
         private void OnCancel()
         {
+            RestoreInventoryOnCancel();
             if (_executor != null)
                 _executor.TargetingMode = _originalTargetingMode;
             Close();
         }
 
+        private void RestoreInventoryOnCancel()
+        {
+            var inventory = PlayerInventory.Instance;
+            if (inventory == null) return;
+
+            var originalCounts = new Dictionary<ModType, int>();
+            foreach (var slot in _originalSlots)
+            {
+                originalCounts.TryGetValue(slot.modType, out int c);
+                originalCounts[slot.modType] = c + 1;
+            }
+
+            var workingCounts = new Dictionary<ModType, int>();
+            foreach (var slot in _workingSlots)
+            {
+                workingCounts.TryGetValue(slot.modType, out int c);
+                workingCounts[slot.modType] = c + 1;
+            }
+
+            var allTypes = new HashSet<ModType>();
+            foreach (var k in originalCounts.Keys) allTypes.Add(k);
+            foreach (var k in workingCounts.Keys) allTypes.Add(k);
+
+            foreach (var type in allTypes)
+            {
+                originalCounts.TryGetValue(type, out int origCount);
+                workingCounts.TryGetValue(type, out int workCount);
+                int delta = workCount - origCount;
+
+                if (delta > 0)
+                    inventory.AddMod(type, delta);
+                else if (delta < 0)
+                    inventory.RemoveMod(type, -delta);
+            }
+        }
+
         private void OnCancelPerformed(UnityEngine.InputSystem.InputAction.CallbackContext ctx)
         {
             OnCancel();
+        }
+
+        private void OnDisable()
+        {
+            if (_saveBtn != null)
+                _saveBtn.clicked -= OnSave;
+
+            if (_cancelBtn != null)
+                _cancelBtn.clicked -= OnCancel;
         }
 
         private void OnDestroy()

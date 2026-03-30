@@ -4,13 +4,7 @@
    Sharp corners, cyan/magenta glow, dark surfaces.
    ============================================================ */
 
-/* === ROOT LAYOUT === */
 .hud-root {
-    position: absolute;
-    left: 0;
-    top: 0;
-    right: 0;
-    bottom: 0;
     flex-direction: column;
 }
 
@@ -113,7 +107,7 @@
 .hud__bar-separator {
     width: 1px;
     height: 20px;
-    background-color: rgba(0, 255, 255, 0.15);
+    background-color: var(--glass-border);
     margin: 0 4px;
 }
 
@@ -125,7 +119,8 @@
     margin-right: 8px;
 }
 
-.hud__lives-bar-fill {
+.hud__lives-bar-fill,
+.hud__hp-bar-fill {
     height: 100%;
     width: 100%;
     background-color: var(--primary);
@@ -175,21 +170,6 @@
     width: 60px;
     height: 4px;
     background-color: var(--surface-container-highest);
-}
-
-.hud__hp-bar-fill {
-    height: 100%;
-    width: 100%;
-    background-color: var(--primary);
-    transition: width 0.2s ease-out;
-}
-
-.hud__hp-bar-fill--low {
-    background-color: var(--hud-hp-low);
-}
-
-.hud__hp-bar-fill--critical {
-    background-color: var(--hud-hp-critical);
 }
 
 /* ============================================================
@@ -274,12 +254,6 @@
     padding: 8px 24px;
 }
 
-.hud__bottom-bar-inner {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-}
-
 .hud__bottom-status {
     font-size: 8px;
     color: var(--on-surface-variant);
@@ -288,47 +262,21 @@
     opacity: 0.4;
 }
 
-/* --- Tower Selection Bar --- */
-.hud__tower-bar {
-    flex-direction: row;
+/* ============================================================
+   WAVE START LAYOUT
+   ============================================================ */
+.wave-start-container {
+    justify-content: flex-end;
     align-items: center;
+    padding-bottom: 80px;
 }
 
-.hud__tower-btn {
-    width: 80px;
-    height: 36px;
-    margin: 0 4px;
-    background-color: rgba(0, 255, 255, 0.05);
-    border-width: 1px;
-    border-color: rgba(0, 255, 255, 0.3);
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-}
-
-.hud__tower-btn:hover {
-    background-color: rgba(0, 255, 255, 0.12);
-    border-color: rgba(0, 255, 255, 0.6);
-}
-
-.hud__tower-btn--selected {
-    border-color: var(--primary);
+.wave-start-panel {
+    border-radius: 6px;
     border-width: 2px;
-    background-color: rgba(0, 255, 255, 0.15);
+    border-color: var(--glass-border-accent);
+    overflow: hidden;
 }
-
-.hud__tower-btn-label {
-    font-size: 9px;
-    color: var(--primary);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    -unity-font-style: bold;
-    text-shadow: 0 0 6px rgba(0, 255, 255, 0.5);
-}
-
-.hud__tower-btn--cannon .hud__tower-btn-label { color: rgb(0, 255, 255); }
-.hud__tower-btn--laser .hud__tower-btn-label { color: rgb(255, 81, 250); }
-.hud__tower-btn--slow .hud__tower-btn-label { color: rgb(0, 255, 128); }
 
 /* ============================================================
    WAVE START BUTTON
@@ -339,9 +287,9 @@
     font-size: 16px;
     -unity-font-style: bold;
     color: var(--primary);
-    background-color: rgba(0, 0, 0, 0);
+    background-color: transparent;
     border-width: 0;
-    border-color: rgba(0, 0, 0, 0);
+    border-color: transparent;
     letter-spacing: 4px;
     text-transform: uppercase;
     text-shadow: 0 0 12px rgba(0, 255, 255, 0.6);
@@ -349,20 +297,9 @@
 
 .wave-start-btn:hover {
     background-color: rgba(0, 255, 255, 0.1);
-    border-color: rgba(0, 0, 0, 0);
+    border-color: transparent;
 }
 
 .wave-start-btn:active {
     background-color: rgba(0, 255, 255, 0.3);
-}
-
-/* ============================================================
-   LEGACY CLASS COMPAT (used by C# HUDWaveInfo)
-   ============================================================ */
-.hud__objective-bar-fill--low {
-    background-color: var(--hud-hp-low);
-}
-
-.hud__objective-bar-fill--critical {
-    background-color: var(--hud-hp-critical);
 }

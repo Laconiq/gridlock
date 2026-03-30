@@ -1,13 +1,11 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements">
-    <Style src="../DesignTokens.uss" />
-    <Style src="GameHUD.uss" />
+    <ui:Style src="../DesignTokens.uss" />
+    <ui:Style src="GameHUD.uss" />
 
     <ui:VisualElement name="hud-root" class="gridlock-ui hud-root" picking-mode="Ignore">
 
-        <!-- ============ TOP BAR ============ -->
         <Gridlock.UI.BlurPanel class="hud__top-bar" picking-mode="Ignore">
 
-            <!-- Left cluster: title + system info -->
             <ui:VisualElement class="hud__top-bar-left" picking-mode="Ignore">
                 <ui:VisualElement class="hud__title-group" picking-mode="Ignore">
                     <ui:VisualElement name="sys-dot" class="hud__sys-dot" picking-mode="Ignore" />
@@ -17,10 +15,8 @@
                 <ui:Label name="sys-meta" text="GRID::0.0 | ALT::0M" class="hud__sys-meta" picking-mode="Ignore" />
             </ui:VisualElement>
 
-            <!-- Center cluster: lives bar + wave + kills -->
             <ui:VisualElement class="hud__top-bar-center" picking-mode="Ignore">
 
-                <!-- Lives / Objective HP -->
                 <ui:VisualElement class="hud__stat-block" picking-mode="Ignore">
                     <ui:Label text="LIVES" class="hud__stat-label" picking-mode="Ignore" />
                     <ui:VisualElement class="hud__lives-bar-track" picking-mode="Ignore">
@@ -29,19 +25,15 @@
                     <ui:Label name="objective-hp-pct" text="100%" class="hud__stat-value" picking-mode="Ignore" />
                 </ui:VisualElement>
 
-                <!-- Separator -->
                 <ui:VisualElement class="hud__bar-separator" picking-mode="Ignore" />
 
-                <!-- Wave -->
                 <ui:VisualElement class="hud__stat-block" picking-mode="Ignore">
                     <ui:Label text="WAVE" class="hud__stat-label" picking-mode="Ignore" />
                     <ui:Label name="wave-label" text="WAVE 01" class="hud__stat-value hud__stat-value--primary" picking-mode="Ignore" />
                 </ui:VisualElement>
 
-                <!-- Separator -->
                 <ui:VisualElement class="hud__bar-separator" picking-mode="Ignore" />
 
-                <!-- Hostiles -->
                 <ui:VisualElement class="hud__stat-block" picking-mode="Ignore">
                     <ui:Label text="HOSTILES" class="hud__stat-label" picking-mode="Ignore" />
                     <ui:Label name="wave-enemies" text="HOSTILES::0" class="hud__stat-value hud__stat-value--secondary" picking-mode="Ignore" />
@@ -49,7 +41,6 @@
 
             </ui:VisualElement>
 
-            <!-- Right cluster: operator status -->
             <ui:VisualElement class="hud__top-bar-right" picking-mode="Ignore">
                 <ui:Label name="self-name" text="OPERATOR_01" class="hud__operator-name" picking-mode="Ignore" />
                 <ui:VisualElement class="hud__operator-stats" picking-mode="Ignore">
@@ -64,16 +55,12 @@
 
         </Gridlock.UI.BlurPanel>
 
-        <!-- ============ MIDDLE SPACER ============ -->
         <ui:VisualElement class="hud__middle" picking-mode="Ignore" />
 
-        <!-- ============ CENTER: WAVE ANNOUNCEMENT ============ -->
         <ui:Label name="announcement-label" class="hud__announcement" picking-mode="Ignore" style="display: none;" />
 
-        <!-- ============ BOTTOM: EVENT LOG + STATUS ============ -->
         <ui:VisualElement class="hud__footer" picking-mode="Ignore">
 
-            <!-- Event Log -->
             <Gridlock.UI.BlurPanel class="hud__log-panel" picking-mode="Ignore">
                 <ui:VisualElement class="hud__log-header" picking-mode="Ignore">
                     <ui:Label text=">" class="hud__log-icon" picking-mode="Ignore" />
@@ -82,7 +69,6 @@
                 <ui:VisualElement name="event-log" class="hud__event-log" picking-mode="Ignore" />
             </Gridlock.UI.BlurPanel>
 
-            <!-- Status bar -->
             <Gridlock.UI.BlurPanel class="hud__bottom-bar" picking-mode="Ignore">
                 <ui:Label text="// SYSTEM_OK" class="hud__bottom-status" picking-mode="Ignore" />
             </Gridlock.UI.BlurPanel>

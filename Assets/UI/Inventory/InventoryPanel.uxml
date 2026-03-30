@@ -1,0 +1,26 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+
+    <ui:Style src="../DesignTokens.uss" />
+    <ui:Style src="InventoryPanel.uss" />
+
+    <ui:VisualElement name="inventory-root" class="gridlock-ui" picking-mode="Ignore">
+        <ui:VisualElement name="inventory-container" class="inventory-panel__root inventory-panel__root--closed">
+
+            <ui:VisualElement name="inventory-tab" class="inventory-panel__tab">
+                <ui:Label text="INV" class="inventory-panel__tab-label" />
+            </ui:VisualElement>
+
+            <Gridlock.UI.BlurPanel name="inventory-content" class="inventory-panel__content">
+                <ui:VisualElement class="inventory-panel__header">
+                    <ui:VisualElement class="inventory-panel__accent-line" />
+                    <ui:Label text="MOD_STORAGE" class="inventory-panel__title" />
+                </ui:VisualElement>
+
+                <ui:ScrollView name="inventory-scroll" class="inventory-panel__scroll">
+                    <ui:VisualElement name="inventory-grid" class="inventory-panel__grid" />
+                </ui:ScrollView>
+            </Gridlock.UI.BlurPanel>
+
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
