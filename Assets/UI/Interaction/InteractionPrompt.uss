@@ -15,7 +15,7 @@
     --outline-variant:          #484849;
     --error:                    #ff716c;
 
-    -unity-font-definition: url("project://database/Assets/UI/NodeEditor/Fonts/SpaceGrotesk-Variable.ttf");
+    -unity-font-definition: url("project://database/Assets/UI/Fonts/SpaceGrotesk-Variable.ttf");
 
     position: absolute;
     left: 0;

@@ -92,7 +92,7 @@
     --hud-squad-disconnected:   #ff716c;
 
     /* === FONT === */
-    -unity-font-definition: url("project://database/Assets/UI/NodeEditor/Fonts/SpaceGrotesk-Variable.ttf");
+    -unity-font-definition: url("project://database/Assets/UI/Fonts/SpaceGrotesk-Variable.ttf");
 }
 
 /* Blur panel fallback — overridden at runtime when blur texture is available */
@@ -100,8 +100,6 @@
     background-color: var(--surface);
 }
 
-/* Legacy class aliases so existing UXML files keep working */
-.node-editor-root { }
 .hud-root {
     position: absolute;
     left: 0;
