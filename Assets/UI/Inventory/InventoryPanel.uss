@@ -1,0 +1,194 @@
+/* ============================================================
+   GRIDLOCK — Inventory Panel (Right-side sliding drawer)
+   Design: Stitch "Void Protocol" — hard edges, snap transitions
+   ============================================================ */
+
+.inventory-panel__root {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    width: 500px;
+    flex-direction: row;
+    picking-mode: ignore;
+    transition: right 0.15s ease-out;
+}
+
+.inventory-panel__root--closed {
+    right: -460px;
+}
+
+.inventory-panel__root--open {
+    right: 0;
+}
+
+/* --- Tab (always visible strip) --- */
+
+.inventory-panel__tab {
+    width: 40px;
+    height: 80px;
+    align-self: center;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--surface-container);
+    border-width: 1px;
+    border-color: rgba(72, 72, 73, 0.15);
+    border-right-width: 0;
+    picking-mode: position;
+    transition: border-color 0.1s, background-color 0.1s;
+}
+
+.inventory-panel__tab:hover {
+    border-color: var(--primary-dim);
+    background-color: var(--surface-container-high);
+}
+
+.inventory-panel__tab-label {
+    color: var(--primary);
+    font-size: var(--font-size-xs);
+    -unity-font-style: bold;
+    letter-spacing: 3px;
+    rotate: -90deg;
+    picking-mode: ignore;
+}
+
+.inventory-panel__tab-pulse {
+    border-color: var(--primary);
+    background-color: rgba(0, 238, 252, 0.15);
+}
+
+/* --- Content panel --- */
+
+.inventory-panel__content {
+    flex-grow: 1;
+    flex-direction: column;
+    padding: var(--space-md);
+    border-left-width: 1px;
+    border-left-color: rgba(72, 72, 73, 0.15);
+    picking-mode: position;
+}
+
+/* --- Section header --- */
+
+.inventory-panel__header {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: var(--space-md);
+}
+
+.inventory-panel__accent-line {
+    width: 3px;
+    height: 14px;
+    background-color: var(--primary);
+    margin-right: var(--space-sm);
+}
+
+.inventory-panel__title {
+    color: var(--primary);
+    font-size: var(--font-size-sm);
+    -unity-font-style: bold;
+    letter-spacing: 3px;
+}
+
+/* --- Grid --- */
+
+.inventory-panel__scroll {
+    flex-grow: 1;
+}
+
+.inventory-panel__scroll .unity-scroller--vertical {
+    width: 4px;
+    border-left-width: 0;
+    background-color: var(--surface-container-lowest);
+}
+
+.inventory-panel__scroll .unity-scroller--vertical .unity-base-slider__dragger {
+    background-color: rgba(0, 238, 252, 0.25);
+}
+
+.inventory-panel__scroll .unity-scroller--vertical .unity-base-slider__dragger:hover {
+    background-color: rgba(0, 238, 252, 0.5);
+}
+
+.inventory-panel__scroll .unity-scroller--vertical .unity-base-slider__tracker {
+    background-color: var(--surface-container-lowest);
+    border-width: 0;
+}
+
+.inventory-panel__scroll .unity-scroller--vertical .unity-repeat-button {
+    display: none;
+}
+
+.inventory-panel__grid {
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: var(--space-xs);
+}
+
+/* --- Inventory tile --- */
+
+.inventory-tile {
+    width: 170px;
+    height: 72px;
+    margin: 3px;
+    padding: var(--space-sm) var(--space-md);
+    background-color: var(--surface-container-low);
+    border-width: 1px;
+    border-color: rgba(72, 72, 73, 0.15);
+    border-left-width: 4px;
+    justify-content: center;
+    align-items: flex-start;
+    picking-mode: position;
+    transition: background-color 0.075s, border-color 0.075s, scale 0.1s ease-out;
+    scale: 1 1;
+}
+
+.inventory-tile:hover {
+    background-color: var(--surface-container-high);
+    border-color: rgba(72, 72, 73, 0.4);
+    scale: 1.03 1.03;
+}
+
+.inventory-tile:active {
+    scale: 0.95 0.95;
+}
+
+.inventory-tile--empty {
+    opacity: 0.35;
+}
+
+.inventory-tile__name {
+    font-size: var(--font-size-body);
+    -unity-font-style: bold;
+    -unity-text-align: middle-left;
+    letter-spacing: 2px;
+    picking-mode: ignore;
+}
+
+.inventory-tile__rarity {
+    font-size: var(--font-size-xs);
+    -unity-text-align: middle-left;
+    letter-spacing: 1px;
+    margin-top: 3px;
+    picking-mode: ignore;
+}
+
+.inventory-tile__badge {
+    position: absolute;
+    top: 4px;
+    right: 6px;
+    font-size: var(--font-size-xs);
+    -unity-font-style: bold;
+    color: var(--on-surface);
+    background-color: rgba(0, 0, 0, 0.5);
+    padding-left: 4px;
+    padding-right: 4px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    picking-mode: ignore;
+}
+
+.inventory-tile__badge--bump {
+    scale: 1.3 1.3;
+    transition: scale 0.1s ease-out;
+}
