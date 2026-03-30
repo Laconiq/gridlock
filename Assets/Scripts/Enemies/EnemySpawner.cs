@@ -3,6 +3,7 @@ using System.Collections;
 using Gridlock.AI;
 using Gridlock.Core;
 using Gridlock.Grid;
+using Gridlock.Loot;
 using UnityEngine;
 
 namespace Gridlock.Enemies
@@ -97,6 +98,12 @@ namespace Gridlock.Enemies
                 }
                 if (controller != null) controller.OnReachedObjective += NotifyDespawn;
                 if (health != null) health.OnDeath += NotifyDespawn;
+            }
+
+            if (health != null)
+            {
+                var spawnTransform = go.transform;
+                health.OnDeath += () => LootDropper.Instance?.OnEnemyDied(spawnTransform.position);
             }
         }
     }
