@@ -34,8 +34,10 @@ namespace Gridlock.Mods
                 : FlatNormalized(transform.forward);
 
             transform.position = _ctx.Position;
-            if (_ctx.Direction.sqrMagnitude > 0.001f)
-                transform.rotation = Quaternion.LookRotation(_ctx.Direction);
+            var initDir = _ctx.Direction;
+            initDir.y = 0f;
+            if (initDir.sqrMagnitude > 0.001f)
+                transform.rotation = Quaternion.LookRotation(initDir);
 
             var wf = GetComponent<WarpFollower>();
             if (wf == null) wf = gameObject.AddComponent<WarpFollower>();
@@ -88,8 +90,10 @@ namespace Gridlock.Mods
             _ctx.Position += _ctx.Direction * (_ctx.Speed * dt);
             transform.position = _ctx.Position;
 
-            if (_ctx.Direction.sqrMagnitude > 0.001f)
-                transform.rotation = Quaternion.LookRotation(_ctx.Direction);
+            var dir = _ctx.Direction;
+            dir.y = 0f;
+            if (dir.sqrMagnitude > 0.001f)
+                transform.rotation = Quaternion.LookRotation(dir);
 
             CheckCollision();
         }
