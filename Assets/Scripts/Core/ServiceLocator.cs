@@ -8,6 +8,9 @@ namespace Gridlock.Core
     {
         private static readonly Dictionary<Type, object> _services = new();
 
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void Init() => _services.Clear();
+
         public static void Register<T>(T service) where T : class
         {
             if (_services.ContainsKey(typeof(T)))

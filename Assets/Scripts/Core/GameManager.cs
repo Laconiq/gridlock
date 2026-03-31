@@ -63,6 +63,7 @@ namespace Gridlock.Core
             wm?.ResetWaves();
 
             ObjectiveController.Instance?.ResetHP();
+            GameStats.Instance?.Reset();
 
             SetState(GameState.Preparing);
         }

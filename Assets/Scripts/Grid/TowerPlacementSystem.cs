@@ -61,6 +61,9 @@ namespace Gridlock.Grid
 
         private void OnGameStateChanged(GameState prev, GameState current)
         {
+            if (prev == GameState.GameOver && current == GameState.Preparing)
+                _placedTowers.Clear();
+
             _isActive = current == GameState.Preparing;
             if (_preview != null)
                 _preview.SetActive(_isActive && RemainingTowers > 0);

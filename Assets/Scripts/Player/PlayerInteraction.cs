@@ -38,6 +38,7 @@ namespace Gridlock.Player
         private void Start()
         {
             var provider = GetComponent<PlayerInputProvider>();
+            if (provider == null) return;
             _controls = provider.Controls;
             _controls.Player.Interact.performed += OnInteractPerformed;
             StartCoroutine(WaitForHUD());
