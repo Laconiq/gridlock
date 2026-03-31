@@ -90,21 +90,28 @@ All tests ran in automated play mode with a single tower placed adjacent to the 
 
 ---
 
-## Items Requiring Visual Verification
+## Follow-up: Suspect Tests (visual verification)
 
-These tests passed (tower fired, no crash) but may have subtle gameplay issues that can only be confirmed visually:
+After initial run, 6 suspect combos were retested with extended 12s monitoring and screenshots.
 
-1. **Homing_OnHit_Split_OnKill_Wide** — maxProj=1 is suspiciously low. The homing main should hit → spawn Split sub → Split fans out → each shard that kills → Wide AOE sub. Either subs die too fast or the chain doesn't fully cascade. **Test manually with multiple enemies.**
+A quaternion spam bug was found and fixed (projectile direction Y drift → invalid LookRotation). This fix also resolved the nested chain issue.
 
-2. **OnEnd subs** — OnEnd fires when the projectile expires (lifetime ends). The sub spawns at the expiry point which may be far from enemies. **Verify subs actually reach and hit enemies.**
+| Test | maxProj (before fix) | maxProj (after fix) | Status |
+|------|---------------------|---------------------|--------|
+| Homing,OnHit,Split,OnKill,Wide | 1 | **17** | **FIXED** — chain cascades correctly now |
+| OnEnd,Split | 1 | 1 | OK — expected (1 proj → splits on expire) |
+| Pierce,OnHit,Homing | 6 | **18** | OK — more subs surviving |
+| Pierce,Bounce | 2 | **5** | OK — projectile survives longer |
+| OnHit,Burn | 7 | 6 | OK — stable |
+| Split,Homing | 7 | **10** | OK — more shards homing |
 
-3. **Sub-projectile directions** — all impact event subs now spawn in random directions (±10° cone excluded). **Verify this looks good visually** — not too chaotic, homing subs should correct course.
+### Items for manual testing
 
-4. **Split fan shape** — original takes left edge of fan (-45°), extras distribute right. **Verify it looks like a proper fan** and not lopsided.
+1. **Split fan shape** — original takes left edge of fan (-45°), extras distribute right. Verify it looks like a proper fan visually.
 
-5. **Pierce+Bounce coexistence** — both stages run in PostHit now. When pierce charges are exhausted, bounce takes over. **Verify the projectile properly redirects** to a new target after pierce runs out.
+2. **OnHit sub with only elemental mods (Burn/Frost)** — sub inherits parent HitInstances, so it can't hit the same enemy. The sub flies in a random direction and must find a NEW enemy. If no enemies nearby, the sub may expire without applying the effect. This is by design (mods after event = sub-projectile per game design doc) but may feel odd for pure effect builds like `[⟐Hit, Burn]`.
 
-6. **OnHit sub with only elemental mods (Burn/Frost)** — sub inherits parent HitInstances, so it can't hit the same enemy the parent just hit. The sub flies in a random direction and must find a NEW enemy to apply the effect. **Verify the effect actually lands on something** — if no enemies nearby, the sub may expire uselessly.
+3. **OnEnd subs** — sub spawns at projectile expiry point which may be far from enemies. Verify subs actually reach targets.
 
 ---
 
