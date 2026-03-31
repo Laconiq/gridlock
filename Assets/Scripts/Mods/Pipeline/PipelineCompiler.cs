@@ -13,7 +13,7 @@ namespace Gridlock.Mods.Pipeline
             var groups = SplitAtEvents(slots);
             var pipeline = BuildNestedPipeline(groups, activeSynergies);
 
-            var ctx = ModContext.Create(baseDamage, speed: 20f, size: 0.2f, lifetime: 5f);
+            var ctx = ModContext.Create(baseDamage, speed: 10f, size: 0.2f, lifetime: 5f);
             ctx.Synergies = new List<SynergyEffect>(activeSynergies);
             ctx.Tags = pipeline.AccumulatedTags;
 
