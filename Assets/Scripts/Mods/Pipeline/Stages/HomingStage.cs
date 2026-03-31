@@ -24,7 +24,7 @@ namespace Gridlock.Mods.Pipeline.Stages
             if (toTarget.sqrMagnitude < 0.001f) return;
 
             var desired = toTarget.normalized;
-            bool isMissile = (ctx.Tags & (ModTags.Homing | ModTags.Swift)) == (ModTags.Homing | ModTags.Swift);
+            bool isMissile = ctx.Synergies != null && ctx.Synergies.Contains(SynergyEffect.Missile);
             ctx.Direction = isMissile ? desired : Vector3.Lerp(ctx.Direction, desired, turnSpeed * Time.deltaTime).normalized;
         }
 

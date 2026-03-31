@@ -13,7 +13,10 @@ namespace Gridlock.Mods.Pipeline.Stages
 
         public void Execute(ref ModContext ctx)
         {
-            ObjectiveController.Instance?.Heal(ctx.Damage * leechPercent);
+            float percent = leechPercent;
+            if (ctx.Synergies != null && ctx.Synergies.Contains(SynergyEffect.Vampire))
+                percent = 0.4f;
+            ObjectiveController.Instance?.Heal(ctx.Damage * percent);
         }
 
         public IModStage Clone() => new LeechStage { leechPercent = leechPercent };
