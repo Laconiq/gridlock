@@ -12,7 +12,12 @@ namespace Gridlock.Mods.Pipeline.Stages
 
         public void Execute(ref ModContext ctx)
         {
-            ImpactFlash.Spawn(ctx.Position, Color.cyan);
+            var colors = Visual.ProjectileVisual.GetElementColors(ctx.Tags);
+            var color = colors[0];
+            float intensity = Mathf.Clamp01(ctx.Damage / 30f);
+
+            ImpactFlash.Spawn(ctx.Position, color);
+            Visual.ParticleVFX.ImpactBurst(ctx.Position, color, intensity);
             SoundManager.Instance?.Play(SoundType.ProjectileImpact, ctx.Position);
             GameJuice.Instance?.OnEnemyHit(ctx.Position);
         }

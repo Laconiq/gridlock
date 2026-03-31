@@ -52,6 +52,7 @@ namespace Gridlock.Mods
                 return;
             }
 
+            ProjectileVisual.Apply(gameObject, _ctx);
             GameJuice.Instance?.OnTowerFired(origin);
             _initialized = true;
         }
@@ -214,6 +215,14 @@ namespace Gridlock.Mods
         {
             if (_destroyed) return;
             _destroyed = true;
+
+            var trail = GetComponent<TrailRenderer>();
+            if (trail != null)
+            {
+                trail.transform.SetParent(null);
+                trail.autodestruct = true;
+            }
+
             Destroy(gameObject);
         }
 

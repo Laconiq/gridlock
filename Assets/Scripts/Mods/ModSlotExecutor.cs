@@ -5,6 +5,7 @@ using Gridlock.Grid;
 using Gridlock.Interfaces;
 using Gridlock.Mods.Pipeline;
 using Gridlock.Towers;
+using Gridlock.Visual;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -150,6 +151,11 @@ namespace Gridlock.Mods
 
             var pipeline = _cachedPipeline.Clone();
             var ctx = _cachedBaseCtx.Clone();
+
+            var colors = ProjectileVisual.GetElementColors(ctx.Tags);
+            var dir = (target.Position - spawnPos).normalized;
+            ParticleVFX.MuzzleFlash(spawnPos, dir, colors[0]);
+
             proj.Initialize(pipeline, ctx, target, spawnPos);
         }
     }
