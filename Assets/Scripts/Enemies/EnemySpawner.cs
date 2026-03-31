@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using AmazingAssets.WireframeShader;
 using Gridlock.AI;
 using Gridlock.Core;
 using Gridlock.Grid;
@@ -71,11 +72,22 @@ namespace Gridlock.Enemies
             if (mf != null && definition.mesh != null)
                 mf.sharedMesh = definition.mesh;
 
-            var mr = go.GetComponentInChildren<MeshRenderer>();
-            if (mr != null && definition.material != null)
+            if (mf != null && mf.sharedMesh != null)
             {
-                mr.material = definition.material;
-                mr.material.SetColor("_BaseColor", definition.color);
+                var wireMesh = mf.sharedMesh.WireframeShader().GenerateWireframeMesh(true, false);
+                if (wireMesh != null)
+                    mf.sharedMesh = wireMesh;
+            }
+
+            var mr = go.GetComponentInChildren<MeshRenderer>();
+            if (mr != null)
+            {
+                var baseMat = Resources.Load<Material>("WireframeEnemy");
+                if (baseMat != null)
+                {
+                    mr.material = new Material(baseMat);
+                    mr.material.SetColor("_Wireframe_Color", definition.color);
+                }
             }
 
             var controller = go.GetComponent<EnemyController>();

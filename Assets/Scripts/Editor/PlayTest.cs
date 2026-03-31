@@ -11,12 +11,6 @@ using Gridlock.Visual;
 using UnityEditor;
 using UnityEngine;
 
-/// <summary>
-/// Automated play-mode test harness for mod pipeline verification.
-/// Run via MCP execute_script or menu Gridlock/Play Test.
-/// Accepts JSON arguments: { "slots1": ["Pierce","OnHit","Homing"], "slots2": [...], "slots3": [...] }
-/// Defaults to three preset configs if no arguments provided.
-/// </summary>
 public static class PlayTest
 {
     private static string[] _slots1, _slots2, _slots3;
@@ -31,7 +25,6 @@ public static class PlayTest
     {
         string[] Parse(string key)
         {
-            // Minimal JSON array extraction: "key":["A","B"]
             int idx = json?.IndexOf($"\"{key}\"") ?? -1;
             if (idx < 0) return null;
             int start = json.IndexOf('[', idx);
@@ -76,7 +69,7 @@ public static class PlayTest
     {
         Debug.Log("[PlayTest] === STARTING PIPELINE TEST ===");
 
-        var placementSystem = Object.FindFirstObjectByType<TowerPlacementSystem>();
+        var placementSystem = Object.FindAnyObjectByType<TowerPlacementSystem>();
         var gridManager = ServiceLocator.Get<GridManager>();
         if (placementSystem == null || gridManager == null)
         {
@@ -166,6 +159,7 @@ public static class PlayTest
         var snapPos = gridManager.GridToWorld(gridPos);
         var tower = Object.Instantiate(prefab, snapPos, Quaternion.identity);
         tower.AddComponent<WarpFollower>();
+        TowerVisualSetup.Apply(tower);
         gridManager.SetRuntimeCell(gridPos.x, gridPos.y, CellType.Blocked);
         return tower;
     }
@@ -182,9 +176,9 @@ public class PlayTestMonitor : MonoBehaviour
         if (_elapsed < _nextLog) return;
         _nextLog = _elapsed + 0.5f;
 
-        var projectiles = FindObjectsByType<ModProjectile>(FindObjectsSortMode.None);
+        var projectiles = FindObjectsByType<ModProjectile>(FindObjectsInactive.Exclude);
         var enemies = EnemyRegistry.Count;
-        var executors = FindObjectsByType<ModSlotExecutor>(FindObjectsSortMode.None);
+        var executors = FindObjectsByType<ModSlotExecutor>(FindObjectsInactive.Exclude);
 
         string towerInfo = "";
         foreach (var ex in executors)

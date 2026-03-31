@@ -14,6 +14,7 @@ namespace Gridlock.Visual
             go.transform.rotation = Quaternion.LookRotation(forward);
 
             var ps = go.AddComponent<ParticleSystem>();
+            ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
 
             var main = ps.main;
             main.duration = 0.1f;
@@ -24,7 +25,7 @@ namespace Gridlock.Visual
             main.startColor = color;
             main.simulationSpace = ParticleSystemSimulationSpace.World;
             main.maxParticles = 12;
-            main.playOnAwake = true;
+            main.playOnAwake = false;
             main.stopAction = ParticleSystemStopAction.Destroy;
             main.gravityModifier = 0f;
             main.startRotation = new ParticleSystem.MinMaxCurve(0f, Mathf.PI * 2f);
@@ -60,6 +61,8 @@ namespace Gridlock.Visual
             renderer.mesh = GetCubeMesh();
             renderer.material = GetNeonMaterial();
             renderer.enableGPUInstancing = true;
+
+            ps.Play();
         }
 
         public static void ImpactBurst(Vector3 position, Color color, float intensity = 1f)
@@ -68,6 +71,7 @@ namespace Gridlock.Visual
             go.transform.position = position;
 
             var ps = go.AddComponent<ParticleSystem>();
+            ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
 
             var main = ps.main;
             main.duration = 0.15f;
@@ -78,7 +82,7 @@ namespace Gridlock.Visual
             main.startColor = color;
             main.simulationSpace = ParticleSystemSimulationSpace.World;
             main.maxParticles = 20;
-            main.playOnAwake = true;
+            main.playOnAwake = false;
             main.stopAction = ParticleSystemStopAction.Destroy;
             main.gravityModifier = 2f;
             main.startRotation = new ParticleSystem.MinMaxCurve(0f, Mathf.PI * 2f);
@@ -128,6 +132,8 @@ namespace Gridlock.Visual
             renderer.mesh = GetCubeMesh();
             renderer.material = GetNeonMaterial();
             renderer.enableGPUInstancing = true;
+
+            ps.Play();
         }
 
         private static void DisableUnusedModules(ParticleSystem ps)

@@ -11,10 +11,6 @@ using Gridlock.Visual;
 using UnityEditor;
 using UnityEngine;
 
-/// <summary>
-/// Runs a full battery of mod slot combo tests sequentially.
-/// Each test places one tower, runs a wave, logs results, then resets.
-/// </summary>
 public static class PipelineTestSuite
 {
     private static readonly string[][] AllTests = new[]
@@ -119,7 +115,7 @@ public static class PipelineTestSuite
         _running = true;
 
         var gridManager = ServiceLocator.Get<GridManager>();
-        var placementSystem = Object.FindFirstObjectByType<TowerPlacementSystem>();
+        var placementSystem = Object.FindAnyObjectByType<TowerPlacementSystem>();
 
         if (gridManager == null || placementSystem == null)
         {
@@ -130,13 +126,11 @@ public static class PipelineTestSuite
             return;
         }
 
-        // Reset game state
         GameManager.Instance?.SetState(GameState.Preparing);
 
-        // Clean up previous towers and projectiles
-        foreach (var proj in Object.FindObjectsByType<ModProjectile>(FindObjectsSortMode.None))
+        foreach (var proj in Object.FindObjectsByType<ModProjectile>(FindObjectsInactive.Exclude))
             Object.Destroy(proj.gameObject);
-        foreach (var tower in Object.FindObjectsByType<TowerChassis>(FindObjectsSortMode.None))
+        foreach (var tower in Object.FindObjectsByType<TowerChassis>(FindObjectsInactive.Exclude))
         {
             var gp = gridManager.TryWorldToGrid(tower.transform.position, out var pos);
             if (gp) gridManager.SetRuntimeCell(pos.x, pos.y, CellType.Empty);
@@ -147,7 +141,6 @@ public static class PipelineTestSuite
             System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
         var towerPrefab = prefabField?.GetValue(placementSystem) as GameObject;
 
-        // Find a cell near spawn
         var cells = FindNearSpawn(gridManager);
         if (cells.Count == 0 || towerPrefab == null)
         {
@@ -171,17 +164,14 @@ public static class PipelineTestSuite
         executor.SetSlots(slots);
         executor.TargetingMode = TargetingMode.First;
 
-        // Start wave
         GameManager.Instance?.SetState(GameState.Wave);
 
-        // Create a monitor for this test
         var monitorGo = new GameObject("_TestMonitor");
         var monitor = monitorGo.AddComponent<TestCaseMonitor>();
         monitor.Init(testName, mods, () =>
         {
             _currentTest++;
             _running = false;
-            // Wait a frame before next test
             EditorApplication.delayCall += StartNextTest;
         });
     }
@@ -223,7 +213,6 @@ public static class PipelineTestSuite
         Debug.Log("[TestSuite] ========== END REPORT ==========");
     }
 
-    // Called by TestCaseMonitor to record results
     public static void RecordResult(string result)
     {
         _results.Add(result);
@@ -252,7 +241,7 @@ public class TestCaseMonitor : MonoBehaviour
     {
         _elapsed += Time.deltaTime;
 
-        var projectiles = FindObjectsByType<ModProjectile>(FindObjectsSortMode.None);
+        var projectiles = FindObjectsByType<ModProjectile>(FindObjectsInactive.Exclude);
         if (projectiles.Length > _maxProjectilesSeen)
             _maxProjectilesSeen = projectiles.Length;
 

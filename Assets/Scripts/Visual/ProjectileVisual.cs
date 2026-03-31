@@ -26,7 +26,7 @@ namespace Gridlock.Visual
         public static void Apply(GameObject projectile, ModContext ctx)
         {
             var colors = GetElementColors(ctx.Tags);
-            float baseScale = Mathf.Lerp(0.4f, 1.0f, Mathf.Clamp01(ctx.Damage / 40f));
+            float baseScale = Mathf.Lerp(0.2f, 0.5f, Mathf.Clamp01(ctx.Damage / 40f));
             projectile.transform.localScale = Vector3.one * baseScale;
 
             ApplyMaterial(projectile, colors, ctx.Damage);
@@ -49,7 +49,7 @@ namespace Gridlock.Visual
             if (colors.Length > 3) mpb.SetColor(Color3Id, colors[3]);
             mpb.SetFloat(ColorCountId, colors.Length);
 
-            float intensity = Mathf.Lerp(6f, 18f, Mathf.Clamp01(damage / 40f));
+            float intensity = Mathf.Lerp(8f, 25f, Mathf.Clamp01(damage / 40f));
             mpb.SetFloat(EmissionIntensityId, intensity);
 
             bool hasElement = colors[0] != DefaultColor;

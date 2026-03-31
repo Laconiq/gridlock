@@ -82,7 +82,6 @@ Shader "Custom/NeonProjectile"
                 float3 viewDir = normalize(input.viewDirWS);
                 float NdotV = saturate(dot(normalWS, viewDir));
 
-                // Rim only — center stays black, rim glows with smooth fade inward
                 float rim = 1.0 - NdotV;
                 float rimMask = smoothstep(1.0 - _RimWidth, 1.0, rim);
                 rimMask = pow(rimMask, _RimPower);

@@ -143,7 +143,6 @@ namespace Gridlock.Mods
 
             Transform fp = _chassis.FirePoint != null ? _chassis.FirePoint : transform;
             Vector3 spawnPos = fp.position;
-            spawnPos.y = 0.5f;
 
             var go = Instantiate(projectilePrefab, spawnPos, Quaternion.identity);
             var proj = go.GetComponent<ModProjectile>();

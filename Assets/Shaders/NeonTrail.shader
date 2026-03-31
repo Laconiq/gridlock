@@ -2,7 +2,7 @@ Shader "Custom/NeonTrail"
 {
     Properties
     {
-        _EmissionIntensity ("Emission Intensity", Float) = 3.0
+        _EmissionIntensity ("Emission Intensity", Float) = 5.0
     }
     SubShader
     {

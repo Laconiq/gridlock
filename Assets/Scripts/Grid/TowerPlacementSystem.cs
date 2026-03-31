@@ -155,6 +155,7 @@ namespace Gridlock.Grid
             var tower = Instantiate(towerPrefab, snapPos, Quaternion.identity);
             _placedTowers.Add(tower);
             tower.AddComponent<Visual.WarpFollower>();
+            Visual.TowerVisualSetup.Apply(tower);
             StartCoroutine(TowerPopIn(tower.transform));
 
             _gridManager.SetRuntimeCell(gridPos.x, gridPos.y, CellType.Blocked);
