@@ -27,11 +27,13 @@ namespace Gridlock.Loot
 
         private void Start()
         {
+#if UNITY_EDITOR
             if (debugStartCount > 0)
             {
                 foreach (ModType type in Enum.GetValues(typeof(ModType)))
                     _inventory[type] = debugStartCount;
             }
+#endif
         }
 
         private void OnDestroy()

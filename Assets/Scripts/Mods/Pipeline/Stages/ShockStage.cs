@@ -17,9 +17,11 @@ namespace Gridlock.Mods.Pipeline.Stages
         public void Execute(ref ModContext ctx)
         {
             var origin = ctx.Position;
-            int chained = 0;
+            int maxChains = chainCount;
+            if (ctx.Synergies != null && ctx.Synergies.Contains(SynergyEffect.Tesla))
+                maxChains = 3;
 
-            for (int c = 0; c < chainCount && c < EnemyRegistry.Count; c++)
+            for (int c = 0; c < maxChains && c < EnemyRegistry.Count; c++)
             {
                 float bestDist = float.MaxValue;
                 EnemyEntry best = default;
@@ -45,7 +47,6 @@ namespace Gridlock.Mods.Pipeline.Stages
                 ctx.HitInstances.Add(best.Controller.gameObject.GetEntityId());
                 best.Health.TakeDamage(new DamageInfo(ctx.Damage, DamageType.Direct));
                 origin = best.Controller.transform.position;
-                chained++;
             }
         }
 

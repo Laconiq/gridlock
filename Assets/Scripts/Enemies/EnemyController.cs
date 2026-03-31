@@ -25,6 +25,7 @@ namespace Gridlock.Enemies
         private Vector3 _overrideDestination;
         private bool _hasOverride;
         private bool _stopped;
+        private bool _reachedObjective;
 
         public event Action OnReachedObjective;
 
@@ -182,7 +183,8 @@ namespace Gridlock.Enemies
 
         public void NotifyReachedObjective()
         {
-            if (!IsAlive) return;
+            if (!IsAlive || _reachedObjective) return;
+            _reachedObjective = true;
 
             var objective = ServiceLocator.Get<ObjectiveController>();
             if (objective != null)

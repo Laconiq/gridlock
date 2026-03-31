@@ -62,6 +62,8 @@ namespace Gridlock.Visual
 
             if (t >= 1f)
             {
+                if (_renderer != null && _renderer.material != null)
+                    Destroy(_renderer.material);
                 Destroy(gameObject);
                 return;
             }

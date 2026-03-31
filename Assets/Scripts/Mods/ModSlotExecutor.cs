@@ -149,7 +149,7 @@ namespace Gridlock.Mods
             if (proj == null) return;
 
             var pipeline = _cachedPipeline.Clone();
-            var ctx = _cachedBaseCtx.CloneForSub(1f);
+            var ctx = _cachedBaseCtx.Clone();
             proj.Initialize(pipeline, ctx, target, spawnPos);
         }
     }

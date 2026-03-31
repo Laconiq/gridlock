@@ -23,11 +23,7 @@ namespace Gridlock.Mods.Pipeline
                 return;
 
             for (int i = 0; i < stages.Count; i++)
-            {
                 stages[i].Execute(ref ctx);
-                if (ctx.Consumed)
-                    break;
-            }
         }
 
         public ModPipeline Clone()

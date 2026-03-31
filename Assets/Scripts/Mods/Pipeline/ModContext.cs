@@ -45,6 +45,15 @@ namespace Gridlock.Mods.Pipeline
             };
         }
 
+        public ModContext Clone()
+        {
+            var copy = this;
+            copy.SpawnRequests = new List<SpawnRequest>();
+            copy.Synergies = new List<SynergyEffect>(Synergies);
+            copy.HitInstances = new HashSet<EntityId>();
+            return copy;
+        }
+
         public ModContext CloneForSub(float damageScale)
         {
             var copy = this;
@@ -55,6 +64,12 @@ namespace Gridlock.Mods.Pipeline
             copy.Consumed = false;
             copy.KilledThisHit = false;
             copy.OverkillAmount = 0f;
+            copy.Tags = ModTags.None;
+            copy.PierceRemaining = 0;
+            copy.BounceRemaining = 0;
+            copy.Lifetime = 0f;
+            copy.PulseTimer = 0f;
+            copy.DelayFired = false;
             return copy;
         }
     }

@@ -53,6 +53,12 @@ namespace Gridlock.Enemies
                 _health.CurrentHPChanged -= OnHPChanged;
                 _health.OnDeath -= OnDeath;
             }
+
+            if (_materialInstance != null)
+            {
+                Destroy(_materialInstance);
+                _materialInstance = null;
+            }
         }
 
         private void Update()

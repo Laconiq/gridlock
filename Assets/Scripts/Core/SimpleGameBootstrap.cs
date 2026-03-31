@@ -21,9 +21,6 @@ namespace Gridlock.Core
         private System.Collections.IEnumerator WaitAndStart()
         {
             yield return null;
-
-            if (GameManager.Instance != null)
-                GameManager.Instance.SetState(GameState.Preparing);
         }
     }
 }

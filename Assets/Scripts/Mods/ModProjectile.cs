@@ -34,8 +34,10 @@ namespace Gridlock.Mods
                 : FlatNormalized(transform.forward);
 
             transform.position = _ctx.Position;
-            if (_ctx.Direction.sqrMagnitude > 0.001f)
-                transform.rotation = Quaternion.LookRotation(_ctx.Direction);
+            var initDir = _ctx.Direction;
+            initDir.y = 0f;
+            if (initDir.sqrMagnitude > 0.001f)
+                transform.rotation = Quaternion.LookRotation(initDir);
 
             var wf = GetComponent<WarpFollower>();
             if (wf == null) wf = gameObject.AddComponent<WarpFollower>();
@@ -78,6 +80,9 @@ namespace Gridlock.Mods
 
             _pipeline.RunPhase(StagePhase.OnUpdate, ref _ctx);
 
+            if (_ctx.SpawnRequests.Count > 0)
+                DrainSpawns();
+
             if (_ctx.Consumed)
             {
                 DrainSpawns();
@@ -88,8 +93,10 @@ namespace Gridlock.Mods
             _ctx.Position += _ctx.Direction * (_ctx.Speed * dt);
             transform.position = _ctx.Position;
 
-            if (_ctx.Direction.sqrMagnitude > 0.001f)
-                transform.rotation = Quaternion.LookRotation(_ctx.Direction);
+            var dir = _ctx.Direction;
+            dir.y = 0f;
+            if (dir.sqrMagnitude > 0.001f)
+                transform.rotation = Quaternion.LookRotation(dir);
 
             CheckCollision();
         }
@@ -100,18 +107,23 @@ namespace Gridlock.Mods
 
             if (homing && _ctx.Target != null && _ctx.Target.IsAlive && _ctx.Target.Transform != null)
             {
-                float distSq = FlatDistanceSq(transform.position, _ctx.Target.Position);
-                float r = HitRadius;
-                if (distSq > r * r) return;
-
                 var id = _ctx.Target.Transform.gameObject.GetEntityId();
-                if (_ctx.HitInstances.Contains(id)) return;
-                _ctx.HitInstances.Add(id);
+                if (_ctx.HitInstances.Contains(id))
+                {
+                    _ctx.Target = null;
+                }
+                else
+                {
+                    float distSq = FlatDistanceSq(transform.position, _ctx.Target.Position);
+                    float r = HitRadius;
+                    if (distSq > r * r) return;
 
-                var dmg = _ctx.Target.Transform.GetComponentInParent<IDamageable>();
-                if (dmg != null)
-                    ProcessHit(dmg, _ctx.Target.Transform.gameObject, _ctx.Target.Position);
-                return;
+                    _ctx.HitInstances.Add(id);
+                    var dmg = _ctx.Target.Transform.GetComponentInParent<IDamageable>();
+                    if (dmg != null)
+                        ProcessHit(dmg, _ctx.Target.Transform.gameObject, _ctx.Target.Position);
+                    return;
+                }
             }
 
             SweepCollision();
@@ -186,8 +198,11 @@ namespace Gridlock.Mods
                 var req = _ctx.SpawnRequests[i];
                 var go = Instantiate(gameObject, req.Origin, Quaternion.identity);
                 var proj = go.GetComponent<ModProjectile>();
-                var subCtx = _ctx.CloneForSub(req.DamageScale);
                 var subPipeline = req.Pipeline ?? new ModPipeline();
+                var subCtx = _ctx.CloneForSub(req.DamageScale);
+                subCtx.Tags = subPipeline.AccumulatedTags;
+                if (subCtx.Tags.HasFlag(ModTags.Pierce)) subCtx.PierceRemaining = 3;
+                if (subCtx.Tags.HasFlag(ModTags.Bounce)) subCtx.BounceRemaining = 3;
                 proj.Initialize(subPipeline, subCtx, req.Target ?? _ctx.Target, req.Origin);
                 if (req.Direction.sqrMagnitude > 0.001f)
                     proj.OverrideDirection(req.Direction);

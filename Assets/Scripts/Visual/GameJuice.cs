@@ -36,6 +36,7 @@ namespace Gridlock.Visual
         private float _shakeTimer;
         private float _shakeDuration;
         private float _shakeIntensity;
+        private Vector3 _shakeOffset;
 
         private float _freezeTimer;
         private float _savedTimeScale = 1f;
@@ -81,6 +82,12 @@ namespace Gridlock.Visual
         private void OnDestroy()
         {
             if (Instance == this) Instance = null;
+
+            if (_freezeTimer > 0f)
+                Time.timeScale = _savedTimeScale;
+
+            if (_camera != null)
+                _camera.transform.position -= _shakeOffset;
 
             if (_chromatic != null) _chromatic.intensity.value = 0f;
             if (_bloom != null) _bloom.intensity.value = _baseBloomIntensity;
@@ -156,13 +163,20 @@ namespace Gridlock.Visual
                     Time.timeScale = _savedTimeScale;
             }
 
-            // Screen shake
-            if (_shakeTimer > 0f && _camera != null)
+            // Screen shake — restore previous offset, apply new
+            if (_camera != null)
             {
-                _shakeTimer -= Time.unscaledDeltaTime;
-                float t = Mathf.Clamp01(_shakeTimer / _shakeDuration);
-                float magnitude = _shakeIntensity * t * t;
-                _camera.transform.position += Random.insideUnitSphere * magnitude;
+                _camera.transform.position -= _shakeOffset;
+                _shakeOffset = Vector3.zero;
+
+                if (_shakeTimer > 0f)
+                {
+                    _shakeTimer -= Time.unscaledDeltaTime;
+                    float t = Mathf.Clamp01(_shakeTimer / _shakeDuration);
+                    float magnitude = _shakeIntensity * t * t;
+                    _shakeOffset = Random.insideUnitSphere * magnitude;
+                    _camera.transform.position += _shakeOffset;
+                }
             }
 
             // Chromatic aberration decay
