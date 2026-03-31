@@ -80,22 +80,30 @@ namespace Gridlock.Visual
                 new Keyframe(1f, 0f)
             );
 
-            var primary = colors[0];
-            var secondary = colors.Length > 1 ? colors[1] : primary * 0.5f;
+            var colorKeys = new System.Collections.Generic.List<GradientColorKey>();
+            colorKeys.Add(new GradientColorKey(Color.white, 0f));
+
+            if (colors.Length == 1)
+            {
+                colorKeys.Add(new GradientColorKey(colors[0], 0.15f));
+                colorKeys.Add(new GradientColorKey(colors[0] * 0.3f, 1f));
+            }
+            else
+            {
+                float usable = 0.85f;
+                float step = usable / colors.Length;
+                for (int i = 0; i < colors.Length; i++)
+                    colorKeys.Add(new GradientColorKey(colors[i], 0.1f + step * i));
+                colorKeys.Add(new GradientColorKey(colors[colors.Length - 1] * 0.3f, 1f));
+            }
 
             var gradient = new Gradient();
             gradient.SetKeys(
-                new[]
-                {
-                    new GradientColorKey(Color.white, 0f),
-                    new GradientColorKey(primary, 0.15f),
-                    new GradientColorKey(secondary, 0.6f),
-                    new GradientColorKey(secondary * 0.3f, 1f)
-                },
+                colorKeys.ToArray(),
                 new[]
                 {
                     new GradientAlphaKey(0.9f, 0f),
-                    new GradientAlphaKey(0.5f, 0.4f),
+                    new GradientAlphaKey(0.6f, 0.4f),
                     new GradientAlphaKey(0f, 1f)
                 }
             );
