@@ -57,20 +57,14 @@ namespace Gridlock.Mods.Pipeline
         {
             var groups = new List<TraitGroup>();
             var currentTraits = new List<ModType>();
-            var traitsSoFar = new HashSet<ModType>();
 
             foreach (var slot in slots)
             {
                 if (slot.modType.IsTrait())
                 {
                     currentTraits.Add(slot.modType);
-                    traitsSoFar.Add(slot.modType);
                     continue;
                 }
-
-                var required = slot.modType.RequiredMod();
-                if (required.HasValue && !traitsSoFar.Contains(required.Value))
-                    continue;
 
                 groups.Add(new TraitGroup { traits = currentTraits, eventType = null });
                 groups.Add(new TraitGroup { traits = new List<ModType>(), eventType = slot.modType });
@@ -195,13 +189,11 @@ namespace Gridlock.Mods.Pipeline
                 ModType.OnHit => new OnHitEventStage { SubPipeline = subPipeline, DamageScale = scale },
                 ModType.OnKill => new OnKillEventStage { SubPipeline = subPipeline, DamageScale = scale },
                 ModType.OnEnd => new OnEndEventStage { SubPipeline = subPipeline, DamageScale = scale },
-                ModType.OnPierce => new OnPierceEventStage { SubPipeline = subPipeline, DamageScale = scale },
-                ModType.OnBounce => new OnBounceEventStage { SubPipeline = subPipeline, DamageScale = scale },
                 ModType.OnPulse => new OnPulseEventStage { SubPipeline = subPipeline, DamageScale = scale },
                 ModType.OnDelay => new OnDelayEventStage { SubPipeline = subPipeline, DamageScale = scale },
-                ModType.OnCrit or ModType.OnOverkill =>
+                ModType.OnOverkill =>
                     new OnOverkillEventStage { SubPipeline = subPipeline, DamageScale = scale },
-                ModType.IfBurning or ModType.IfFrozen or ModType.IfShocked or ModType.IfLow =>
+                ModType.IfBurning or ModType.IfFrozen or ModType.IfLow =>
                     new ConditionalEventStage { SubPipeline = subPipeline, DamageScale = scale, ConditionType = eventType },
                 _ => null
             };
@@ -215,7 +207,6 @@ namespace Gridlock.Mods.Pipeline
             return eventType switch
             {
                 ModType.OnPulse => 0.3f,
-                ModType.OnCrit => 0.8f,
                 ModType.OnOverkill => 1.0f,
                 _ => 0.6f
             };

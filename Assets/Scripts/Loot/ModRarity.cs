@@ -35,19 +35,14 @@ namespace Gridlock.Loot
             ModType.OnKill => Rarity.Uncommon,
             ModType.OnEnd  => Rarity.Uncommon,
 
-            // Rare — mod-dependent + temporal events
-            ModType.OnPierce => Rarity.Rare,
-            ModType.OnBounce => Rarity.Rare,
-            ModType.OnChain  => Rarity.Rare,
+            // Rare — temporal events
             ModType.OnDelay  => Rarity.Rare,
             ModType.OnPulse  => Rarity.Rare,
-            ModType.OnCrit   => Rarity.Rare,
 
             // Epic — conditionals + meta
             ModType.OnOverkill => Rarity.Epic,
             ModType.IfBurning  => Rarity.Epic,
             ModType.IfFrozen   => Rarity.Epic,
-            ModType.IfShocked  => Rarity.Epic,
             ModType.IfLow      => Rarity.Epic,
 
             _ => Rarity.Common

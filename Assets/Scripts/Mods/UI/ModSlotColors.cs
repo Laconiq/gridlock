@@ -61,16 +61,11 @@ namespace Gridlock.Mods.UI
                 ModType.OnHit => "Triggers on every impact",
                 ModType.OnKill => "Triggers when projectile kills",
                 ModType.OnEnd => "Triggers when projectile expires",
-                ModType.OnPierce => "Triggers each time bullet pierces (requires PIERCE)",
-                ModType.OnBounce => "Triggers each time bullet bounces (requires BOUNCE)",
-                ModType.OnChain => "Triggers when shock chains (requires SHOCK)",
                 ModType.OnDelay => "Triggers after 0.5s of flight",
                 ModType.OnPulse => "Triggers every 0.3s while alive",
                 ModType.IfBurning => "Triggers if target is on fire",
                 ModType.IfFrozen => "Triggers if target is slowed/frozen",
-                ModType.IfShocked => "Triggers if target has shock debuff",
                 ModType.IfLow => "Triggers if target is below 30% HP",
-                ModType.OnCrit => "Triggers on critical hit (10% chance)",
                 ModType.OnOverkill => "Triggers if damage exceeds remaining HP",
                 _ => ""
             };
@@ -79,7 +74,6 @@ namespace Gridlock.Mods.UI
         public static string GetModCategory(ModType type)
         {
             if (type.IsConditional()) return "CONDITIONAL";
-            if (type.IsModDependent()) return "MOD_DEPENDENT";
             if (type.IsEvent()) return "EVENT";
             if (type.IsElemental()) return "ELEMENT";
             return "BEHAVIOR";
@@ -95,10 +89,8 @@ namespace Gridlock.Mods.UI
                 SynergyEffect.Tesla => "SHOCK + SHOCK\nChain lightning hits 3 enemies instead of 1",
                 SynergyEffect.Napalm => "BURN + WIDE\nCreates a persistent fire zone on ground (3s)",
                 SynergyEffect.Avalanche => "FROST + WIDE\nCreates a persistent slow zone on ground (3s)",
-                SynergyEffect.Ricochet => "PIERCE + BOUNCE\nUnlimited pierce and bounces for 2s",
                 SynergyEffect.Missile => "HOMING + SWIFT\nPerfect homing — instant snap, no curve",
                 SynergyEffect.Meteor => "HEAVY + WIDE\nAOE radius doubled, screen shake on impact",
-                SynergyEffect.ThermalShock => "BURN + FROST\nBurst damage = 50% max HP (consumes both statuses)",
                 SynergyEffect.Siphon => "SHOCK + VOID\nVoid damage heals the objective",
                 SynergyEffect.Barrage => "SPLIT + SPLIT\n+1 bonus extra projectile",
                 SynergyEffect.Vampire => "LEECH + HEAVY\nDrain increased to 40% of damage dealt",

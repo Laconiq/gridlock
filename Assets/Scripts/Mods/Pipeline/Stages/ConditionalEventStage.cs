@@ -36,7 +36,6 @@ namespace Gridlock.Mods.Pipeline.Stages
             {
                 ModType.IfBurning => ctx.HitObject.GetComponent<StatusEffectManager>()?.HasEffectOfType(StatusEffectType.DamageOverTime) ?? false,
                 ModType.IfFrozen => ctx.HitObject.GetComponent<StatusEffectManager>()?.HasEffectOfType(StatusEffectType.Slow) ?? false,
-                ModType.IfShocked => ctx.Tags.HasFlag(ModTags.Shock),
                 ModType.IfLow => IsLowHP(ctx.HitObject),
                 _ => false
             };

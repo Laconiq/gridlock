@@ -48,16 +48,9 @@ Les événements coupent la chaîne de slots : les mods avant = projectile princ
 
 | Événement | Phase | Déclencheur | Dégâts du sous-projectile |
 |-----------|-------|-------------|---------------------------|
-| **OnHit** | OnHit | Chaque impact | ×0.6 |
+| **OnHit** | OnHit | Chaque impact (y compris pierce et bounce) | ×0.6 |
 | **OnKill** | PostHit | La cible meurt de ce tir | ×0.6 |
 | **OnEnd** | OnExpire | Le projectile expire | ×0.6 |
-
-### Événements dépendants d'un mod
-
-| Événement | Phase | Requiert | Déclencheur | Dégâts du sous-projectile |
-|-----------|-------|----------|-------------|---------------------------|
-| **OnPierce** | PostHit | Pierce | Chaque traversée | ×0.6 |
-| **OnBounce** | PostHit | Bounce | Chaque rebond | ×0.6 |
 
 ### Événements temporels
 
@@ -70,23 +63,21 @@ Les événements coupent la chaîne de slots : les mods avant = projectile princ
 
 | Événement | Phase | Condition | Dégâts du sous-projectile |
 |-----------|-------|-----------|---------------------------|
-| **IfBurning** | OnHit | La cible a un DoT actif | ×0.6 |
-| **IfFrozen** | OnHit | La cible a un ralentissement actif | ×0.6 |
-| **IfShocked** | OnHit | Le contexte a le tag Shock | ×0.6 |
+| **IfBurning** | OnHit | La cible a un DoT actif (cross-tour) | ×0.6 |
+| **IfFrozen** | OnHit | La cible a un ralentissement actif (cross-tour) | ×0.6 |
 | **IfLow** | OnHit | PV de la cible < 30% max | ×0.6 |
 
-### Événements d'overkill
+### Événement meta
 
 | Événement | Phase | Condition | Dégâts du sous-projectile |
 |-----------|-------|-----------|---------------------------|
-| **OnCrit** | PostHit | Dégâts > PV restants de la cible | ×0.8 |
 | **OnOverkill** | PostHit | Dégâts > PV restants de la cible | ×1.0 |
 
 ---
 
 ## Synergies
 
-Les synergies s'activent quand les deux mods déclencheurs sont présents dans la même liste de slots (avant toute frontière d'événement). Les bonus de paires adjacentes comptent aussi pour le cumul.
+Les synergies s'activent quand les deux mods déclencheurs sont présents dans la même liste de slots (avant toute frontière d'événement).
 
 | Synergie | Déclencheur | Effet | Statut |
 |----------|-------------|-------|--------|
@@ -99,10 +90,8 @@ Les synergies s'activent quand les deux mods déclencheurs sont présents dans l
 | **Barrage** | Split + Split | Bonus ×5 au lieu de ×3+×3 | Implémenté |
 | **Vampire** | Leech + Heavy | Taux de drain 12% → 40% | Implémenté |
 | **Siphon** | Shock + Void | Les dégâts Void soignent l'objectif | Implémenté |
-| **Napalm** | Burn + Wide | Zone de feu persistante | Pas encore |
-| **Avalanche** | Frost + Wide | Zone de ralentissement persistante | Pas encore |
-| **Ricochet** | Pierce + Bounce | Rebonds illimités | Pas encore |
-| **ThermalShock** | Burn + Frost | Explosion à 50% des PV | Pas encore |
+| **Napalm** | Burn + Wide | Zone de feu persistante | Nécessite système de zones |
+| **Avalanche** | Frost + Wide | Zone de ralentissement persistante | Nécessite système de zones |
 
 ---
 
@@ -115,8 +104,7 @@ Notation : `[Trait Trait ...] Événement [Trait ...]`
 | `[Heavy Heavy Pierce]` | Synergie Railgun : projectile lent, puissant, perforant avec +2 perforations |
 | `[Swift Swift Homing]` | Synergies Machinegun + Missile : tir rapide, verrouillage instantané |
 | `[Heavy Wide]` | Synergie Meteor : projectile lent avec zone de 4u |
-| `[Burn Frost]` | Synergie ThermalShock (pas encore implémenté) : explosion à 50% PV |
-| `[Pierce] OnPierce [Frost]` | Chaque traversée engendre un sous-projectile givré |
+| `[Pierce] OnHit [Frost]` | Chaque impact (y compris les traversées) engendre un sous-projectile givré |
 | `[Heavy] OnKill [Split Burn]` | Au kill, engendre des sous-projectiles éclatés enflammés |
 | `[Shock Shock] OnHit [Void]` | Chaîne Tesla + chaque impact engendre un sous-projectile Void |
 | `[Swift Homing] OnPulse [Frost]` | Missile qui pulse périodiquement des sous-projectiles givrés |
