@@ -20,15 +20,20 @@ namespace Gridlock.Mods.Pipeline.Stages
             float radiusSqr = radius * radius;
             var dmg = new DamageInfo(ctx.Damage, DamageType.Projectile);
 
-            foreach (var entry in EnemyRegistry.All)
+            var entries = EnemyRegistry.All;
+            for (int i = 0; i < entries.Count; i++)
             {
-                if (!entry.Controller.IsAlive) continue;
-                if (ctx.HitInstances != null && ctx.HitInstances.Contains(entry.Controller.gameObject.GetEntityId())) continue;
+                var entry = entries[i];
+                if (entry.Controller == null || !entry.Controller.IsAlive) continue;
+
+                var id = entry.Controller.gameObject.GetEntityId();
+                if (ctx.HitInstances != null && ctx.HitInstances.Contains(id)) continue;
 
                 var diff = entry.Controller.Position - ctx.Position;
                 diff.y = 0f;
                 if (diff.sqrMagnitude > radiusSqr) continue;
 
+                ctx.HitInstances?.Add(id);
                 entry.Health.TakeDamage(dmg);
             }
         }

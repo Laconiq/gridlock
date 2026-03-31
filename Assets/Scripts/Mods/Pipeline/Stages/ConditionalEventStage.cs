@@ -34,8 +34,8 @@ namespace Gridlock.Mods.Pipeline.Stages
         {
             return ConditionType switch
             {
-                ModType.IfBurning => ctx.HitObject.GetComponent<StatusEffectManager>()?.HasEffectOfType(StatusEffectType.DamageOverTime) ?? false,
-                ModType.IfFrozen => ctx.HitObject.GetComponent<StatusEffectManager>()?.HasEffectOfType(StatusEffectType.Slow) ?? false,
+                ModType.IfBurning => ctx.HitObject.GetComponentInParent<StatusEffectManager>()?.HasEffectOfType(StatusEffectType.DamageOverTime) ?? false,
+                ModType.IfFrozen => ctx.HitObject.GetComponentInParent<StatusEffectManager>()?.HasEffectOfType(StatusEffectType.Slow) ?? false,
                 ModType.IfLow => IsLowHP(ctx.HitObject),
                 _ => false
             };
@@ -43,7 +43,7 @@ namespace Gridlock.Mods.Pipeline.Stages
 
         private static bool IsLowHP(GameObject obj)
         {
-            var health = obj.GetComponent<EnemyHealth>();
+            var health = obj.GetComponentInParent<EnemyHealth>();
             return health != null && health.CurrentHP / health.MaxHP < 0.3f;
         }
 

@@ -1,6 +1,8 @@
 using System;
+using Gridlock.Combat;
 using Gridlock.Core;
 using Gridlock.Enemies;
+using Gridlock.Interfaces;
 using UnityEngine;
 
 namespace Gridlock.Mods.Pipeline.Stages
@@ -18,7 +20,8 @@ namespace Gridlock.Mods.Pipeline.Stages
             if (health == null) return;
 
             float voidDamage = health.CurrentHP * hpPercent;
-            ctx.Damage = voidDamage;
+            var damageable = ctx.HitObject.GetComponentInParent<IDamageable>();
+            damageable?.TakeDamage(new DamageInfo(voidDamage, DamageType.Direct));
 
             if (ctx.Synergies.Contains(SynergyEffect.Siphon))
                 ObjectiveController.Instance?.Heal(voidDamage);

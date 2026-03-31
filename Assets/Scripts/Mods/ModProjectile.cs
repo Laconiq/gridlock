@@ -80,6 +80,9 @@ namespace Gridlock.Mods
 
             _pipeline.RunPhase(StagePhase.OnUpdate, ref _ctx);
 
+            if (_ctx.SpawnRequests.Count > 0)
+                DrainSpawns();
+
             if (_ctx.Consumed)
             {
                 DrainSpawns();

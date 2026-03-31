@@ -25,16 +25,22 @@ namespace Gridlock.Mods.Pipeline
         private static void DetectSynergies(List<ModSlotData> slots, List<SynergyEffect> synergies)
         {
             synergies.Clear();
-            for (int i = 0; i < slots.Count - 1; i++)
+            int groupStart = 0;
+            for (int s = 0; s <= slots.Count; s++)
             {
-                if (slots[i].modType.IsEvent()) continue;
-                for (int j = i + 1; j < slots.Count; j++)
+                if (s < slots.Count && !slots[s].modType.IsEvent()) continue;
+
+                for (int i = groupStart; i < s - 1; i++)
                 {
-                    if (slots[j].modType.IsEvent()) continue;
-                    var syn = SynergyTable.Check(slots[i].modType, slots[j].modType);
-                    if (syn.HasValue && !synergies.Contains(syn.Value.effect))
-                        synergies.Add(syn.Value.effect);
+                    for (int j = i + 1; j < s; j++)
+                    {
+                        var syn = SynergyTable.Check(slots[i].modType, slots[j].modType);
+                        if (syn.HasValue && !synergies.Contains(syn.Value.effect))
+                            synergies.Add(syn.Value.effect);
+                    }
                 }
+
+                groupStart = s + 1;
             }
         }
 
