@@ -75,6 +75,13 @@ namespace Gridlock.Grid
 
             if (_cellMap != null)
                 Destroy(_cellMap);
+
+            if (_instanceMaterial != null)
+                Destroy(_instanceMaterial);
+
+            var mf = GetComponent<MeshFilter>();
+            if (mf != null && mf.mesh != null)
+                Destroy(mf.mesh);
         }
 
         private void BuildCellMap()
