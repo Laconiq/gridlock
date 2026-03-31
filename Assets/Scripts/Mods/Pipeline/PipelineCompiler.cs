@@ -10,17 +10,8 @@ namespace Gridlock.Mods.Pipeline
         {
             DetectSynergies(slots, activeSynergies);
 
-            var traitGroups = SplitAtEvents(slots);
-            var pipeline = new ModPipeline();
-
-            if (traitGroups.Count > 0)
-                AddTraitStages(traitGroups[0].traits, pipeline, activeSynergies);
-
-            for (int i = 0; i < traitGroups.Count; i++)
-            {
-                if (traitGroups[i].eventType.HasValue)
-                    AddEventStage(traitGroups[i], pipeline, activeSynergies);
-            }
+            var groups = SplitAtEvents(slots);
+            var pipeline = BuildNestedPipeline(groups, activeSynergies);
 
             var ctx = ModContext.Create(baseDamage, speed: 20f, size: 0.2f, lifetime: 5f);
             ctx.Synergies = new List<SynergyEffect>(activeSynergies);
@@ -53,10 +44,13 @@ namespace Gridlock.Mods.Pipeline
             public ModType? eventType;
         }
 
+        // Each group = { traits that follow this event, which event preceded them }
+        // Group 0 always has eventType=null (traits before any event = main projectile)
         private static List<TraitGroup> SplitAtEvents(List<ModSlotData> slots)
         {
             var groups = new List<TraitGroup>();
             var currentTraits = new List<ModType>();
+            ModType? pendingEvent = null;
 
             foreach (var slot in slots)
             {
@@ -66,31 +60,36 @@ namespace Gridlock.Mods.Pipeline
                     continue;
                 }
 
-                groups.Add(new TraitGroup { traits = currentTraits, eventType = null });
-                groups.Add(new TraitGroup { traits = new List<ModType>(), eventType = slot.modType });
+                groups.Add(new TraitGroup { traits = currentTraits, eventType = pendingEvent });
                 currentTraits = new List<ModType>();
+                pendingEvent = slot.modType;
             }
 
-            if (groups.Count == 0)
-            {
-                groups.Add(new TraitGroup { traits = currentTraits, eventType = null });
-            }
-            else if (currentTraits.Count > 0)
-            {
-                int lastEventIdx = -1;
-                for (int i = groups.Count - 1; i >= 0; i--)
-                {
-                    if (groups[i].eventType.HasValue) { lastEventIdx = i; break; }
-                }
-                if (lastEventIdx >= 0)
-                {
-                    var g = groups[lastEventIdx];
-                    g.traits = currentTraits;
-                    groups[lastEventIdx] = g;
-                }
-            }
-
+            groups.Add(new TraitGroup { traits = currentTraits, eventType = pendingEvent });
             return groups;
+        }
+
+        // Build right-to-left so events are properly nested:
+        // [A, ⟐Hit, B, ⟐Kill, C] → Main:[A, OnHit(sub:[B, OnKill(sub:[C])])]
+        private static ModPipeline BuildNestedPipeline(List<TraitGroup> groups, List<SynergyEffect> synergies)
+        {
+            ModPipeline currentSub = null;
+            ModType? pendingEvent = null;
+
+            for (int i = groups.Count - 1; i >= 0; i--)
+            {
+                var pipeline = new ModPipeline();
+                if (groups[i].traits.Count > 0)
+                    AddTraitStages(groups[i].traits, pipeline, synergies);
+
+                if (pendingEvent.HasValue)
+                    AddEventStage(pendingEvent.Value, currentSub, pipeline, synergies);
+
+                currentSub = pipeline;
+                pendingEvent = groups[i].eventType;
+            }
+
+            return currentSub ?? new ModPipeline();
         }
 
         private static int CountTrait(List<ModType> traits, ModType type)
@@ -113,7 +112,6 @@ namespace Gridlock.Mods.Pipeline
         {
             var set = new HashSet<ModType>(traits);
 
-            // Stackable traits — count + adjacent pair bonus
             int heavyTotal = CountTrait(traits, ModType.Heavy) + CountAdjacentPairs(traits, ModType.Heavy);
             for (int i = 0; i < heavyTotal; i++)
                 pipeline.AddStage(new HeavyStage(), ModTags.Heavy);
@@ -122,7 +120,6 @@ namespace Gridlock.Mods.Pipeline
             for (int i = 0; i < swiftTotal; i++)
                 pipeline.AddStage(new SwiftStage(), ModTags.Swift);
 
-            // Split — 1x stage, count + adjacent pair bonus determines projectiles
             int splitCount = CountTrait(traits, ModType.Split);
             if (splitCount > 0)
             {
@@ -132,7 +129,6 @@ namespace Gridlock.Mods.Pipeline
             if (set.Contains(ModType.Homing))
                 pipeline.AddStage(new HomingStage(), ModTags.Homing);
 
-            // Stackable elemental/effect traits — count + adjacent pair bonus
             int voidTotal = CountTrait(traits, ModType.Void) + CountAdjacentPairs(traits, ModType.Void);
             for (int i = 0; i < voidTotal; i++)
                 pipeline.AddStage(new VoidStage(), ModTags.Void);
@@ -159,7 +155,6 @@ namespace Gridlock.Mods.Pipeline
 
             pipeline.AddStage(new ImpactFeedbackStage(), ModTags.None);
 
-            // Structural — 1x, count handled via PierceRemaining/BounceRemaining
             bool hasPierce = set.Contains(ModType.Pierce);
             if (!hasPierce && synergies.Contains(SynergyEffect.Railgun))
                 hasPierce = true;
@@ -170,18 +165,8 @@ namespace Gridlock.Mods.Pipeline
                 pipeline.AddStage(new BounceStage(), ModTags.Bounce);
         }
 
-        private static void AddEventStage(TraitGroup group, ModPipeline pipeline, List<SynergyEffect> synergies)
+        private static void AddEventStage(ModType eventType, ModPipeline subPipeline, ModPipeline targetPipeline, List<SynergyEffect> synergies)
         {
-            if (!group.eventType.HasValue) return;
-
-            ModPipeline subPipeline = null;
-            if (group.traits.Count > 0)
-            {
-                subPipeline = new ModPipeline();
-                AddTraitStages(group.traits, subPipeline, synergies);
-            }
-
-            var eventType = group.eventType.Value;
             float scale = EventDamageScale(eventType);
 
             IModStage stage = eventType switch
@@ -199,7 +184,7 @@ namespace Gridlock.Mods.Pipeline
             };
 
             if (stage != null)
-                pipeline.AddStage(stage, ModTags.None);
+                targetPipeline.AddStage(stage, ModTags.None);
         }
 
         private static float EventDamageScale(ModType eventType)

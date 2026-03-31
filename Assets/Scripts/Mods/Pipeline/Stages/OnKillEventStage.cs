@@ -19,7 +19,7 @@ namespace Gridlock.Mods.Pipeline.Stages
             ctx.SpawnRequests.Add(new SpawnRequest
             {
                 Origin = new Vector3(ctx.Position.x, 0.5f, ctx.Position.z),
-                Direction = ctx.Direction,
+                Direction = SpawnRequest.RandomDirectionExcluding(ctx.Direction),
                 Pipeline = SubPipeline.Clone(),
                 DamageScale = DamageScale,
                 Target = target

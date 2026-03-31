@@ -15,15 +15,19 @@ namespace Gridlock.Mods.Pipeline.Stages
 
         public void Execute(ref ModContext ctx)
         {
-            int total = 1 + ExtraCount + BarrageBonus;
+            int extras = ExtraCount + BarrageBonus;
+            if (extras <= 0) return;
 
+            int total = 1 + extras;
             var baseDir = ctx.Direction;
             if (baseDir.sqrMagnitude < 0.001f) baseDir = Vector3.forward;
 
-            float startAngle = total > 1 ? -arcDegrees * 0.5f : 0f;
+            float startAngle = -arcDegrees * 0.5f;
             float step = total > 1 ? arcDegrees / (total - 1) : 0f;
 
-            for (int i = 0; i < total; i++)
+            ctx.Direction = Quaternion.AngleAxis(startAngle, Vector3.up) * baseDir;
+
+            for (int i = 1; i < total; i++)
             {
                 float angle = startAngle + step * i;
                 var dir = Quaternion.AngleAxis(angle, Vector3.up) * baseDir;
@@ -36,8 +40,6 @@ namespace Gridlock.Mods.Pipeline.Stages
                     Target = ctx.Target,
                 });
             }
-
-            ctx.Consumed = true;
         }
 
         public IModStage Clone() => new SplitStage
