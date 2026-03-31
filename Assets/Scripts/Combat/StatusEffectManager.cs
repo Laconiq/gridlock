@@ -49,7 +49,7 @@ namespace Gridlock.Combat
                 var effect = _activeEffects[i];
                 effect.RemainingDuration -= Time.deltaTime;
 
-                if (effect.Data.Type == StatusEffectType.DamageOverTime)
+                if (effect.Data.Type == StatusEffectType.DamageOverTime && effect.Data.TickInterval > 0f)
                 {
                     effect.TickTimer += Time.deltaTime;
                     if (effect.TickTimer >= effect.Data.TickInterval)

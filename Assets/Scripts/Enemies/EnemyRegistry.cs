@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Gridlock.Enemies
 {
@@ -11,6 +12,9 @@ namespace Gridlock.Enemies
     public static class EnemyRegistry
     {
         private static readonly List<EnemyEntry> _entries = new(256);
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void Init() => _entries.Clear();
 
         public static IReadOnlyList<EnemyEntry> All => _entries;
         public static int Count => _entries.Count;
