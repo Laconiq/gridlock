@@ -19,7 +19,7 @@ namespace Gridlock.Mods.Pipeline
         public ModTags Tags;
         public List<SpawnRequest> SpawnRequests;
         public List<SynergyEffect> Synergies;
-        public HashSet<int> HitInstances;
+        public HashSet<EntityId> HitInstances;
         public bool Consumed;
         public bool KilledThisHit;
         public float OverkillAmount;
@@ -41,7 +41,7 @@ namespace Gridlock.Mods.Pipeline
                 WideRadius = 2f,
                 SpawnRequests = new List<SpawnRequest>(),
                 Synergies = new List<SynergyEffect>(),
-                HitInstances = new HashSet<int>(),
+                HitInstances = new HashSet<EntityId>(),
             };
         }
 
@@ -51,7 +51,7 @@ namespace Gridlock.Mods.Pipeline
             copy.Damage *= damageScale;
             copy.SpawnRequests = new List<SpawnRequest>();
             copy.Synergies = new List<SynergyEffect>(Synergies);
-            copy.HitInstances = new HashSet<int>(HitInstances);
+            copy.HitInstances = new HashSet<EntityId>(HitInstances);
             copy.Consumed = false;
             copy.KilledThisHit = false;
             copy.OverkillAmount = 0f;

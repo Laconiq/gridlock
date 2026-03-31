@@ -23,7 +23,7 @@ namespace Gridlock.Mods.Pipeline.Stages
             foreach (var entry in EnemyRegistry.All)
             {
                 if (!entry.Controller.IsAlive) continue;
-                if (ctx.HitInstances != null && ctx.HitInstances.Contains(entry.Controller.gameObject.GetInstanceID())) continue;
+                if (ctx.HitInstances != null && ctx.HitInstances.Contains(entry.Controller.gameObject.GetEntityId())) continue;
 
                 var diff = entry.Controller.Position - ctx.Position;
                 diff.y = 0f;

@@ -28,7 +28,7 @@ namespace Gridlock.Mods.Pipeline.Stages
                 foreach (var entry in EnemyRegistry.All)
                 {
                     if (!entry.Health.IsAlive) continue;
-                    int id = entry.Controller.gameObject.GetInstanceID();
+                    var id = entry.Controller.gameObject.GetEntityId();
                     if (ctx.HitInstances.Contains(id)) continue;
 
                     var delta = entry.Controller.transform.position - origin;
@@ -42,7 +42,7 @@ namespace Gridlock.Mods.Pipeline.Stages
 
                 if (!found) break;
 
-                ctx.HitInstances.Add(best.Controller.gameObject.GetInstanceID());
+                ctx.HitInstances.Add(best.Controller.gameObject.GetEntityId());
                 best.Health.TakeDamage(new DamageInfo(ctx.Damage, DamageType.Direct));
                 origin = best.Controller.transform.position;
                 chained++;

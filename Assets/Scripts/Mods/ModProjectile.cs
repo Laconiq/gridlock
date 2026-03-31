@@ -104,7 +104,7 @@ namespace Gridlock.Mods
                 float r = HitRadius;
                 if (distSq > r * r) return;
 
-                int id = _ctx.Target.Transform.gameObject.GetInstanceID();
+                var id = _ctx.Target.Transform.gameObject.GetEntityId();
                 if (_ctx.HitInstances.Contains(id)) return;
                 _ctx.HitInstances.Add(id);
 
@@ -132,7 +132,7 @@ namespace Gridlock.Mods
                 var entry = entries[i];
                 if (entry.Controller == null || !entry.Controller.IsAlive) continue;
 
-                int id = entry.Controller.gameObject.GetInstanceID();
+                var id = entry.Controller.gameObject.GetEntityId();
                 if (_ctx.HitInstances.Contains(id)) continue;
 
                 float dist = DistanceToSegmentXZ(entry.Controller.Position, pos, nextPos);
@@ -146,7 +146,7 @@ namespace Gridlock.Mods
             if (!bestEntry.HasValue) return;
 
             var e = bestEntry.Value;
-            _ctx.HitInstances.Add(e.Controller.gameObject.GetInstanceID());
+            _ctx.HitInstances.Add(e.Controller.gameObject.GetEntityId());
             var damageable = e.Health as IDamageable;
             if (damageable != null)
                 ProcessHit(damageable, e.Controller.gameObject, e.Controller.Position);
