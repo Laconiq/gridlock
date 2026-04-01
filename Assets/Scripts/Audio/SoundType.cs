@@ -2,16 +2,28 @@ namespace Gridlock.Audio
 {
     public enum SoundType
     {
+        // SFX — Combat
         TowerFire,
         ProjectileImpact,
         EnemyHit,
         EnemyDeath,
-        TowerPlace,
-        UIClick,
-        WaveStart,
-        WaveComplete,
         ObjectiveHit,
 
+        // SFX — Tower
+        TowerPlace,
+        TowerPlaceInvalid,
+        TowerHover,
+
+        // SFX — Waves
+        WaveStart,
+        WaveComplete,
+        GameOver,
+
+        // SFX — Loot
+        LootDrop,
+        LootCollect,
+
+        // UI — Mod Slots
         NodeGrab,
         NodeDrop,
         NodeRemove,
@@ -19,10 +31,19 @@ namespace Gridlock.Audio
         PortDisconnect,
         EditorOpen,
         EditorClose,
-
-        LootDrop,
-        LootCollect,
         InventoryOpen,
-        InventoryClose
+        InventoryClose,
+
+        // UI — Drag & Drop
+        UIDragStart,
+        UIDragHover,
+        UIDropFail,
+
+        // UI — General
+        UIClick,
+        UIHover,
+        UIAnnounce,
+        UIDropdownOpen,
+        UIDropdownSelect
     }
 }

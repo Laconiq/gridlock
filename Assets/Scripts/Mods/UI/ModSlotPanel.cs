@@ -129,6 +129,7 @@ namespace Gridlock.Mods.UI
             TopDownCamera.Instance?.SetInputEnabled(false);
 
             SoundManager.Instance?.PlayUI(SoundType.EditorOpen);
+            SoundManager.Instance?.SetSFXLowpass(true);
 
             InventoryPanel.Instance?.Open();
 
@@ -145,6 +146,7 @@ namespace Gridlock.Mods.UI
             CancelDrag();
 
             SoundManager.Instance?.PlayUI(SoundType.EditorClose);
+            SoundManager.Instance?.SetSFXLowpass(false);
 
             TopDownCamera.Instance?.RestoreFocus();
             TopDownCamera.Instance?.SetInputEnabled(true);

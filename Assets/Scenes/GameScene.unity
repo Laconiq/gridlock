@@ -556,6 +556,12 @@ MonoBehaviour:
   masterVolume: 1
   sfxVolume: 1
   uiVolume: 1
+  mixer: {fileID: 24100000, guid: 3f8deee487f4f4822bc9085ee6f02983, type: 2}
+  sfxGroup: {fileID: 24300008, guid: 3f8deee487f4f4822bc9085ee6f02983, type: 2}
+  uiGroup: {fileID: 24300010, guid: 3f8deee487f4f4822bc9085ee6f02983, type: 2}
+  lowpassCutoffOpen: 800
+  lowpassCutoffDefault: 22000
+  lowpassLerpSpeed: 6
 --- !u!4 &112718369
 Transform:
   m_ObjectHideFlags: 0

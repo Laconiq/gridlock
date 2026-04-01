@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Gridlock.Core;
 using UnityEngine;
+using UnityEngine.Audio;
 
 namespace Gridlock.Audio
 {
@@ -15,6 +16,20 @@ namespace Gridlock.Audio
         [SerializeField, Range(0f, 1f)] private float masterVolume = 1f;
         [SerializeField, Range(0f, 1f)] private float sfxVolume = 1f;
         [SerializeField, Range(0f, 1f)] private float uiVolume = 1f;
+
+        [Header("Mixer")]
+        [SerializeField] private AudioMixer mixer;
+        [SerializeField] private AudioMixerGroup sfxGroup;
+        [SerializeField] private AudioMixerGroup uiGroup;
+
+        [Header("SFX Lowpass")]
+        [SerializeField] private float lowpassCutoffOpen = 800f;
+        [SerializeField] private float lowpassCutoffDefault = 22000f;
+        [SerializeField] private float lowpassLerpSpeed = 6f;
+
+        private const string LowpassParam = "SFXLowpassCutoff";
+        private float _lowpassTarget;
+        private float _lowpassCurrent;
 
         private readonly List<AudioSource> _pool = new();
         private readonly Dictionary<SoundType, InstanceTracker> _trackers = new();
@@ -38,6 +53,11 @@ namespace Gridlock.Audio
             _uiSource = uiGo.AddComponent<AudioSource>();
             _uiSource.playOnAwake = false;
             _uiSource.spatialBlend = 0f;
+            if (uiGroup != null)
+                _uiSource.outputAudioMixerGroup = uiGroup;
+
+            _lowpassCurrent = lowpassCutoffDefault;
+            _lowpassTarget = lowpassCutoffDefault;
         }
 
         private void Start()
@@ -118,8 +138,16 @@ namespace Gridlock.Audio
             if (position.HasValue && entry.spatialBlend > 0f)
                 source.transform.position = position.Value;
 
+            if (sfxGroup != null)
+                source.outputAudioMixerGroup = sfxGroup;
+
             source.Play();
             tracker.Register(source);
+        }
+
+        public void SetSFXLowpass(bool enabled)
+        {
+            _lowpassTarget = enabled ? lowpassCutoffOpen : lowpassCutoffDefault;
         }
 
         private AudioSource GetAvailableSource()
@@ -209,6 +237,22 @@ namespace Gridlock.Audio
         {
             foreach (var tracker in _trackers.Values)
                 tracker.Cleanup();
+
+            UpdateLowpass();
+        }
+
+        private void UpdateLowpass()
+        {
+            if (mixer == null) return;
+            if (Mathf.Abs(_lowpassCurrent - _lowpassTarget) < 1f)
+            {
+                _lowpassCurrent = _lowpassTarget;
+            }
+            else
+            {
+                _lowpassCurrent = Mathf.Lerp(_lowpassCurrent, _lowpassTarget, lowpassLerpSpeed * Time.unscaledDeltaTime);
+            }
+            mixer.SetFloat(LowpassParam, _lowpassCurrent);
         }
     }
 }

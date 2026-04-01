@@ -72,11 +72,61 @@ Tous les sons en format **WAV** (PCM 16-bit, mono). Ce document liste chaque son
 | 21 | Event trigger (x2) | `event_trigger_00.wav` ... `_01.wav` | ❌ | Quand un event ⟐ se declenche (son subtil de transition). |
 | 22 | Synergy combo (x2) | `synergy_combo_00.wav` ... `_01.wav` | ❌ | Quand un conditionnel inter-tours se declenche (If-Burning etc). Satisfaisant. |
 
-## UI Generale
+## UI — General
 
 | # | Son | Fichier | Statut | Description |
 |---|-----|---------|--------|-------------|
 | 23 | Clic bouton (x3) | `ui_click_01.wav` ... `_03.wav` | 🔄 | Quand le joueur clique sur un bouton UI. |
+| 24 | Hover bouton/slot (x2) | `ui_hover_00.wav` ... `_01.wav` | 🔄 | Survol d'un element interactif. Son subtil, tick leger. |
+| 25 | Annonce HUD (x1) | `ui_announce_00.wav` | 🔄 | Annonce texte a l'ecran (wave cleared, etc.). Whoosh court. |
+
+## UI — Drag & Drop (Mod Slots)
+
+| # | Son | Fichier | Statut | Description |
+|---|-----|---------|--------|-------------|
+| 26 | Drag start (x2) | `ui_drag_start_00.wav` ... `_01.wav` | 🔄 | Quand on commence a drag un mod depuis un slot ou l'inventaire. |
+| 27 | Drag hover valid (x1) | `ui_drag_hover_00.wav` | 🔄 | Survol d'un slot valide pendant le drag. Tick doux. |
+| 28 | Drop fail (x2) | `ui_drop_fail_00.wav` ... `_01.wav` | 🔄 | Drop hors zone — mod retourne a l'origine. Buzz/rejection. |
+
+## UI — Dropdown
+
+| # | Son | Fichier | Statut | Description |
+|---|-----|---------|--------|-------------|
+| 29 | Dropdown open (x1) | `ui_dropdown_open_00.wav` | 🔄 | Ouverture du selecteur de ciblage. Pop leger. |
+| 30 | Dropdown select (x1) | `ui_dropdown_select_00.wav` | 🔄 | Changement du mode de ciblage. Clic confirme. |
+
+## Tours — Interactions
+
+| # | Son | Fichier | Statut | Description |
+|---|-----|---------|--------|-------------|
+| 31 | Placement invalide (x2) | `tower_place_invalid_00.wav` ... `_01.wav` | 🔄 | Tentative de placement sur case invalide. Buzz court. |
+| 32 | Survol tour (x1) | `tower_hover_00.wav` | 🔄 | Survol d'une tour sur la grille. Hum electronique subtil. |
+
+## Loot / Pickup
+
+| # | Son | Fichier | Statut | Description |
+|---|-----|---------|--------|-------------|
+| 33 | Loot drop (x2) | `loot_drop_00.wav` ... `_01.wav` | 🔄 | Module pickup spawn a la mort d'un ennemi. Tinkle metallique. |
+| 34 | Loot collect (x2) | `loot_collect_00.wav` ... `_01.wav` | 🔄 | Pickup aspire vers l'inventaire (magnet). Whoosh ascendant. |
+
+## Game State
+
+| # | Son | Fichier | Statut | Description |
+|---|-----|---------|--------|-------------|
+| 35 | Game over (x1) | `game_over_00.wav` | 🔄 | Objectif detruit, defaite. Impact grave + decay. |
+
+---
+
+## Audio Mixer
+
+```
+Master
+├── SFX      — tours, ennemis, projectiles, elements, loot, grid warp
+│   └── Lowpass (active quand l'editeur de tour est ouvert)
+└── UI       — clics, drag, hover, dropdown, editor open/close, annonces
+```
+
+Le lowpass sur SFX attenue le monde du jeu quand le joueur est concentre sur l'edition de sa tour. Cutoff ~800 Hz a l'ouverture, retour a 22 kHz a la fermeture, avec interpolation lissee.
 
 ---
 
@@ -84,9 +134,9 @@ Tous les sons en format **WAV** (PCM 16-bit, mono). Ce document liste chaque son
 
 | Statut | Nombre |
 |--------|--------|
-| 🔄 Placeholder | 10 |
+| 🔄 Placeholder | 22 |
 | ❌ Manquant | 13 |
-| **Total** | **23** |
+| **Total** | **35** |
 
 ---
 
