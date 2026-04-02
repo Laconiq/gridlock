@@ -38,6 +38,10 @@ namespace Gridlock.Core
             DrawEnemies();
             prof.End();
 
+            prof.Begin("  R.Trails");
+            _trails.Render(cam);
+            prof.End();
+
             prof.Begin("  R.Projectiles");
             DrawProjectiles();
             prof.End();
@@ -55,10 +59,6 @@ namespace Gridlock.Core
 
             prof.Begin("  R.Particles");
             _particles.Render();
-            prof.End();
-
-            prof.Begin("  R.Trails");
-            _trails.Render(cam);
             prof.End();
         }
 
@@ -313,7 +313,6 @@ namespace Gridlock.Core
             float time = (float)Raylib.GetTime();
             int count = _projectiles.Count;
 
-            // Single iteration: draw solid spheres, cache data for glow pass
             if (count > _projDrawCache.Length)
                 _projDrawCache = new ProjectileDrawData[count * 2];
             int cached = 0;
@@ -331,7 +330,7 @@ namespace Gridlock.Core
                 var color = GetProjectileColor(proj.Context.Tags);
 
                 float baseDamage = proj.Context.Damage;
-                float radius = MathF.Max(0.08f, MathF.Min(0.25f, 0.1f + baseDamage / 40f * 0.15f));
+                float radius = MathF.Max(0.1f, MathF.Min(0.5f, 0.12f + baseDamage / 20f * 0.3f));
 
                 bool hasElement = proj.Context.Tags != ModTags.None;
                 float pulse = hasElement
@@ -339,21 +338,61 @@ namespace Gridlock.Core
                     : 1f;
                 float r = radius * pulse;
 
-                WireframeMeshes.DrawSphere(pos, r, color);
-
                 _projDrawCache[cached++] = new ProjectileDrawData { Position = pos, Color = color, Radius = r };
             }
 
+            DrawBillboardBatch(cached, 1f, 255);
+
             Raylib.BeginBlendMode(BlendMode.Additive);
-            for (int i = 0; i < cached; i++)
+            DrawBillboardBatch(cached, 1.6f, 30);
+            DrawBillboardBatch(cached, 2.4f, 12);
+            Raylib.EndBlendMode();
+        }
+
+        private const int DiscSegments = 8;
+        private static readonly float[] _discCos = new float[DiscSegments];
+        private static readonly float[] _discSin = new float[DiscSegments];
+
+        static GameLoop()
+        {
+            for (int i = 0; i < DiscSegments; i++)
+            {
+                float angle = i * MathF.Tau / DiscSegments;
+                _discCos[i] = MathF.Cos(angle);
+                _discSin[i] = MathF.Sin(angle);
+            }
+        }
+
+        private void DrawBillboardBatch(int count, float scale, byte alpha)
+        {
+            if (count == 0) return;
+
+            var cam = _camera.Apply();
+            var forward = Vector3.Normalize(cam.Target - cam.Position);
+            var right = Vector3.Normalize(Vector3.Cross(forward, cam.Up));
+            var up = Vector3.Normalize(Vector3.Cross(right, forward));
+
+            Rlgl.Begin(0x0004); // GL_TRIANGLES
+            for (int i = 0; i < count; i++)
             {
                 ref var d = ref _projDrawCache[i];
-                WireframeMeshes.DrawSphere(d.Position, d.Radius * 1.4f,
-                    new Color(d.Color.R, d.Color.G, d.Color.B, (byte)25));
-                WireframeMeshes.DrawSphere(d.Position, d.Radius * 2.0f,
-                    new Color(d.Color.R, d.Color.G, d.Color.B, (byte)10));
+                float r = d.Radius * scale;
+                var c = alpha == 255 ? d.Color : new Color(d.Color.R, d.Color.G, d.Color.B, alpha);
+                var p = d.Position;
+
+                for (int s = 0; s < DiscSegments; s++)
+                {
+                    int next = (s + 1) & (DiscSegments - 1);
+                    var v1 = p + (right * _discCos[s] + up * _discSin[s]) * r;
+                    var v2 = p + (right * _discCos[next] + up * _discSin[next]) * r;
+
+                    Rlgl.Color4ub(c.R, c.G, c.B, c.A);
+                    Rlgl.Vertex3f(p.X, p.Y, p.Z);
+                    Rlgl.Vertex3f(v1.X, v1.Y, v1.Z);
+                    Rlgl.Vertex3f(v2.X, v2.Y, v2.Z);
+                }
             }
-            Raylib.EndBlendMode();
+            Rlgl.End();
         }
 
         private struct ProjectileDrawData
