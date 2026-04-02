@@ -431,9 +431,7 @@ namespace Gridlock.Core
                 _gameStats.SetWave(_waveManager.CurrentWave + 1);
             }
 
-            bool needImGui = _modPanel.IsOpen || state == GameState.GameOver;
-
-            if (needImGui && _imguiInitialized)
+            if (_imguiInitialized)
             {
                 float dt = Raylib.GetFrameTime();
                 rlImGui.Begin(dt);
@@ -488,10 +486,10 @@ namespace Gridlock.Core
 
         private static Color GetProjectileColor(ModTags tags)
         {
-            if (tags.HasFlag(ModTags.Burn)) return new Color(255, 120, 30, 255);
+            if (tags.HasFlag(ModTags.Burn)) return new Color(255, 77, 13, 255);
             if (tags.HasFlag(ModTags.Frost)) return new Color(51, 153, 255, 255);
             if (tags.HasFlag(ModTags.Shock)) return new Color(255, 242, 51, 255);
-            if (tags.HasFlag(ModTags.Void)) return new Color(160, 50, 255, 255);
+            if (tags.HasFlag(ModTags.Void)) return new Color(153, 26, 255, 255);
             if (tags.HasFlag(ModTags.Heavy)) return new Color(255, 80, 80, 255);
             if (tags.HasFlag(ModTags.Swift)) return new Color(100, 255, 180, 255);
             return new Color(0, 255, 255, 255);

@@ -1,3 +1,4 @@
+using System;
 using System.Numerics;
 using Gridlock.Audio;
 using Gridlock.Mods;
@@ -17,16 +18,24 @@ namespace Gridlock.Core
 
             var tags = projectile.Context.Tags;
             var projectileColor = GetProjectileColor(tags);
-            float trailWidth = 0.1f + projectile.Context.Damage / 40f * 0.15f;
-            var startColor = new Color((byte)255, (byte)255, (byte)255, (byte)230);
-            var endColor = new Color((byte)(projectileColor.R / 3), (byte)(projectileColor.G / 3), (byte)(projectileColor.B / 3), (byte)0);
+            float projScale = 0.2f + Math.Clamp(projectile.Context.Damage / 40f, 0f, 1f) * 0.3f;
+            float trailWidth = projScale * 0.6f;
+            var startColor = new Color(
+                (byte)(projectileColor.R + (255 - projectileColor.R) / 2),
+                (byte)(projectileColor.G + (255 - projectileColor.G) / 2),
+                (byte)(projectileColor.B + (255 - projectileColor.B) / 2),
+                (byte)230);
+            var endColor = new Color((byte)(projectileColor.R / 4), (byte)(projectileColor.G / 4), (byte)(projectileColor.B / 4), (byte)0);
             int trailId = _trails.CreateTrail(0.2f, trailWidth, startColor, endColor, projectileColor);
             _projectileTrails[projectile.GetHashCode()] = trailId;
 
-            _particles.Burst(projectile.Position, 8, 7.5f, 0f, 0.09f, projectileColor, 18f);
+            float spawnWarpY = _warpManager.Initialized
+                ? _warpManager.GetWarpOffset(projectile.Position.X, projectile.Position.Z) : 0f;
+            var muzzlePos = new Vector3(projectile.Position.X, projectile.Position.Y + spawnWarpY, projectile.Position.Z);
+            _particles.Burst(muzzlePos, 8, 7.5f, 0f, 0.09f, projectileColor, 18f);
 
             if (_warpManager.Initialized)
-                _warpManager.DropStone(projectile.Position, 1.5f, 2f, new Color(0, 255, 255, 255));
+                _warpManager.DropStone(projectile.Position, 1.5f, 2f, projectileColor);
 
             _soundManager.Play(SoundType.TowerFire, worldPos: projectile.Position);
         }
@@ -34,12 +43,20 @@ namespace Gridlock.Core
         private void OnProjectileDestroyed(ModProjectile projectile)
         {
             var projColor = GetProjectileColor(projectile.Context.Tags);
-            _particles.BurstSphere(projectile.Position, 12, 4f, 5f, 0.15f, projColor);
 
-            _impactFlash.Spawn(projectile.Position, projColor, 0.5f, 0.15f);
+            float warpY = _warpManager.Initialized
+                ? _warpManager.GetWarpOffset(projectile.Position.X, projectile.Position.Z) : 0f;
+            var impactPos = new Vector3(projectile.Position.X, projectile.Position.Y + warpY, projectile.Position.Z);
+
+            float intensity = Math.Clamp(projectile.Context.Damage / 30f, 0f, 1f);
+            int particleCount = (int)MathF.Round(6f + 10f * intensity);
+            float particleSpeed = (3f + 5f * intensity) * intensity;
+
+            _particles.BurstSphere(impactPos, particleCount, particleSpeed, 5f, 0.15f, projColor);
+            _impactFlash.Spawn(impactPos, projColor, 0.4f + 0.2f * intensity, 0.15f);
 
             if (_warpManager.Initialized)
-                _warpManager.DropStone(projectile.Position, 3f, 3f, new Color(255, 102, 26, 255));
+                _warpManager.DropStone(projectile.Position, 3f, 3f, projColor);
 
             if (_projectileTrails.TryGetValue(projectile.GetHashCode(), out int trailId))
             {
@@ -83,9 +100,14 @@ namespace Gridlock.Core
 
                 var tags = proj.Context.Tags;
                 var trailColor = GetProjectileColor(tags);
-                float subTrailWidth = 0.08f + proj.Context.Damage / 40f * 0.1f;
-                var subStartColor = new Color((byte)255, (byte)255, (byte)255, (byte)200);
-                var subEndColor = new Color((byte)(trailColor.R / 3), (byte)(trailColor.G / 3), (byte)(trailColor.B / 3), (byte)0);
+                float subScale = 0.15f + Math.Clamp(proj.Context.Damage / 40f, 0f, 1f) * 0.2f;
+                float subTrailWidth = subScale * 0.5f;
+                var subStartColor = new Color(
+                    (byte)(trailColor.R + (255 - trailColor.R) / 2),
+                    (byte)(trailColor.G + (255 - trailColor.G) / 2),
+                    (byte)(trailColor.B + (255 - trailColor.B) / 2),
+                    (byte)200);
+                var subEndColor = new Color((byte)(trailColor.R / 4), (byte)(trailColor.G / 4), (byte)(trailColor.B / 4), (byte)0);
                 int trailId = _trails.CreateTrail(0.25f, subTrailWidth, subStartColor, subEndColor, trailColor);
                 _projectileTrails[proj.GetHashCode()] = trailId;
             }

@@ -66,7 +66,7 @@ namespace Gridlock.Visual
             _heads[slot] = 0;
             _counts[slot] = 0;
             _durations[slot] = duration;
-            _widths[slot] = MathF.Min(width, 0.15f);
+            _widths[slot] = MathF.Min(width, 0.35f);
             _startColors[slot] = startColor;
             _midColors[slot] = midColor ?? startColor;
             _endColors[slot] = endColor;
@@ -194,7 +194,7 @@ namespace Gridlock.Visual
 
         private static byte GradientByte(byte start, byte mid, byte end, float t)
         {
-            const float midPoint = 0.15f;
+            const float midPoint = 0.05f;
             if (t <= midPoint)
             {
                 float local = t / midPoint;
