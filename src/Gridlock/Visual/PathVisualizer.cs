@@ -8,9 +8,9 @@ namespace Gridlock.Visual
 {
     public sealed class PathVisualizer
     {
-        private static readonly Color BaseLineColor = new(255, 0, 200, 120);
-        private static readonly Color PulseColor = new(140, 245, 255, 255);
-        private static readonly Color AmbientPulseColor = new(89, 153, 166, 179);
+        private static readonly Color BaseLineColor = new(255, 50, 50, 140);
+        private static readonly Color PulseColor = new(255, 100, 80, 255);
+        private static readonly Color AmbientPulseColor = new(255, 60, 60, 200);
 
         private const float LineY = 0.15f;
         private const float DotRadius = 0.2f;
@@ -25,6 +25,7 @@ namespace Gridlock.Visual
         private readonly List<Vector3[]> _routes = new();
         private readonly List<Vector3[]> _warpedRoutes = new();
         private readonly List<float[]> _segmentNorms = new();
+        private readonly List<(Vector3 a, Vector3 b, byte alpha)> _glowLines = new(64);
 
         private float _nextAmbientPulse;
         private float _elapsedTime;
@@ -137,8 +138,20 @@ namespace Gridlock.Visual
 
                     var segColor = BlendPulse(BaseLineColor, _pulsing ? _activePulseColor : PulseColor, pulse);
                     Raylib.DrawLine3D(points[i], points[i + 1], segColor);
+
+                    byte glowA = (byte)Math.Clamp(18 + (int)(40 * pulse), 0, 255);
+                    _glowLines.Add((points[i], points[i + 1], glowA));
                 }
             }
+
+            Raylib.BeginBlendMode(BlendMode.Additive);
+            for (int i = 0; i < _glowLines.Count; i++)
+            {
+                var (a, b, ga) = _glowLines[i];
+                Raylib.DrawLine3D(a, b, new Color((byte)255, (byte)40, (byte)40, ga));
+            }
+            _glowLines.Clear();
+            Raylib.EndBlendMode();
 
             for (int r = 0; r < _warpedRoutes.Count; r++)
             {
@@ -168,10 +181,10 @@ namespace Gridlock.Visual
                     float norm = norms != null ? norms[i] : (float)i / MathF.Max(1, points.Length - 1);
                     float pulse = GetPulseIntensity(norm, t);
 
-                    if (pulse > 0.1f)
+                    if (pulse > 0.05f)
                     {
-                        float glowScale = DotRadius * MathF.Max(1f, 1f + (DotFlashScale - 1f) * pulse) * 0.8f;
-                        byte glowA = (byte)Math.Clamp((int)(50 * pulse), 0, 255);
+                        float glowScale = DotRadius * MathF.Max(1f, 1f + (DotFlashScale - 1f) * pulse);
+                        byte glowA = (byte)Math.Clamp(10 + (int)(55 * pulse), 0, 255);
                         WireframeMeshes.DrawSphere(points[i], glowScale,
                             new Color(PulseColor.R, PulseColor.G, PulseColor.B, glowA));
                     }
