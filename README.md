@@ -29,10 +29,25 @@ cd src/Gridlock
 dotnet run
 ```
 
-Publish a self-contained binary:
+### Publish
+
+**Windows — single .exe (14 Mo, tout inclus):**
 ```bash
-dotnet publish -c Release -o ../../publish
+dotnet publish -c Release -r win-x64 --self-contained \
+  -p:PublishSingleFile=true -p:PublishTrimmed=true -p:TrimMode=full \
+  -p:IncludeNativeLibrariesForSelfExtract=true \
+  -p:IncludeAllContentForSelfExtract=true \
+  -p:EnableCompressionInSingleFile=true \
+  -o ../../publish
 ```
+
+**macOS — NativeAOT (11 Mo, dossier):**
+```bash
+dotnet publish -c Release -r osx-arm64 \
+  -p:PublishAot=true -p:StripSymbols=true -p:OptimizationPreference=Size \
+  -o ../../publish
+```
+NativeAOT compile en code machine natif (pas de runtime .NET). Cross-compilation non supportée — compiler depuis l'OS cible.
 
 ## Controls
 
