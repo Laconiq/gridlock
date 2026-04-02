@@ -61,7 +61,6 @@ namespace Gridlock.Enemies
         {
             _dying = true;
             _deathTimer = _deathAnimDuration;
-            Core.GameStats.Instance?.AddKill();
             OnDeath?.Invoke();
         }
 

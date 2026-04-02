@@ -18,6 +18,9 @@ namespace Gridlock.UI
         private readonly List<SynergyEffect> _activeSynergies = new();
         private TargetingMode _workingTargetingMode;
         private ModType? _hoveredMod;
+        private ModType _draggedMod;
+        private bool _dragActive;
+        private float _dragPulse;
 
         public bool IsOpen => _tower != null;
 
@@ -53,16 +56,40 @@ namespace Gridlock.UI
 
             int screenW = Raylib.GetScreenWidth();
             int screenH = Raylib.GetScreenHeight();
-            float panelW = 640;
-            float panelH = MathF.Min(screenH - 40f, 620f);
 
-            ImGui.SetNextWindowPos(new Vector2((screenW - panelW) * 0.5f, (screenH - panelH) * 0.5f), ImGuiCond.Always);
-            ImGui.SetNextWindowSize(new Vector2(panelW, panelH));
+            // --- Right panel: Player Inventory ---
+            float invW = MathF.Min(220, screenW * 0.18f);
+            float invH = screenH;
 
+            ImGui.SetNextWindowPos(new Vector2(screenW - invW, 0), ImGuiCond.Always);
+            ImGui.SetNextWindowSize(new Vector2(invW, invH));
+            PushPanelStyle();
+
+            ImGui.Begin("##InventoryPanel", ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse |
+                ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoTitleBar);
+
+            var dl = ImGui.GetWindowDrawList();
+            var wPos = ImGui.GetWindowPos();
+            dl.AddRectFilled(wPos, new Vector2(wPos.X + 2, wPos.Y + invH),
+                ImGui.ColorConvertFloat4ToU32(TV4(DesignTokens.GlassBorderAccent)));
+
+            DrawInventoryPane();
+
+            ImGui.End();
+            PopPanelStyle();
+
+            // --- Center panel: Tower Config ---
+            float towerW = MathF.Min(560, screenW * 0.45f);
+            float towerH = MathF.Min(screenH - 80, 380);
+            float towerX = (screenW - invW - towerW) * 0.5f;
+            float towerY = (screenH - towerH) * 0.5f;
+
+            ImGui.SetNextWindowPos(new Vector2(towerX, towerY), ImGuiCond.Always);
+            ImGui.SetNextWindowSize(new Vector2(towerW, towerH));
             PushPanelStyle();
 
             bool open = true;
-            ImGui.Begin("MOD EDITOR##ModPanel", ref open,
+            ImGui.Begin("TOWER CONFIG##TowerPanel", ref open,
                 ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoMove);
 
             if (!open)
@@ -75,26 +102,64 @@ namespace Gridlock.UI
 
             DrawTowerHeader();
             ImGui.Spacing();
-
-            float contentW = ImGui.GetContentRegionAvail().X;
-            float leftW = contentW * 0.42f;
-            float rightW = contentW - leftW - DesignTokens.SpaceMd;
-
-            ImGui.BeginChild("##LeftPane", new Vector2(leftW, 0), ImGuiChildFlags.None);
-            DrawInventoryPane();
-            ImGui.EndChild();
-
-            ImGui.SameLine(0, DesignTokens.SpaceMd);
-
-            ImGui.BeginChild("##RightPane", new Vector2(rightW, 0), ImGuiChildFlags.None);
             DrawSlotChain();
             ImGui.Separator();
             ImGui.Spacing();
             DrawInfoArea();
-            ImGui.EndChild();
 
             ImGui.End();
             PopPanelStyle();
+
+            // --- Drag preview ---
+            if (_dragActive)
+            {
+                _dragPulse += Raylib.GetFrameTime() * 6f;
+                if (!ImGui.IsMouseDragging(ImGuiMouseButton.Left))
+                {
+                    _dragActive = false;
+                    _dragPulse = 0f;
+                }
+                else
+                {
+                    DrawDragPreview();
+                }
+            }
+        }
+
+        private void DrawDragPreview()
+        {
+            var mousePos = ImGui.GetMousePos();
+            var fg = ImGui.GetForegroundDrawList();
+            var modColor = GetModColor(_draggedMod);
+            float pulse = 0.8f + 0.2f * MathF.Sin(_dragPulse);
+
+            float cardW = 70;
+            float cardH = 32;
+            float ox = mousePos.X + 12;
+            float oy = mousePos.Y - cardH * 0.5f;
+
+            fg.AddRectFilled(
+                new Vector2(ox, oy), new Vector2(ox + cardW, oy + cardH),
+                ImGui.ColorConvertFloat4ToU32(TV4A(DesignTokens.SurfaceContainerHigh, 0.9f * pulse)), 4f);
+
+            fg.AddRectFilled(
+                new Vector2(ox, oy), new Vector2(ox + 3, oy + cardH),
+                ImGui.ColorConvertFloat4ToU32(TV4A(modColor, pulse)));
+
+            fg.AddRect(
+                new Vector2(ox, oy), new Vector2(ox + cardW, oy + cardH),
+                ImGui.ColorConvertFloat4ToU32(TV4A(modColor, 0.6f * pulse)), 4f, ImDrawFlags.None, 1.5f);
+
+            float iconSize = 10;
+            fg.AddRectFilled(
+                new Vector2(ox + 8, oy + (cardH - iconSize) * 0.5f),
+                new Vector2(ox + 8 + iconSize, oy + (cardH + iconSize) * 0.5f),
+                ImGui.ColorConvertFloat4ToU32(TV4A(modColor, pulse)), 2f);
+
+            fg.AddText(
+                new Vector2(ox + 22, oy + (cardH - ImGui.GetFontSize()) * 0.5f),
+                ImGui.ColorConvertFloat4ToU32(TV4A(DesignTokens.OnSurface, pulse)),
+                _draggedMod.ToString().ToUpperInvariant());
         }
 
         private void DrawTowerHeader()
@@ -169,8 +234,8 @@ namespace Gridlock.UI
             ImGui.TextColored(TV4(accentColor), label);
 
             float availW = ImGui.GetContentRegionAvail().X;
-            float cardW = 80;
-            float cardH = 60;
+            float cardW = MathF.Min(80, (availW - DesignTokens.SpaceXs) * 0.5f);
+            float cardH = 52;
             float spacing = DesignTokens.SpaceXs;
             int cols = Math.Max(1, (int)((availW + spacing) / (cardW + spacing)));
 
@@ -179,9 +244,7 @@ namespace Gridlock.UI
             {
                 if (!MatchesFilter(modType, filter)) continue;
 
-                int count = _inventory!.GetCount(modType);
-                int usedInSlots = CountInSlots(modType);
-                int available = count - usedInSlots;
+                int available = _inventory!.GetAvailable(modType, _tower, _workingSlots);
 
                 if (col > 0)
                     ImGui.SameLine(0, spacing);
@@ -221,7 +284,8 @@ namespace Gridlock.UI
                 {
                     ImGui.SetDragDropPayload("MOD_TYPE", (IntPtr)(&payload), sizeof(int));
                 }
-                ImGui.TextColored(TV4(modColor), modType.ToString());
+                _draggedMod = modType;
+                _dragActive = true;
                 ImGui.EndDragDropSource();
             }
 
@@ -261,101 +325,91 @@ namespace Gridlock.UI
             int slotCount = _tower.Data.SlotCount;
             var drawList = ImGui.GetWindowDrawList();
 
+            float availW = ImGui.GetContentRegionAvail().X;
+            float connW = 20;
+            float totalConn = (slotCount - 1) * connW;
+            float slotW = (availW - totalConn) / slotCount;
+            slotW = MathF.Max(slotW, 60);
+            float slotH = 56;
+
+            var origin = ImGui.GetCursorScreenPos();
+
             for (int i = 0; i < slotCount; i++)
             {
-                if (i > 0)
-                    DrawSlotConnector(drawList, i);
+                float sx = origin.X + i * (slotW + connW);
+                float sy = origin.Y;
 
+                if (i > 0)
+                {
+                    float cx = sx - connW;
+                    float midY = sy + slotH * 0.5f;
+
+                    bool hasSynergy = i - 1 < _workingSlots.Count && i < _workingSlots.Count &&
+                        SynergyTable.Check(_workingSlots[i - 1].modType, _workingSlots[i].modType).HasValue;
+                    var lineColor = hasSynergy ? DesignTokens.Success : DesignTokens.GlassBorderAccent;
+                    float thickness = hasSynergy ? 2.5f : 1.5f;
+
+                    drawList.AddLine(new Vector2(cx, midY), new Vector2(cx + connW, midY),
+                        ImGui.ColorConvertFloat4ToU32(TV4(lineColor)), thickness);
+                    float a = 4;
+                    drawList.AddTriangleFilled(
+                        new Vector2(cx + connW - a, midY - a),
+                        new Vector2(cx + connW - a, midY + a),
+                        new Vector2(cx + connW, midY),
+                        ImGui.ColorConvertFloat4ToU32(TV4(lineColor)));
+
+                    if (hasSynergy)
+                    {
+                        var syn = SynergyTable.Check(_workingSlots[i - 1].modType, _workingSlots[i].modType);
+                        if (syn.HasValue)
+                        {
+                            var txt = syn.Value.synergyName;
+                            var ts = ImGui.CalcTextSize(txt);
+                            drawList.AddText(new Vector2(cx + (connW - ts.X) * 0.5f, midY - ts.Y - 2),
+                                ImGui.ColorConvertFloat4ToU32(TV4(DesignTokens.Success)), txt);
+                        }
+                    }
+                }
+
+                ImGui.SetCursorScreenPos(new Vector2(sx, sy));
                 ImGui.PushID(i);
 
                 bool isOccupied = i < _workingSlots.Count;
-
                 if (isOccupied)
-                    DrawOccupiedSlot(i, drawList);
+                    DrawOccupiedSlot(i, drawList, slotW, slotH);
                 else
-                    DrawEmptySlot(i, drawList);
+                    DrawEmptySlot(i, drawList, slotW, slotH);
 
                 ImGui.PopID();
             }
+
+            ImGui.SetCursorScreenPos(new Vector2(origin.X, origin.Y + slotH + 4));
+            ImGui.Dummy(new Vector2(availW, 0));
         }
 
-        private void DrawSlotConnector(ImDrawListPtr drawList, int slotIndex)
-        {
-            var cursor = ImGui.GetCursorScreenPos();
-            float midX = cursor.X + ImGui.GetContentRegionAvail().X * 0.5f;
-            float lineH = 16;
-
-            bool hasSynergy = false;
-            if (slotIndex > 0 && slotIndex - 1 < _workingSlots.Count && slotIndex < _workingSlots.Count)
-            {
-                hasSynergy = SynergyTable.Check(
-                    _workingSlots[slotIndex - 1].modType,
-                    _workingSlots[slotIndex].modType).HasValue;
-            }
-
-            var lineColor = hasSynergy ? DesignTokens.Success : DesignTokens.GlassBorderAccent;
-            drawList.AddLine(
-                new Vector2(midX, cursor.Y),
-                new Vector2(midX, cursor.Y + lineH),
-                ImGui.ColorConvertFloat4ToU32(TV4(lineColor)), hasSynergy ? 2.5f : 1.5f);
-
-            float arrowSize = 4;
-            drawList.AddTriangleFilled(
-                new Vector2(midX - arrowSize, cursor.Y + lineH - arrowSize),
-                new Vector2(midX + arrowSize, cursor.Y + lineH - arrowSize),
-                new Vector2(midX, cursor.Y + lineH),
-                ImGui.ColorConvertFloat4ToU32(TV4(lineColor)));
-
-            if (hasSynergy)
-            {
-                var synergy = SynergyTable.Check(
-                    _workingSlots[slotIndex - 1].modType,
-                    _workingSlots[slotIndex].modType);
-                if (synergy.HasValue)
-                {
-                    var text = synergy.Value.synergyName;
-                    var textSize = ImGui.CalcTextSize(text);
-                    drawList.AddText(
-                        new Vector2(midX + arrowSize + 6, cursor.Y + (lineH - textSize.Y) * 0.5f),
-                        ImGui.ColorConvertFloat4ToU32(TV4(DesignTokens.Success)),
-                        text);
-                }
-            }
-
-            ImGui.Dummy(new Vector2(0, lineH));
-        }
-
-        private void DrawOccupiedSlot(int index, ImDrawListPtr drawList)
+        private void DrawOccupiedSlot(int index, ImDrawListPtr drawList, float slotW, float slotH)
         {
             var slot = _workingSlots[index];
             var modColor = GetModColor(slot.modType);
             bool isEvent = slot.modType.IsEvent();
-
-            float slotH = 36;
-            float availW = ImGui.GetContentRegionAvail().X;
 
             ImGui.PushStyleColor(ImGuiCol.Button, TV4A(DesignTokens.SurfaceContainerHigh, 0.95f));
             ImGui.PushStyleColor(ImGuiCol.ButtonHovered, TV4A(DesignTokens.GlassInnerBgHover, 0.95f));
             ImGui.PushStyleColor(ImGuiCol.ButtonActive, TV4A(DesignTokens.SurfaceContainerHighest, 0.95f));
 
             var cursor = ImGui.GetCursorScreenPos();
-
-            ImGui.Button($"##slot{index}", new Vector2(availW, slotH));
+            ImGui.Button($"##slot{index}", new Vector2(slotW, slotH));
 
             bool hovered = ImGui.IsItemHovered();
-            if (hovered)
-                _hoveredMod = slot.modType;
+            if (hovered) _hoveredMod = slot.modType;
 
             if (ImGui.BeginDragDropSource(ImGuiDragDropFlags.SourceNoPreviewTooltip))
             {
                 int payload = (int)slot.modType;
-                unsafe
-                {
-                    ImGui.SetDragDropPayload("MOD_SLOT_REMOVE", (IntPtr)(&payload), sizeof(int));
-                }
-                ImGui.TextColored(TV4(modColor), $"Remove {slot.modType}");
+                unsafe { ImGui.SetDragDropPayload("MOD_SLOT_REMOVE", (IntPtr)(&payload), sizeof(int)); }
+                _draggedMod = slot.modType;
+                _dragActive = true;
                 ImGui.EndDragDropSource();
-
                 _workingSlots.RemoveAt(index);
                 RefreshSynergies();
                 ImGui.PopStyleColor(3);
@@ -371,15 +425,10 @@ namespace Gridlock.UI
                     {
                         int modTypeInt = *(int*)payloadPtr.Data;
                         var modType = (ModType)modTypeInt;
-
                         if (_workingSlots.Count < _tower!.Data.SlotCount)
-                        {
                             _workingSlots.Insert(index, new ModSlotData { modType = modType });
-                        }
                         else
-                        {
                             _workingSlots[index] = new ModSlotData { modType = modType };
-                        }
                         RefreshSynergies();
                     }
                 }
@@ -388,42 +437,29 @@ namespace Gridlock.UI
 
             ImGui.PopStyleColor(3);
 
-            float borderThickness = isEvent ? 2f : 1.5f;
-            var borderColor = isEvent ? DesignTokens.Tertiary : modColor;
+            // Top color bar
+            drawList.AddRectFilled(cursor, new Vector2(cursor.X + slotW, cursor.Y + 3),
+                ImGui.ColorConvertFloat4ToU32(TV4(modColor)));
+
             if (isEvent)
             {
-                drawList.AddRect(cursor, new Vector2(cursor.X + availW, cursor.Y + slotH),
-                    ImGui.ColorConvertFloat4ToU32(TV4(borderColor)), 4f, ImDrawFlags.None, borderThickness);
+                drawList.AddRect(cursor, new Vector2(cursor.X + slotW, cursor.Y + slotH),
+                    ImGui.ColorConvertFloat4ToU32(TV4(DesignTokens.Tertiary)), 3f, ImDrawFlags.None, 1.5f);
             }
 
             float iconSize = 10;
             drawList.AddRectFilled(
-                new Vector2(cursor.X + 8, cursor.Y + (slotH - iconSize) * 0.5f),
-                new Vector2(cursor.X + 8 + iconSize, cursor.Y + (slotH + iconSize) * 0.5f),
+                new Vector2(cursor.X + 6, cursor.Y + 10),
+                new Vector2(cursor.X + 6 + iconSize, cursor.Y + 10 + iconSize),
                 ImGui.ColorConvertFloat4ToU32(TV4(modColor)), 2f);
 
-            drawList.AddLine(
-                new Vector2(cursor.X, cursor.Y),
-                new Vector2(cursor.X, cursor.Y + slotH),
-                ImGui.ColorConvertFloat4ToU32(TV4(modColor)), 3f);
-
             var nameText = slot.modType.ToString().ToUpperInvariant();
-            drawList.AddText(
-                new Vector2(cursor.X + 24, cursor.Y + 4),
+            drawList.AddText(new Vector2(cursor.X + 6, cursor.Y + 24),
                 ImGui.ColorConvertFloat4ToU32(TV4(modColor)), nameText);
 
-            string category = slot.modType.IsElemental() ? "ELEMENT"
-                : slot.modType.IsEvent() ? "EVENT"
-                : "BEHAVIOR";
-            drawList.AddText(
-                new Vector2(cursor.X + 24, cursor.Y + slotH - 16),
+            string category = slot.modType.IsElemental() ? "ELM" : slot.modType.IsEvent() ? "EVT" : "BHV";
+            drawList.AddText(new Vector2(cursor.X + 6, cursor.Y + slotH - 14),
                 ImGui.ColorConvertFloat4ToU32(TV4(DesignTokens.OnSurfaceVariant)), category);
-
-            var indexText = $"{index + 1:D2}";
-            var indexSize = ImGui.CalcTextSize(indexText);
-            drawList.AddText(
-                new Vector2(cursor.X + availW - indexSize.X - 8, cursor.Y + (slotH - indexSize.Y) * 0.5f),
-                ImGui.ColorConvertFloat4ToU32(TV4(DesignTokens.OutlineVariant)), indexText);
 
             if (ImGui.IsMouseClicked(ImGuiMouseButton.Right) && hovered)
             {
@@ -432,18 +468,15 @@ namespace Gridlock.UI
             }
         }
 
-        private void DrawEmptySlot(int index, ImDrawListPtr drawList)
+        private void DrawEmptySlot(int index, ImDrawListPtr drawList, float slotW, float slotH)
         {
-            float slotH = 36;
-            float availW = ImGui.GetContentRegionAvail().X;
-
             var cursor = ImGui.GetCursorScreenPos();
 
             ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0, 0, 0, 0));
             ImGui.PushStyleColor(ImGuiCol.ButtonHovered, TV4A(DesignTokens.GlassInnerBgHover, 0.3f));
             ImGui.PushStyleColor(ImGuiCol.ButtonActive, TV4A(DesignTokens.GlassInnerBgHover, 0.5f));
 
-            ImGui.Button($"##emptyslot{index}", new Vector2(availW, slotH));
+            ImGui.Button($"##emptyslot{index}", new Vector2(slotW, slotH));
 
             if (ImGui.BeginDragDropTarget())
             {
@@ -454,7 +487,6 @@ namespace Gridlock.UI
                     {
                         int modTypeInt = *(int*)payloadPtr.Data;
                         var modType = (ModType)modTypeInt;
-
                         int insertAt = Math.Min(index, _workingSlots.Count);
                         _workingSlots.Insert(insertAt, new ModSlotData { modType = modType });
                         RefreshSynergies();
@@ -465,31 +497,31 @@ namespace Gridlock.UI
 
             ImGui.PopStyleColor(3);
 
-            float dashLen = 6;
-            float gapLen = 4;
+            float dashLen = 5;
+            float gapLen = 3;
             var dashColor = ImGui.ColorConvertFloat4ToU32(TV4(DesignTokens.OutlineVariant));
 
             float x = cursor.X;
-            while (x < cursor.X + availW)
+            while (x < cursor.X + slotW)
             {
-                float endX = MathF.Min(x + dashLen, cursor.X + availW);
-                drawList.AddLine(new Vector2(x, cursor.Y), new Vector2(endX, cursor.Y), dashColor, 1f);
-                drawList.AddLine(new Vector2(x, cursor.Y + slotH), new Vector2(endX, cursor.Y + slotH), dashColor, 1f);
+                float e = MathF.Min(x + dashLen, cursor.X + slotW);
+                drawList.AddLine(new Vector2(x, cursor.Y), new Vector2(e, cursor.Y), dashColor, 1f);
+                drawList.AddLine(new Vector2(x, cursor.Y + slotH), new Vector2(e, cursor.Y + slotH), dashColor, 1f);
                 x += dashLen + gapLen;
             }
             float y = cursor.Y;
             while (y < cursor.Y + slotH)
             {
-                float endY = MathF.Min(y + dashLen, cursor.Y + slotH);
-                drawList.AddLine(new Vector2(cursor.X, y), new Vector2(cursor.X, endY), dashColor, 1f);
-                drawList.AddLine(new Vector2(cursor.X + availW, y), new Vector2(cursor.X + availW, endY), dashColor, 1f);
+                float e = MathF.Min(y + dashLen, cursor.Y + slotH);
+                drawList.AddLine(new Vector2(cursor.X, y), new Vector2(cursor.X, e), dashColor, 1f);
+                drawList.AddLine(new Vector2(cursor.X + slotW, y), new Vector2(cursor.X + slotW, e), dashColor, 1f);
                 y += dashLen + gapLen;
             }
 
-            var text = $"+ SLOT {index + 1}";
+            var text = $"+{index + 1}";
             var textSize = ImGui.CalcTextSize(text);
             drawList.AddText(
-                new Vector2(cursor.X + (availW - textSize.X) * 0.5f, cursor.Y + (slotH - textSize.Y) * 0.5f),
+                new Vector2(cursor.X + (slotW - textSize.X) * 0.5f, cursor.Y + (slotH - textSize.Y) * 0.5f),
                 ImGui.ColorConvertFloat4ToU32(TV4(DesignTokens.OutlineVariant)), text);
         }
 
@@ -571,14 +603,6 @@ namespace Gridlock.UI
             }
         }
 
-        private int CountInSlots(ModType type)
-        {
-            int c = 0;
-            foreach (var s in _workingSlots)
-                if (s.modType == type) c++;
-            return c;
-        }
-
         private float ComputeEffectiveDamage()
         {
             float dmg = _tower!.Data.BaseDamage;
@@ -600,16 +624,16 @@ namespace Gridlock.UI
 
         private void PushPanelStyle()
         {
-            ImGui.PushStyleColor(ImGuiCol.WindowBg, new Vector4(0.04f, 0.06f, 0.08f, 0.88f));
-            ImGui.PushStyleColor(ImGuiCol.Border, new Vector4(0f, 0.8f, 1f, 0.3f));
+            ImGui.PushStyleColor(ImGuiCol.WindowBg, new Vector4(0.03f, 0.04f, 0.06f, 0.92f));
+            ImGui.PushStyleColor(ImGuiCol.Border, new Vector4(0f, 0.8f, 1f, 0.15f));
             ImGui.PushStyleColor(ImGuiCol.TitleBg, TV4(DesignTokens.SurfaceContainerLow));
             ImGui.PushStyleColor(ImGuiCol.TitleBgActive, TV4(DesignTokens.SurfaceContainerHigh));
             ImGui.PushStyleColor(ImGuiCol.ScrollbarBg, TV4A(DesignTokens.SurfaceContainerLow, 0.5f));
             ImGui.PushStyleColor(ImGuiCol.ScrollbarGrab, TV4(DesignTokens.OutlineVariant));
             ImGui.PushStyleVar(ImGuiStyleVar.WindowBorderSize, 1f);
-            ImGui.PushStyleVar(ImGuiStyleVar.WindowRounding, 6f);
+            ImGui.PushStyleVar(ImGuiStyleVar.WindowRounding, 4f);
             ImGui.PushStyleVar(ImGuiStyleVar.FrameRounding, 3f);
-            ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, new Vector2(DesignTokens.SpaceLg, DesignTokens.SpaceMd));
+            ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, new Vector2(DesignTokens.SpaceLg + 4, DesignTokens.SpaceMd));
         }
 
         private void PopPanelStyle()

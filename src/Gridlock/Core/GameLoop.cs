@@ -193,6 +193,7 @@ namespace Gridlock.Core
             var defaultPreset = DefaultPreset();
             _towerPlacement = new TowerPlacement(_gridManager, defaultTowerData, defaultPreset);
             _towerPlacement.OnTowerPlaced += OnTowerPlaced;
+            _inventory.SetTowerSource(_towerPlacement.PlacedTowers);
 
             _enemySpawner = new EnemySpawner(_gridManager);
             _enemySpawner.OnEnemyKilled += OnEnemyKilled;
@@ -268,6 +269,7 @@ namespace Gridlock.Core
             Update(frameDt);
             prof.End();
 
+            _camera.ZoomEnabled = !_modPanel.IsOpen;
             _camera.LateUpdate(frameDt);
 
             if (_shakeTimer > 0f)
@@ -415,14 +417,8 @@ namespace Gridlock.Core
 
         private void AddStarterMods()
         {
-            _inventory.AddMod(ModType.Heavy, 3);
-            _inventory.AddMod(ModType.Swift, 3);
-            _inventory.AddMod(ModType.Homing, 2);
-            _inventory.AddMod(ModType.Burn, 2);
-            _inventory.AddMod(ModType.Frost, 2);
-            _inventory.AddMod(ModType.Split, 1);
-            _inventory.AddMod(ModType.OnHit, 2);
-            _inventory.AddMod(ModType.OnKill, 1);
+            foreach (var type in Enum.GetValues<ModType>())
+                _inventory.AddMod(type, 5);
         }
 
         private void TriggerShake(float duration, float intensity)

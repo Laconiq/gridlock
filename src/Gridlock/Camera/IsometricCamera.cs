@@ -79,8 +79,11 @@ namespace Gridlock.Camera
             _focusPoint += move;
         }
 
+        public bool ZoomEnabled { get; set; } = true;
+
         private void HandleZoom(float dt)
         {
+            if (!ZoomEnabled) return;
             float scroll = Raylib.GetMouseWheelMove();
             if (MathF.Abs(scroll) < 0.01f) return;
 

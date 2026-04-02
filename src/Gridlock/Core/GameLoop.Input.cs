@@ -49,22 +49,31 @@ namespace Gridlock.Core
                         _soundManager.Play(Audio.SoundType.TowerHover, worldPos: _hoveredTower.Position);
                 }
 
-                if (_input.LeftClicked && _gameManager.CurrentState == GameState.Preparing && !imguiWantsMouse)
+                if (_input.LeftClicked && !imguiWantsMouse)
                 {
-                    if (panelOpen)
-                    {
-                        _modPanel.Close();
-                        _selectedTower = null;
-                    }
-                    else
+                    var state = _gameManager.CurrentState;
+                    if (state == GameState.Preparing || state == GameState.Wave)
                     {
                         var clickedTower = _towerPlacement.TryClickTower(groundPoint);
                         if (clickedTower != null)
                         {
-                            _selectedTower = clickedTower;
-                            _modPanel.Open(clickedTower, _inventory);
+                            if (panelOpen && _selectedTower == clickedTower)
+                            {
+                                _modPanel.Close();
+                                _selectedTower = null;
+                            }
+                            else
+                            {
+                                _selectedTower = clickedTower;
+                                _modPanel.Open(clickedTower, _inventory);
+                            }
                         }
-                        else
+                        else if (panelOpen)
+                        {
+                            _modPanel.Close();
+                            _selectedTower = null;
+                        }
+                        else if (state == GameState.Preparing)
                         {
                             _towerPlacement.TryPlace(groundPoint, isOverUI: false);
                         }
