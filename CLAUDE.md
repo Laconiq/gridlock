@@ -23,7 +23,12 @@ The game is an **isometric grid-based Tower Defense** with a neon/Geometry Wars 
 ```
 src/Gridlock/           — Main C# source
   Program.cs            — Entry point (Raylib window + game loop)
-  Core/                 — GameLoop, GameManager, GameState, ServiceLocator
+  Core/                 — GameLoop (partial class split), GameManager, GameState, ServiceLocator
+    GameLoop.cs          — Fields, Init, RunFrame, Update, FixedUpdate, Shutdown, data helpers
+    GameLoop.Input.cs    — HandleGlobalInput, HandlePlacementInput (tower hover/selection)
+    GameLoop.Events.cs   — Game event handlers (tower placed, enemy killed, wave cleared, etc.)
+    GameLoop.Combat.cs   — Projectile lifecycle (spawn, destroy, sub-projectiles, trails)
+    GameLoop.Rendering.cs— All 3D rendering (towers, enemies, projectiles, pickups, grid, HUD)
   Grid/                 — Grid system (port of Unity GridManager/GridVisual/GridWarp)
   Camera/               — Isometric camera
   Combat/               — Damage, projectiles
