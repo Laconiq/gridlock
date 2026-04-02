@@ -24,8 +24,8 @@ namespace Gridlock.Mods
 
         private float HitRadius => _ctx.Size + BaseHitRadius;
 
+        public static Action<ModProjectile>? OnProjectileCreated;
         public event Action<ModProjectile>? OnDestroyed;
-        public event Action<ModProjectile, SpawnRequest>? OnSpawnRequested;
 
         public void Initialize(ModPipeline pipeline, ModContext ctx, ITargetable target, Vector3 origin)
         {
@@ -180,8 +180,23 @@ namespace Gridlock.Mods
         private void DrainSpawns()
         {
             for (int i = 0; i < _ctx.SpawnRequests.Count; i++)
-                OnSpawnRequested?.Invoke(this, _ctx.SpawnRequests[i]);
+            {
+                var req = _ctx.SpawnRequests[i];
+                var subPipeline = req.Pipeline ?? new ModPipeline();
+                var subCtx = _ctx.CloneForSub(req.DamageScale);
+                subCtx.Tags = subPipeline.AccumulatedTags;
+                if (subCtx.Tags.HasFlag(ModTags.Pierce)) subCtx.PierceRemaining = 3;
+                if (subCtx.Tags.HasFlag(ModTags.Bounce)) subCtx.BounceRemaining = 3;
 
+                var sub = new ModProjectile();
+                sub.Initialize(subPipeline, subCtx, req.Target ?? _ctx.Target, req.Origin);
+                if (!sub.IsDestroyed)
+                {
+                    if (req.Direction.LengthSquared() > 0.001f)
+                        sub.OverrideDirection(req.Direction);
+                    OnProjectileCreated?.Invoke(sub);
+                }
+            }
             _ctx.SpawnRequests.Clear();
         }
 

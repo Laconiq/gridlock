@@ -46,7 +46,6 @@ namespace Gridlock.Core
 
         private readonly List<ModProjectile> _projectiles = new();
         private readonly List<ModProjectile> _projectileRemovalBuffer = new();
-        private readonly List<ModProjectile> _projectileSpawnBuffer = new();
 
         private readonly Dictionary<int, int> _projectileTrails = new();
 
@@ -193,6 +192,7 @@ namespace Gridlock.Core
             var defaultPreset = DefaultPreset();
             _towerPlacement = new TowerPlacement(_gridManager, defaultTowerData, defaultPreset);
             _towerPlacement.OnTowerPlaced += OnTowerPlaced;
+            ModProjectile.OnProjectileCreated = RegisterProjectile;
             _inventory.SetTowerSource(_towerPlacement.PlacedTowers);
 
             _enemySpawner = new EnemySpawner(_gridManager);
@@ -363,7 +363,6 @@ namespace Gridlock.Core
             prof.Begin("  Projectiles");
             for (int i = 0; i < _projectiles.Count; i++)
                 _projectiles[i].Update(dt);
-            DrainProjectileSpawnBuffer();
             CleanupDestroyedProjectiles();
             prof.End();
         }
@@ -604,7 +603,6 @@ namespace Gridlock.Core
         public void Shutdown()
         {
             _projectiles.Clear();
-            _projectileSpawnBuffer.Clear();
             _projectileTrails.Clear();
 
             _waveManager.Shutdown();
@@ -632,6 +630,7 @@ namespace Gridlock.Core
             _gameManager.Shutdown();
             _gameStats.Shutdown();
 
+            ModProjectile.OnProjectileCreated = null;
             EnemyRegistry.Clear();
             ServiceLocator.Clear();
         }

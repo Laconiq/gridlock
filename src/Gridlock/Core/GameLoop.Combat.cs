@@ -12,32 +12,37 @@ namespace Gridlock.Core
     {
         private void OnProjectileSpawned(ModProjectile projectile)
         {
-            _projectiles.Add(projectile);
-            projectile.OnDestroyed += OnProjectileDestroyed;
-            projectile.OnSpawnRequested += OnSubProjectileRequested;
-
-            var tags = projectile.Context.Tags;
-            var projectileColor = GetProjectileColor(tags);
-            float projScale = 0.2f + Math.Clamp(projectile.Context.Damage / 40f, 0f, 1f) * 0.3f;
-            float trailWidth = projScale * 0.6f;
-            var startColor = new Color(
-                (byte)(projectileColor.R + (255 - projectileColor.R) / 2),
-                (byte)(projectileColor.G + (255 - projectileColor.G) / 2),
-                (byte)(projectileColor.B + (255 - projectileColor.B) / 2),
-                (byte)230);
-            var endColor = new Color((byte)(projectileColor.R / 4), (byte)(projectileColor.G / 4), (byte)(projectileColor.B / 4), (byte)0);
-            int trailId = _trails.CreateTrail(0.2f, trailWidth, startColor, endColor, projectileColor);
-            _projectileTrails[projectile.GetHashCode()] = trailId;
+            RegisterProjectile(projectile);
 
             float spawnWarpY = _warpManager.Initialized
                 ? _warpManager.GetWarpOffset(projectile.Position.X, projectile.Position.Z) : 0f;
             var muzzlePos = new Vector3(projectile.Position.X, projectile.Position.Y + spawnWarpY, projectile.Position.Z);
+            var projectileColor = GetProjectileColor(projectile.Context.Tags);
             _particles.Burst(muzzlePos, 8, 7.5f, 0f, 0.09f, projectileColor, 18f);
 
             if (_warpManager.Initialized)
                 _warpManager.DropStone(projectile.Position, 1.5f, 2f, projectileColor);
 
             _soundManager.Play(SoundType.TowerFire, worldPos: projectile.Position);
+        }
+
+        private void RegisterProjectile(ModProjectile projectile)
+        {
+            _projectiles.Add(projectile);
+            projectile.OnDestroyed += OnProjectileDestroyed;
+
+            var tags = projectile.Context.Tags;
+            var color = GetProjectileColor(tags);
+            float scale = 0.2f + Math.Clamp(projectile.Context.Damage / 40f, 0f, 1f) * 0.3f;
+            float trailWidth = scale * 0.6f;
+            var startColor = new Color(
+                (byte)(color.R + (255 - color.R) / 2),
+                (byte)(color.G + (255 - color.G) / 2),
+                (byte)(color.B + (255 - color.B) / 2),
+                (byte)230);
+            var endColor = new Color((byte)(color.R / 4), (byte)(color.G / 4), (byte)(color.B / 4), (byte)0);
+            int trailId = _trails.CreateTrail(0.2f, trailWidth, startColor, endColor, color);
+            _projectileTrails[projectile.GetHashCode()] = trailId;
         }
 
         private void OnProjectileDestroyed(ModProjectile projectile)
@@ -72,48 +77,6 @@ namespace Gridlock.Core
             TriggerShake(0.05f, 0.08f);
         }
 
-        private void OnSubProjectileRequested(ModProjectile parent, SpawnRequest request)
-        {
-            var sub = new ModProjectile();
-            var pipeline = request.Pipeline?.Clone() ?? parent.Context.OwnerPipeline?.Clone();
-            if (pipeline == null) return;
-
-            var ctx = parent.Context.CloneForSub(request.DamageScale);
-            sub.Initialize(pipeline, ctx, request.Target!, request.Origin);
-
-            if (!sub.IsDestroyed)
-            {
-                if (request.Direction != Vector3.Zero)
-                    sub.OverrideDirection(request.Direction);
-
-                _projectileSpawnBuffer.Add(sub);
-            }
-        }
-
-        private void DrainProjectileSpawnBuffer()
-        {
-            foreach (var proj in _projectileSpawnBuffer)
-            {
-                _projectiles.Add(proj);
-                proj.OnDestroyed += OnProjectileDestroyed;
-                proj.OnSpawnRequested += OnSubProjectileRequested;
-
-                var tags = proj.Context.Tags;
-                var trailColor = GetProjectileColor(tags);
-                float subScale = 0.15f + Math.Clamp(proj.Context.Damage / 40f, 0f, 1f) * 0.2f;
-                float subTrailWidth = subScale * 0.5f;
-                var subStartColor = new Color(
-                    (byte)(trailColor.R + (255 - trailColor.R) / 2),
-                    (byte)(trailColor.G + (255 - trailColor.G) / 2),
-                    (byte)(trailColor.B + (255 - trailColor.B) / 2),
-                    (byte)200);
-                var subEndColor = new Color((byte)(trailColor.R / 4), (byte)(trailColor.G / 4), (byte)(trailColor.B / 4), (byte)0);
-                int trailId = _trails.CreateTrail(0.25f, subTrailWidth, subStartColor, subEndColor, trailColor);
-                _projectileTrails[proj.GetHashCode()] = trailId;
-            }
-            _projectileSpawnBuffer.Clear();
-        }
-
         private void CleanupDestroyedProjectiles()
         {
             _projectileRemovalBuffer.Clear();
@@ -126,7 +89,6 @@ namespace Gridlock.Core
             {
                 _projectiles.Remove(proj);
                 proj.OnDestroyed -= OnProjectileDestroyed;
-                proj.OnSpawnRequested -= OnSubProjectileRequested;
             }
         }
 

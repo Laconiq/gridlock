@@ -103,7 +103,6 @@ namespace Gridlock.Core
         private void ResetGame()
         {
             _projectiles.Clear();
-            _projectileSpawnBuffer.Clear();
             _projectileTrails.Clear();
             _trails.Clear();
             _particles.Clear();
