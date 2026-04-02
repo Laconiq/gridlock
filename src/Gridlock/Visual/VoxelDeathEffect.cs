@@ -34,27 +34,6 @@ namespace Gridlock.Visual
             _shedIndex = 0;
         }
 
-        public void OnHit(Vector3 pos, float damage, float maxHP, Color color)
-        {
-            var pool = VoxelPool.Instance;
-            if (pool == null || _precomputed.Length == 0) return;
-
-            float ratio = Math.Clamp(damage / maxHP, 0f, 1f);
-            int count = 1 + (int)(ratio * 2f);
-
-            for (int i = 0; i < count && _shedIndex < _precomputed.Length; i++)
-            {
-                var offset = _precomputed[_shedIndex++];
-                var spawnPos = pos + offset;
-                var velocity = new Vector3(
-                    (Random.Shared.NextSingle() * 2f - 1f) * 2f,
-                    2f + Random.Shared.NextSingle() * 2f,
-                    (Random.Shared.NextSingle() * 2f - 1f) * 2f
-                );
-                pool.Spawn(spawnPos, velocity, VoxelSize, color, 0f);
-            }
-        }
-
         public void OnDeath(Vector3 pos, Color color)
         {
             var pool = VoxelPool.Instance;

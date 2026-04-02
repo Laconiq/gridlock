@@ -116,12 +116,6 @@ namespace Gridlock.Grid
             OnCellChanged?.Invoke(x, y, type);
         }
 
-        public CellType GetCellAt(Vector3 worldPos)
-        {
-            var grid = WorldToGrid(worldPos);
-            return GetRuntimeCell(grid.X, grid.Y);
-        }
-
         public Vector3[]? GetRoute(int routeId)
         {
             return _worldRoutes.TryGetValue(routeId, out var route) ? route : null;
@@ -147,32 +141,5 @@ namespace Gridlock.Grid
             return nearest;
         }
 
-        public float GetDistanceToRoute(int routeId, Vector3 position)
-        {
-            if (!_worldRoutes.TryGetValue(routeId, out var route) || route.Length == 0)
-                return float.MaxValue;
-
-            float minDist = float.MaxValue;
-
-            for (int i = 0; i < route.Length - 1; i++)
-            {
-                float dist = DistanceToSegment(position, route[i], route[i + 1]);
-                if (dist < minDist)
-                    minDist = dist;
-            }
-
-            return minDist;
-        }
-
-        private static float DistanceToSegment(Vector3 point, Vector3 a, Vector3 b)
-        {
-            var ab = b - a;
-            var ap = point - a;
-            float denom = Vector3.Dot(ab, ab);
-            if (denom < 0.0001f) return Vector3.Distance(point, a);
-            float t = Math.Clamp(Vector3.Dot(ap, ab) / denom, 0f, 1f);
-            var closest = a + ab * t;
-            return Vector3.Distance(point, closest);
-        }
     }
 }

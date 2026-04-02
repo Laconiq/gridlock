@@ -34,7 +34,6 @@ namespace Gridlock.Enemies
         StatusEffectManager? ITargetable.StatusEffects => StatusEffects;
 
         public event Action<Enemy>? OnReachedObjective;
-        public event Action<Enemy>? OnRemoved;
 
         public Enemy(EnemyData data, Vector3 spawnPos)
         {
@@ -64,10 +63,7 @@ namespace Gridlock.Enemies
             StatusEffects.Update(dt);
 
             if (Health.PendingRemoval)
-            {
-                OnRemoved?.Invoke(this);
                 return;
-            }
 
             if (!IsAlive) return;
 
@@ -172,9 +168,6 @@ namespace Gridlock.Enemies
             StatusEffects.Reset();
 
             OnReachedObjective = null;
-            OnRemoved = null;
         }
-
-        public static void ResetIdCounter() => _nextId = 0;
     }
 }

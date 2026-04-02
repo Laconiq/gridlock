@@ -18,7 +18,6 @@ namespace Gridlock.Enemies
         public float LastHitTime { get; private set; } = -1f;
 
         public event Action? OnDeath;
-        public event Action<float>? CurrentHPChanged;
 
         public EnemyHealth(float maxHP, float deathAnimDuration = 2f)
         {
@@ -30,12 +29,6 @@ namespace Gridlock.Enemies
         public void SetStatusEffects(StatusEffectManager statusEffects)
         {
             _statusEffects = statusEffects;
-        }
-
-        public void SetMaxHP(float maxHP)
-        {
-            MaxHP = maxHP;
-            _currentHP = maxHP;
         }
 
         public void TakeDamage(DamageInfo damage)
@@ -50,7 +43,6 @@ namespace Gridlock.Enemies
             if (_currentHP < previous)
             {
                 LastHitTime = (float)Raylib_cs.Raylib.GetTime();
-                CurrentHPChanged?.Invoke(previous - _currentHP);
             }
 
             if (_currentHP <= 0f)
@@ -85,7 +77,6 @@ namespace Gridlock.Enemies
             _deathTimer = 0f;
             LastHitTime = -1f;
             OnDeath = null;
-            CurrentHPChanged = null;
         }
     }
 }

@@ -85,33 +85,7 @@ namespace Gridlock.Core
 
         public void StartBenchmark()
         {
-            var def = _gridManager.Definition;
-            int placed = 0;
-
-            for (int y = 0; y < def.Height && placed < 4; y++)
-                for (int x = 0; x < def.Width && placed < 4; x++)
-                {
-                    var cell = _gridManager.GetRuntimeCell(x, y);
-                    if (cell != CellType.Empty && cell != CellType.TowerSlot) continue;
-
-                    bool nearPath = false;
-                    for (int dy = -1; dy <= 1 && !nearPath; dy++)
-                        for (int dx = -1; dx <= 1 && !nearPath; dx++)
-                        {
-                            int nx = x + dx, ny = y + dy;
-                            if (nx >= 0 && nx < def.Width && ny >= 0 && ny < def.Height
-                                && _gridManager.GetRuntimeCell(nx, ny) == CellType.Path)
-                                nearPath = true;
-                        }
-
-                    if (!nearPath) continue;
-                    var worldPos = _gridManager.GridToWorld(new Vector2Int(x, y));
-                    if (_towerPlacement.TryPlace(worldPos, isOverUI: false) != null)
-                        placed++;
-                }
-
-            _gameManager.SetState(GameState.Wave);
-            _gameStats.SetWave(1);
+            BenchmarkRunner.Setup(_gridManager, _towerPlacement, _gameManager, _gameStats);
         }
 
         public void Initialize()
@@ -458,7 +432,6 @@ namespace Gridlock.Core
 
         private static ModSlotPreset DefaultPreset() => new()
         {
-            PresetName = "Default",
             TargetingMode = TargetingMode.First,
             Slots = new List<ModType> { ModType.Heavy, ModType.Swift }
         };

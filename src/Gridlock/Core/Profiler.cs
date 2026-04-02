@@ -176,17 +176,6 @@ namespace Gridlock.Core
             _csvWriter = null;
         }
 
-        public void Reset()
-        {
-            _sections.Clear();
-            _sectionOrder.Clear();
-            _history.Clear();
-            _currentFrame.Clear();
-            _frameCount = 0;
-            _activeSection = null;
-            _csvHeaderWritten = false;
-        }
-
         private static double Percentile(List<double> sorted, double p)
         {
             if (sorted.Count == 0) return 0;

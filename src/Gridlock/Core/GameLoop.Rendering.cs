@@ -238,48 +238,6 @@ namespace Gridlock.Core
             }
         }
 
-        private void DrawWireframeCube(Vector3 position, float sx, float sy, float sz,
-            Color color, float emission, float edgeWidth)
-        {
-            float[] colorVec = { color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f };
-            Raylib.SetShaderValue(_outlineShader, _locLineColor, colorVec, ShaderUniformDataType.Vec4);
-            Raylib.SetShaderValue(_outlineShader, _locEmissionIntensity, emission, ShaderUniformDataType.Float);
-            Raylib.SetShaderValue(_outlineShader, _locEdgeWidth, edgeWidth, ShaderUniformDataType.Float);
-
-            var transform = Matrix4x4.CreateScale(sx, sy, sz)
-                * Matrix4x4.CreateTranslation(position);
-            Raylib.DrawMesh(WireframeMeshes.Cube, _outlineMaterial, transform);
-        }
-
-        private void DrawWireframeOctahedron(Vector3 position, float radiusH, float radiusV,
-            float angleY, Color color, float emission, float edgeWidth)
-        {
-            float[] colorVec = { color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f };
-            Raylib.SetShaderValue(_outlineShader, _locLineColor, colorVec, ShaderUniformDataType.Vec4);
-            Raylib.SetShaderValue(_outlineShader, _locEmissionIntensity, emission, ShaderUniformDataType.Float);
-            Raylib.SetShaderValue(_outlineShader, _locEdgeWidth, edgeWidth, ShaderUniformDataType.Float);
-
-            float scaleH = radiusH / 0.5f;
-            float scaleV = radiusV / 1.0f;
-            var transform = Matrix4x4.CreateScale(scaleH, scaleV, scaleH)
-                * Matrix4x4.CreateRotationY(angleY)
-                * Matrix4x4.CreateTranslation(position);
-            Raylib.DrawMesh(WireframeMeshes.Octahedron, _outlineMaterial, transform);
-        }
-
-        private void DrawWireframePyramid(Vector3 position, float scale,
-            Color color, float emission, float edgeWidth)
-        {
-            float[] colorVec = { color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f };
-            Raylib.SetShaderValue(_outlineShader, _locLineColor, colorVec, ShaderUniformDataType.Vec4);
-            Raylib.SetShaderValue(_outlineShader, _locEmissionIntensity, emission, ShaderUniformDataType.Float);
-            Raylib.SetShaderValue(_outlineShader, _locEdgeWidth, edgeWidth, ShaderUniformDataType.Float);
-
-            var transform = Matrix4x4.CreateScale(scale)
-                * Matrix4x4.CreateTranslation(position);
-            Raylib.DrawMesh(WireframeMeshes.Cone, _outlineMaterial, transform);
-        }
-
         private void DrawEnemies()
         {
             float time = (float)Raylib.GetTime();

@@ -50,6 +50,5 @@ namespace Gridlock.Mods
             return null;
         }
 
-        public static SynergyDef[] All => _synergies;
     }
 }

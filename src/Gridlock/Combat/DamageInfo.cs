@@ -16,7 +16,6 @@ namespace Gridlock.Combat
     {
         Direct,
         Projectile,
-        Hitscan,
         DamageOverTime
     }
 }

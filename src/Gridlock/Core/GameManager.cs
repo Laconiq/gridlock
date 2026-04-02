@@ -26,23 +26,10 @@ namespace Gridlock.Core
             OnStateChanged?.Invoke(previous, newState);
         }
 
-        public void RequestResetGame()
-        {
-            if (_currentState != GameState.GameOver)
-            {
-                Console.WriteLine("[GameManager] Reset rejected: game is not in GameOver state");
-                return;
-            }
-            ResetGame();
-        }
-
-        public event Action? OnResetGame;
-
         public void ResetGame()
         {
             GameStats.Instance?.Reset();
             Enemies.EnemyRegistry.Clear();
-            OnResetGame?.Invoke();
             SetState(GameState.Preparing);
         }
 

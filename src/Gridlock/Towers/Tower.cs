@@ -27,6 +27,5 @@ namespace Gridlock.Towers
             Executor.Update(dt);
         }
 
-        public static void ResetIdCounter() => _nextId = 0;
     }
 }

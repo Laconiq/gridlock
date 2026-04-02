@@ -48,8 +48,6 @@ namespace Gridlock.Loot
             return _owned.TryGetValue(type, out int count) ? count : 0;
         }
 
-        public int GetCount(ModType type) => GetOwned(type);
-
         public int GetAllocated(ModType type, Tower? excludeTower = null,
             IReadOnlyList<ModSlotData>? overrideSlots = null)
         {
