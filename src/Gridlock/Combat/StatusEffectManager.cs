@@ -75,6 +75,14 @@ namespace Gridlock.Combat
             if (changed) RecalculateModifiers();
         }
 
+        public void Reset()
+        {
+            _activeEffects.Clear();
+            SpeedMultiplier = 1f;
+            DamageMultiplier = 1f;
+            VulnerabilityMultiplier = 1f;
+        }
+
         private void RecalculateModifiers()
         {
             SpeedMultiplier = 1f;

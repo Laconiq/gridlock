@@ -31,12 +31,12 @@ src/Gridlock/           — Main C# source
     GameLoop.Rendering.cs— All 3D rendering (towers, enemies, projectiles, pickups, grid, HUD)
   Grid/                 — Grid system (port of Unity GridManager/GridVisual/GridWarp)
   Camera/               — Isometric camera
-  Combat/               — Damage, projectiles
-  Enemies/              — Enemy system
+  Combat/               — Damage, projectiles, SpatialHash for collision queries
+  Enemies/              — Enemy system, EnemyPool for object recycling
   Towers/               — Tower chassis, placement
   Mods/                 — Mod slot pipeline
   Visual/               — Juice, effects, warp followers
-  Rendering/            — Render pipeline, shaders, bloom
+  Rendering/            — Render pipeline, shaders, bloom, LineBatch (batched rlgl line renderer)
   UI/                   — ImGui-based UI
   Input/                — Input handling
   Loot/                 — Pickup system
@@ -89,6 +89,17 @@ Output files (gitignored):
 - **No superfluous comments.** Only comment to explain *why* something non-obvious is done. Remove comments that restate what the code does.
 - **All gameplay values tunable** — expose as fields/config, no magic numbers.
 - **Data-driven** — enemy definitions, level layouts, wave configs loaded from JSON in `resources/data/`.
+
+## Performance Patterns
+
+The rendering and combat systems use several low-level patterns for performance:
+
+- **LineBatch** (`Rendering/LineBatch.cs`) — Batched line renderer using `Rlgl` directly. Accumulates line segments (position + color) and flushes them in a single `Rlgl.Begin(GL_LINES)` / `Rlgl.End()` call. Used by `DrawTowers()` and `DrawEnemies()` instead of individual `Raylib.DrawLine3D` / `DrawCubeWires` calls. Includes geometry helpers: `CubeWires`, `OctahedronWires`, `PyramidWires`, `PyramidThick`.
+- **SpatialHash** (`Combat/SpatialHash.cs`) — Grid-based spatial hashing for projectile-enemy collision. Rebuilt each `FixedUpdate` via `EnemyRegistry.RebuildSpatial()`. Cell lists are pooled to avoid per-frame allocations. `ModProjectile.SweepCollision()` queries the hash instead of iterating all enemies.
+- **EnemyPool** (`Enemies/EnemyPool.cs`) — Object pool for `Enemy` instances. `Enemy.Reset()` recycles an enemy with a new `EntityId`, fresh health, and cleared events/status effects. Eliminates GC pressure from spawn/death cycles.
+- **Projectile draw cache** — `DrawProjectiles()` iterates once, caching position/color/radius in a `ProjectileDrawData[]` array, then replays the cache for the additive glow pass.
+
+When adding new rendered entities, prefer `LineBatch` over individual `Raylib.DrawLine3D` calls. When adding new collision participants, integrate with `SpatialHash`.
 
 ## Porting Reference
 

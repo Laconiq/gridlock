@@ -116,19 +116,24 @@ namespace Gridlock.Mods
             SweepCollision();
         }
 
+        [ThreadStatic] private static List<Enemy>? _sweepBuffer;
+
         private void SweepCollision()
         {
             float r = HitRadius;
             Vector3 pos = _ctx.Position;
             Vector3 nextPos = pos + _ctx.Direction * (_ctx.Speed * _ctx.DeltaTime);
 
+            _sweepBuffer ??= new List<Enemy>(32);
+            _sweepBuffer.Clear();
+            EnemyRegistry.Spatial.QuerySegment(pos, nextPos, r, _sweepBuffer);
+
             Enemy? bestEnemy = null;
             float bestDist = float.MaxValue;
 
-            var entries = EnemyRegistry.All;
-            for (int i = 0; i < entries.Count; i++)
+            for (int i = 0; i < _sweepBuffer.Count; i++)
             {
-                var enemy = entries[i];
+                var enemy = _sweepBuffer[i];
                 if (!enemy.IsAlive) continue;
                 if (_ctx.HitInstances.Contains(enemy.EntityId)) continue;
 

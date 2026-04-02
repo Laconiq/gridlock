@@ -17,7 +17,7 @@ namespace Gridlock.Enemies
         private bool _followingRoute;
         private bool _reachedObjective;
 
-        public int EntityId { get; }
+        public int EntityId { get; private set; }
         public Vector3 Position { get; set; }
         public bool IsAlive => Health.IsAlive;
         public EnemyHealth Health { get; }
@@ -25,7 +25,8 @@ namespace Gridlock.Enemies
         public float MoveSpeed => _moveSpeed;
         public float NormalizedSpeed { get; private set; }
         public int RouteIndex => _routeIndex;
-        public EnemyData Data { get; }
+        private EnemyData _data;
+        public EnemyData Data => _data;
 
         public IDamageable Damageable => Health;
         public float CurrentHP => Health.CurrentHP;
@@ -38,7 +39,7 @@ namespace Gridlock.Enemies
         public Enemy(EnemyData data, Vector3 spawnPos)
         {
             EntityId = _nextId++;
-            Data = data;
+            _data = data;
             _moveSpeed = data.MoveSpeed;
             _objectiveDamage = data.ObjectiveDamage;
 
@@ -148,6 +149,30 @@ namespace Gridlock.Enemies
 
                 return baseProg;
             }
+        }
+
+        public void Reset(EnemyData data, Vector3 spawnPos)
+        {
+            EntityId = _nextId++;
+            _data = data;
+            _moveSpeed = data.MoveSpeed;
+            _objectiveDamage = data.ObjectiveDamage;
+
+            spawnPos.Y = _floatY;
+            Position = spawnPos;
+
+            _route = null;
+            _routeIndex = 0;
+            _followingRoute = false;
+            _reachedObjective = false;
+            NormalizedSpeed = 0f;
+
+            Health.Reset(data.MaxHP);
+            Health.SetStatusEffects(StatusEffects);
+            StatusEffects.Reset();
+
+            OnReachedObjective = null;
+            OnRemoved = null;
         }
 
         public static void ResetIdCounter() => _nextId = 0;

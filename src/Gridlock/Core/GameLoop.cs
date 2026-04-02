@@ -52,6 +52,7 @@ namespace Gridlock.Core
 
         private VoxelPool _voxelPool = null!;
         private ImpactFlash _impactFlash = null!;
+        private readonly LineBatch _lineBatch = new();
 
         private readonly Dictionary<int, float> _towerSpinAngles = new();
         private readonly Dictionary<int, float> _towerBobPhases = new();
@@ -351,6 +352,10 @@ namespace Gridlock.Core
 
             prof.Begin("  EnemyUpdate");
             _enemySpawner.Update(dt);
+            prof.End();
+
+            prof.Begin("  SpatialHash");
+            EnemyRegistry.RebuildSpatial();
             prof.End();
 
             prof.Begin("  Projectiles");

@@ -13,6 +13,7 @@ namespace Gridlock.Enemies
         public event Action<Vector3>? OnEnemyKilled;
 
         private readonly GridManager _gridManager;
+        private readonly EnemyPool _pool = new();
         private int _nextSpawnIndex;
 
         private readonly List<Enemy> _activeEnemies = new();
@@ -109,7 +110,7 @@ namespace Gridlock.Enemies
             var pos = GetSpawnPosition();
             pos.Y = 0.5f;
 
-            var enemy = new Enemy(definition, pos);
+            var enemy = _pool.Rent(definition, pos);
 
             var route = _gridManager.GetRoute(0);
             if (route != null)
@@ -168,13 +169,17 @@ namespace Gridlock.Enemies
             {
                 _activeEnemies.Remove(enemy);
                 EnemyRegistry.Unregister(enemy);
+                _pool.Return(enemy);
             }
         }
 
         public void Clear()
         {
             foreach (var enemy in _activeEnemies)
+            {
                 EnemyRegistry.Unregister(enemy);
+                _pool.Return(enemy);
+            }
 
             _activeEnemies.Clear();
             _spawning = false;

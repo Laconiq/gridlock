@@ -77,5 +77,16 @@ namespace Gridlock.Enemies
             if (_dying)
                 _deathTimer -= dt;
         }
+
+        public void Reset(float maxHP)
+        {
+            MaxHP = maxHP;
+            _currentHP = maxHP;
+            _dying = false;
+            _deathTimer = 0f;
+            LastHitTime = -1f;
+            OnDeath = null;
+            CurrentHPChanged = null;
+        }
     }
 }

@@ -5,6 +5,7 @@ using Gridlock.Grid;
 using Gridlock.Loot;
 using Gridlock.Mods;
 using Gridlock.Mods.Pipeline;
+using Gridlock.Rendering;
 using Gridlock.Visual;
 using Gridlock.UI;
 using Raylib_cs;
@@ -116,7 +117,10 @@ namespace Gridlock.Core
         {
             float time = (float)Raylib.GetTime();
             float dt = Raylib.GetFrameTime();
+            var lb = _lineBatch;
 
+            // Solid pass — all towers batched
+            lb.Begin();
             foreach (var tower in _towerPlacement.PlacedTowers)
             {
                 int id = tower.EntityId;
@@ -154,62 +158,83 @@ namespace Gridlock.Core
 
                 float spin = _towerSpinAngles[id] * MathF.PI / 180f;
 
-                if (_outlineShaderLoaded)
+                lb.CubeWires(pos, 1.6f, 1.0f, 1.6f, baseWireColor);
+                lb.CubeWires(pos, 1.58f, 0.98f, 1.58f, baseWireColor);
+                lb.CubeWires(pos, 1.62f, 1.02f, 1.62f, baseWireColor);
+
+                lb.OctahedronWires(turretPos, 0.35f, 0.63f, spin, turretColor);
+                lb.OctahedronWires(turretPos, 0.34f, 0.62f, spin, turretColor);
+                lb.OctahedronWires(turretPos, 0.36f, 0.64f, spin, turretColor);
+            }
+            lb.Flush();
+
+            // Additive glow pass — all towers batched
+            Raylib.BeginBlendMode(BlendMode.Additive);
+            lb.Begin();
+            foreach (var tower in _towerPlacement.PlacedTowers)
+            {
+                int id = tower.EntityId;
+                float warpY = _warpManager.Initialized
+                    ? _warpManager.GetWarpOffset(tower.Position.X, tower.Position.Z)
+                    : 0f;
+
+                var pos = new Vector3(tower.Position.X, 0.5f + warpY, tower.Position.Z);
+                bool selected = _selectedTower == tower;
+                bool hovered = _hoveredTower == tower && !selected;
+
+                var baseWireColor = selected
+                    ? new Color((byte)0, (byte)255, (byte)200, (byte)255)
+                    : hovered
+                        ? new Color((byte)0, (byte)230, (byte)255, (byte)240)
+                        : new Color((byte)0, (byte)180, (byte)255, (byte)200);
+
+                lb.CubeWires(pos, 1.75f, 1.15f, 1.75f,
+                    new Color(baseWireColor.R, baseWireColor.G, baseWireColor.B, (byte)50));
+
+                float bobPhase = _towerBobPhases.GetValueOrDefault(id, 0f);
+                float bob = MathF.Sin(time * 2f + bobPhase) * 0.06f;
+                var turretPos = new Vector3(tower.Position.X, 1.2f + warpY + bob, tower.Position.Z);
+
+                var turretColor = selected
+                    ? new Color((byte)0, (byte)255, (byte)200, (byte)255)
+                    : hovered
+                        ? new Color((byte)0, (byte)245, (byte)255, (byte)245)
+                        : new Color((byte)0, (byte)220, (byte)255, (byte)220);
+
+                float spin = (_towerSpinAngles.GetValueOrDefault(id, 0f)) * MathF.PI / 180f;
+
+                lb.OctahedronWires(turretPos, 0.45f, 0.78f, spin,
+                    new Color(turretColor.R, turretColor.G, turretColor.B, (byte)45));
+                lb.OctahedronWires(turretPos, 0.12f, 0.12f, spin,
+                    new Color(turretColor.R, turretColor.G, turretColor.B, (byte)30));
+            }
+            lb.Flush();
+            Raylib.EndBlendMode();
+
+            // Range indicator for selected/hovered tower
+            if ((_selectedTower != null || _hoveredTower != null) && _gameManager.CurrentState == GameState.Preparing)
+            {
+                var tower = _selectedTower ?? _hoveredTower!;
+                float warpY = _warpManager.Initialized
+                    ? _warpManager.GetWarpOffset(tower.Position.X, tower.Position.Z)
+                    : 0f;
+                var pos = new Vector3(tower.Position.X, 0.5f + warpY, tower.Position.Z);
+                float range = tower.Data.BaseRange;
+                var rangeColor = new Color(0, 255, 200, 50);
+
+                Raylib.BeginBlendMode(BlendMode.Additive);
+                lb.Begin();
+                const int segments = 64;
+                for (int i = 0; i < segments; i++)
                 {
-                    DrawWireframeCube(pos, 1.6f, 1.0f, 1.6f, baseWireColor, 3.0f, 1.5f);
-
-                    Raylib.BeginBlendMode(BlendMode.Additive);
-                    DrawWireframeCube(pos, 1.75f, 1.15f, 1.75f,
-                        new Color(baseWireColor.R, baseWireColor.G, baseWireColor.B, (byte)50), 2.0f, 2.5f);
-                    Raylib.EndBlendMode();
-
-                    DrawWireframeOctahedron(turretPos, 0.35f, 0.63f, spin, turretColor, 3.0f, 1.5f);
-
-                    Raylib.BeginBlendMode(BlendMode.Additive);
-                    DrawWireframeOctahedron(turretPos, 0.45f, 0.78f, spin,
-                        new Color(turretColor.R, turretColor.G, turretColor.B, (byte)45), 2.0f, 2.5f);
-                    Raylib.DrawSphere(turretPos, 0.12f,
-                        new Color(turretColor.R, turretColor.G, turretColor.B, (byte)30));
-                    Raylib.EndBlendMode();
+                    float a1 = (float)i / segments * MathF.Tau;
+                    float a2 = (float)(i + 1) / segments * MathF.Tau;
+                    var p1 = new Vector3(pos.X + MathF.Cos(a1) * range, 0.02f, pos.Z + MathF.Sin(a1) * range);
+                    var p2 = new Vector3(pos.X + MathF.Cos(a2) * range, 0.02f, pos.Z + MathF.Sin(a2) * range);
+                    lb.Line(p1, p2, rangeColor);
                 }
-                else
-                {
-                    Raylib.DrawCubeWires(pos, 1.6f, 1.0f, 1.6f, baseWireColor);
-                    Raylib.DrawCubeWires(pos, 1.58f, 0.98f, 1.58f, baseWireColor);
-                    Raylib.DrawCubeWires(pos, 1.62f, 1.02f, 1.62f, baseWireColor);
-
-                    Raylib.BeginBlendMode(BlendMode.Additive);
-                    Raylib.DrawCubeWires(pos, 1.75f, 1.15f, 1.75f,
-                        new Color(baseWireColor.R, baseWireColor.G, baseWireColor.B, (byte)50));
-                    Raylib.EndBlendMode();
-
-                    DrawOctahedronWiresRotated(turretPos, 0.35f, 0.63f, spin, turretColor);
-                    DrawOctahedronWiresRotated(turretPos, 0.34f, 0.62f, spin, turretColor);
-                    DrawOctahedronWiresRotated(turretPos, 0.36f, 0.64f, spin, turretColor);
-
-                    Raylib.BeginBlendMode(BlendMode.Additive);
-                    DrawOctahedronWiresRotated(turretPos, 0.45f, 0.78f, spin,
-                        new Color(turretColor.R, turretColor.G, turretColor.B, (byte)45));
-                    Raylib.DrawSphere(turretPos, 0.12f,
-                        new Color(turretColor.R, turretColor.G, turretColor.B, (byte)30));
-                    Raylib.EndBlendMode();
-                }
-
-                if ((selected || hovered) && _gameManager.CurrentState == GameState.Preparing)
-                {
-                    int segments = 64;
-                    float range = tower.Data.BaseRange;
-                    Raylib.BeginBlendMode(BlendMode.Additive);
-                    for (int i = 0; i < segments; i++)
-                    {
-                        float a1 = (float)i / segments * MathF.Tau;
-                        float a2 = (float)(i + 1) / segments * MathF.Tau;
-                        var p1 = new Vector3(pos.X + MathF.Cos(a1) * range, 0.02f, pos.Z + MathF.Sin(a1) * range);
-                        var p2 = new Vector3(pos.X + MathF.Cos(a2) * range, 0.02f, pos.Z + MathF.Sin(a2) * range);
-                        Raylib.DrawLine3D(p1, p2, new Color(0, 255, 200, 50));
-                    }
-                    Raylib.EndBlendMode();
-                }
+                lb.Flush();
+                Raylib.EndBlendMode();
             }
         }
 
@@ -258,7 +283,10 @@ namespace Gridlock.Core
         private void DrawEnemies()
         {
             float time = (float)Raylib.GetTime();
+            var lb = _lineBatch;
 
+            // Solid pass — pyramids + health bars
+            lb.Begin();
             foreach (var enemy in _enemySpawner.ActiveEnemies)
             {
                 if (!enemy.IsAlive) continue;
@@ -278,18 +306,15 @@ namespace Gridlock.Core
                     float t = hitElapsed / 0.1f;
                     byte lr = (byte)(255 + (baseColor.R - 255) * t);
                     byte lg = (byte)(255 + (baseColor.G - 255) * t);
-                    byte lb = (byte)(255 + (baseColor.B - 255) * t);
-                    color = new Color(lr, lg, lb, (byte)255);
+                    byte lbl = (byte)(255 + (baseColor.B - 255) * t);
+                    color = new Color(lr, lg, lbl, (byte)255);
                 }
                 else
                 {
                     color = new Color(baseColor.R, baseColor.G, baseColor.B, (byte)255);
                 }
 
-                NeonWireframe.PyramidThick(pos, scale, color);
-
-                float glowPulse = 0.85f + 0.15f * MathF.Sin(time * 4f + enemy.EntityId * 1.7f);
-                NeonWireframe.PyramidGlow(pos, scale * 1.15f * glowPulse, baseColor, 40);
+                lb.PyramidThick(pos, scale, color);
 
                 float hpPct = enemy.Health.CurrentHP / enemy.Health.MaxHP;
                 float barWidth = scale * 1.2f;
@@ -297,18 +322,47 @@ namespace Gridlock.Core
                 var barEnd = new Vector3(barPos.X + barWidth, barPos.Y, barPos.Z);
                 var barFilled = new Vector3(barPos.X + barWidth * hpPct, barPos.Y, barPos.Z);
 
-                Raylib.DrawLine3D(barPos, barEnd, new Color(60, 0, 0, 200));
-                Raylib.DrawLine3D(barPos, barFilled, new Color(255, 50, 50, 255));
+                lb.Line(barPos, barEnd, new Color(60, 0, 0, 200));
+                lb.Line(barPos, barFilled, new Color(255, 50, 50, 255));
             }
+            lb.Flush();
 
+            // Additive glow pass
+            Raylib.BeginBlendMode(BlendMode.Additive);
+            lb.Begin();
+            foreach (var enemy in _enemySpawner.ActiveEnemies)
+            {
+                if (!enemy.IsAlive) continue;
+
+                float warpY = _warpManager.Initialized
+                    ? _warpManager.GetWarpOffset(enemy.Position.X, enemy.Position.Z)
+                    : 0f;
+
+                var pos = new Vector3(enemy.Position.X, enemy.Position.Y + warpY, enemy.Position.Z);
+                float scale = enemy.Data.Scale.X;
+                var baseColor = UintToColor(enemy.Data.Color);
+
+                float glowPulse = 0.85f + 0.15f * MathF.Sin(time * 4f + enemy.EntityId * 1.7f);
+                lb.PyramidWires(pos, scale * 1.15f * glowPulse,
+                    new Color(baseColor.R, baseColor.G, baseColor.B, (byte)40));
+            }
+            lb.Flush();
+            Raylib.EndBlendMode();
         }
 
         private void DrawProjectiles()
         {
             float time = (float)Raylib.GetTime();
+            int count = _projectiles.Count;
 
-            foreach (var proj in _projectiles)
+            // Single iteration: draw solid spheres, cache data for glow pass
+            if (count > _projDrawCache.Length)
+                _projDrawCache = new ProjectileDrawData[count * 2];
+            int cached = 0;
+
+            for (int i = 0; i < count; i++)
             {
+                var proj = _projectiles[i];
                 if (proj.IsDestroyed) continue;
 
                 float warpY = _warpManager.Initialized
@@ -328,36 +382,29 @@ namespace Gridlock.Core
                 float r = radius * pulse;
 
                 WireframeMeshes.DrawSphere(pos, r, color);
+
+                _projDrawCache[cached++] = new ProjectileDrawData { Position = pos, Color = color, Radius = r };
             }
 
             Raylib.BeginBlendMode(BlendMode.Additive);
-            foreach (var proj in _projectiles)
+            for (int i = 0; i < cached; i++)
             {
-                if (proj.IsDestroyed) continue;
-
-                float warpY = _warpManager.Initialized
-                    ? _warpManager.GetWarpOffset(proj.Position.X, proj.Position.Z)
-                    : 0f;
-
-                var pos = new Vector3(proj.Position.X, proj.Position.Y + warpY, proj.Position.Z);
-                var color = GetProjectileColor(proj.Context.Tags);
-
-                float baseDamage = proj.Context.Damage;
-                float radius = MathF.Max(0.08f, MathF.Min(0.25f, 0.1f + baseDamage / 40f * 0.15f));
-
-                bool hasElement = proj.Context.Tags != ModTags.None;
-                float pulse = hasElement
-                    ? 0.9f + 0.1f * MathF.Sin(time * 6f + proj.GetHashCode() * 0.3f)
-                    : 1f;
-                float r = radius * pulse;
-
-                WireframeMeshes.DrawSphere(pos, r * 1.4f,
-                    new Color(color.R, color.G, color.B, (byte)25));
-                WireframeMeshes.DrawSphere(pos, r * 2.0f,
-                    new Color(color.R, color.G, color.B, (byte)10));
+                ref var d = ref _projDrawCache[i];
+                WireframeMeshes.DrawSphere(d.Position, d.Radius * 1.4f,
+                    new Color(d.Color.R, d.Color.G, d.Color.B, (byte)25));
+                WireframeMeshes.DrawSphere(d.Position, d.Radius * 2.0f,
+                    new Color(d.Color.R, d.Color.G, d.Color.B, (byte)10));
             }
             Raylib.EndBlendMode();
         }
+
+        private struct ProjectileDrawData
+        {
+            public Vector3 Position;
+            public Color Color;
+            public float Radius;
+        }
+        private ProjectileDrawData[] _projDrawCache = new ProjectileDrawData[64];
 
         private void DrawPickups()
         {
