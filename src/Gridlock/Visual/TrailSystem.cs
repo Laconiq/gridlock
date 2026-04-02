@@ -175,7 +175,7 @@ namespace Gridlock.Visual
                     byte alpha = (byte)(200f * midFade);
                     if (alpha < 2) continue;
 
-                    Raylib.DrawLine3D(a.Position, b.Position, new Color(r, g, bVal, alpha));
+                    Rendering.LineBatch.ThickLine3D(a.Position, b.Position, new Color(r, g, bVal, alpha));
                 }
             }
 

@@ -102,14 +102,14 @@ namespace Gridlock.Core
                 float wx = origin.X + x * def.CellSize;
                 var a = new Vector3(wx, 0f, origin.Z);
                 var b = new Vector3(wx, 0f, origin.Z + totalH);
-                Raylib.DrawLine3D(a, b, new Color(60, 60, 60, 80));
+                LineBatch.ThickLine3D(a, b, new Color(60, 60, 60, 80));
             }
             for (int y = 0; y <= def.Height; y++)
             {
                 float wz = origin.Z + y * def.CellSize;
                 var a = new Vector3(origin.X, 0f, wz);
                 var b = new Vector3(origin.X + totalW, 0f, wz);
-                Raylib.DrawLine3D(a, b, new Color(60, 60, 60, 80));
+                LineBatch.ThickLine3D(a, b, new Color(60, 60, 60, 80));
             }
         }
 
@@ -475,18 +475,18 @@ namespace Gridlock.Core
             var front = center + new Vector3(-radiusH * sin, 0, radiusH * cos);
             var back = center - new Vector3(-radiusH * sin, 0, radiusH * cos);
 
-            Raylib.DrawLine3D(top, right, color);
-            Raylib.DrawLine3D(top, left, color);
-            Raylib.DrawLine3D(top, front, color);
-            Raylib.DrawLine3D(top, back, color);
-            Raylib.DrawLine3D(bottom, right, color);
-            Raylib.DrawLine3D(bottom, left, color);
-            Raylib.DrawLine3D(bottom, front, color);
-            Raylib.DrawLine3D(bottom, back, color);
-            Raylib.DrawLine3D(right, front, color);
-            Raylib.DrawLine3D(front, left, color);
-            Raylib.DrawLine3D(left, back, color);
-            Raylib.DrawLine3D(back, right, color);
+            LineBatch.ThickLine3D(top, right, color);
+            LineBatch.ThickLine3D(top, left, color);
+            LineBatch.ThickLine3D(top, front, color);
+            LineBatch.ThickLine3D(top, back, color);
+            LineBatch.ThickLine3D(bottom, right, color);
+            LineBatch.ThickLine3D(bottom, left, color);
+            LineBatch.ThickLine3D(bottom, front, color);
+            LineBatch.ThickLine3D(bottom, back, color);
+            LineBatch.ThickLine3D(right, front, color);
+            LineBatch.ThickLine3D(front, left, color);
+            LineBatch.ThickLine3D(left, back, color);
+            LineBatch.ThickLine3D(back, right, color);
         }
 
         private static Color GetProjectileColor(ModTags tags)

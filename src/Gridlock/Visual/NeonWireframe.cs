@@ -18,8 +18,8 @@ namespace Gridlock.Visual
 
             for (int i = 0; i < 4; i++)
             {
-                Raylib.DrawLine3D(baseVerts[i], baseVerts[(i + 1) % 4], color);
-                Raylib.DrawLine3D(baseVerts[i], tip, color);
+                Rendering.LineBatch.ThickLine3D(baseVerts[i], baseVerts[(i + 1) % 4], color);
+                Rendering.LineBatch.ThickLine3D(baseVerts[i], tip, color);
             }
         }
 
@@ -53,9 +53,9 @@ namespace Gridlock.Visual
 
             for (int i = 0; i < 4; i++)
             {
-                Raylib.DrawLine3D(v[i], v[(i + 1) % 4], color);
-                Raylib.DrawLine3D(v[i + 4], v[(i + 1) % 4 + 4], color);
-                Raylib.DrawLine3D(v[i], v[i + 4], color);
+                Rendering.LineBatch.ThickLine3D(v[i], v[(i + 1) % 4], color);
+                Rendering.LineBatch.ThickLine3D(v[i + 4], v[(i + 1) % 4 + 4], color);
+                Rendering.LineBatch.ThickLine3D(v[i], v[i + 4], color);
             }
         }
 
@@ -68,9 +68,9 @@ namespace Gridlock.Visual
 
             for (int i = 0; i < 4; i++)
             {
-                Raylib.DrawLine3D(mid[i], mid[(i + 1) % 4], color);
-                Raylib.DrawLine3D(mid[i], top, color);
-                Raylib.DrawLine3D(mid[i], bot, color);
+                Rendering.LineBatch.ThickLine3D(mid[i], mid[(i + 1) % 4], color);
+                Rendering.LineBatch.ThickLine3D(mid[i], top, color);
+                Rendering.LineBatch.ThickLine3D(mid[i], bot, color);
             }
         }
 

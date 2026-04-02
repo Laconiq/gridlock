@@ -137,7 +137,7 @@ namespace Gridlock.Visual
                     float pulse = MathF.Max(pulseA, pulseB);
 
                     var segColor = BlendPulse(BaseLineColor, _pulsing ? _activePulseColor : PulseColor, pulse);
-                    Raylib.DrawLine3D(points[i], points[i + 1], segColor);
+                    Rendering.LineBatch.ThickLine3D(points[i], points[i + 1], segColor);
 
                     byte glowA = (byte)Math.Clamp(18 + (int)(40 * pulse), 0, 255);
                     _glowLines.Add((points[i], points[i + 1], glowA));
@@ -148,7 +148,7 @@ namespace Gridlock.Visual
             for (int i = 0; i < _glowLines.Count; i++)
             {
                 var (a, b, ga) = _glowLines[i];
-                Raylib.DrawLine3D(a, b, new Color((byte)255, (byte)40, (byte)40, ga));
+                Rendering.LineBatch.ThickLine3D(a, b, new Color((byte)255, (byte)40, (byte)40, ga));
             }
             _glowLines.Clear();
             Raylib.EndBlendMode();

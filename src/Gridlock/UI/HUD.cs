@@ -57,8 +57,8 @@ namespace Gridlock.UI
 
             // Branding
             int brandFont = S(18);
-            Raylib.DrawText("VECTOR_CMD", lx, centerY - brandFont / 2, brandFont, DesignTokens.Primary);
-            lx += Raylib.MeasureText("VECTOR_CMD", brandFont) + S(8);
+            Raylib.DrawText("GRIDLOCK", lx, centerY - brandFont / 2, brandFont, DesignTokens.Primary);
+            lx += Raylib.MeasureText("GRIDLOCK", brandFont) + S(8);
             int smallFont = S(12);
             Raylib.DrawText("v3.0", lx, centerY - smallFont / 2 + S(1), smallFont, DesignTokens.OutlineVariant);
 

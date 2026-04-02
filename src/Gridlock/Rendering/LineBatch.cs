@@ -97,6 +97,28 @@ namespace Gridlock.Rendering
             PyramidWires(center, size * 1.03f, color);
         }
 
+        private const float LineThickness = 0.012f;
+
+        public static void ThickLine3D(Vector3 a, Vector3 b, Color color)
+        {
+            Raylib.DrawLine3D(a, b, color);
+            var dir = b - a;
+            float len = dir.Length();
+            if (len < 0.001f) return;
+            float invLen = 1f / len;
+            float dx = dir.X * invLen;
+            float dz = dir.Z * invLen;
+            float ox = -dz * LineThickness;
+            float oy = LineThickness * 0.7f;
+            float oz = dx * LineThickness;
+            Raylib.DrawLine3D(
+                new Vector3(a.X + ox, a.Y + oy, a.Z + oz),
+                new Vector3(b.X + ox, b.Y + oy, b.Z + oz), color);
+            Raylib.DrawLine3D(
+                new Vector3(a.X - ox, a.Y - oy, a.Z - oz),
+                new Vector3(b.X - ox, b.Y - oy, b.Z - oz), color);
+        }
+
         public void Flush()
         {
             if (_count == 0) return;
@@ -105,13 +127,36 @@ namespace Gridlock.Rendering
             for (int i = 0; i < _count; i++)
             {
                 int vi = i * 2;
-                var c = _colors[vi];
-                Rlgl.Color4ub(c.R, c.G, c.B, c.A);
-                Rlgl.Vertex3f(_positions[vi].X, _positions[vi].Y, _positions[vi].Z);
+                var a = _positions[vi];
+                var b = _positions[vi + 1];
+                var ca = _colors[vi];
+                var cb = _colors[vi + 1];
 
-                c = _colors[vi + 1];
-                Rlgl.Color4ub(c.R, c.G, c.B, c.A);
-                Rlgl.Vertex3f(_positions[vi + 1].X, _positions[vi + 1].Y, _positions[vi + 1].Z);
+                Rlgl.Color4ub(ca.R, ca.G, ca.B, ca.A);
+                Rlgl.Vertex3f(a.X, a.Y, a.Z);
+                Rlgl.Color4ub(cb.R, cb.G, cb.B, cb.A);
+                Rlgl.Vertex3f(b.X, b.Y, b.Z);
+
+                var dir = b - a;
+                float len = dir.Length();
+                if (len < 0.001f) continue;
+
+                float invLen = 1f / len;
+                float dx = dir.X * invLen;
+                float dz = dir.Z * invLen;
+                float ox = -dz * LineThickness;
+                float oy = LineThickness * 0.7f;
+                float oz = dx * LineThickness;
+
+                Rlgl.Color4ub(ca.R, ca.G, ca.B, ca.A);
+                Rlgl.Vertex3f(a.X + ox, a.Y + oy, a.Z + oz);
+                Rlgl.Color4ub(cb.R, cb.G, cb.B, cb.A);
+                Rlgl.Vertex3f(b.X + ox, b.Y + oy, b.Z + oz);
+
+                Rlgl.Color4ub(ca.R, ca.G, ca.B, ca.A);
+                Rlgl.Vertex3f(a.X - ox, a.Y - oy, a.Z - oz);
+                Rlgl.Color4ub(cb.R, cb.G, cb.B, cb.A);
+                Rlgl.Vertex3f(b.X - ox, b.Y - oy, b.Z - oz);
             }
             Rlgl.End();
 
