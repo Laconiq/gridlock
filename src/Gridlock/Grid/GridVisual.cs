@@ -250,7 +250,8 @@ namespace Gridlock.Grid
                 _cellMapDirty = false;
             }
 
-            UpdateMeshBuffers();
+            if (!_warpManager.IsSleeping)
+                UpdateMeshBuffers();
         }
 
         private unsafe void UpdateMeshBuffers()

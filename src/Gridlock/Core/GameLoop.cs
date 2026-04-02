@@ -13,6 +13,7 @@ using Gridlock.Rendering;
 using Gridlock.Towers;
 using Gridlock.Visual;
 using Gridlock.UI;
+using System.Diagnostics;
 using Raylib_cs;
 using rlImGui_cs;
 using Color = Raylib_cs.Color;
@@ -75,6 +76,43 @@ namespace Gridlock.Core
         private float _shakeTimer;
         private float _shakeDuration;
         private float _shakeIntensity;
+
+        private readonly Stopwatch _frameSw = Stopwatch.StartNew();
+        private string? _pendingScreenshot;
+
+        public void RequestScreenshot(string path) => _pendingScreenshot = path;
+
+        public void StartBenchmark()
+        {
+            var def = _gridManager.Definition;
+            int placed = 0;
+
+            // Find cells adjacent to the path
+            for (int y = 0; y < def.Height && placed < 4; y++)
+                for (int x = 0; x < def.Width && placed < 4; x++)
+                {
+                    var cell = _gridManager.GetRuntimeCell(x, y);
+                    if (cell != CellType.Empty && cell != CellType.TowerSlot) continue;
+
+                    bool nearPath = false;
+                    for (int dy = -1; dy <= 1 && !nearPath; dy++)
+                        for (int dx = -1; dx <= 1 && !nearPath; dx++)
+                        {
+                            int nx = x + dx, ny = y + dy;
+                            if (nx >= 0 && nx < def.Width && ny >= 0 && ny < def.Height
+                                && _gridManager.GetRuntimeCell(nx, ny) == CellType.Path)
+                                nearPath = true;
+                        }
+
+                    if (!nearPath) continue;
+                    var worldPos = _gridManager.GridToWorld(new Vector2Int(x, y));
+                    if (_towerPlacement.TryPlace(worldPos, isOverUI: false) != null)
+                        placed++;
+                }
+
+            _gameManager.SetState(GameState.Wave);
+            _gameStats.SetWave(1);
+        }
 
         public void Initialize()
         {
@@ -205,6 +243,9 @@ namespace Gridlock.Core
 
         public void RunFrame()
         {
+            var prof = Profiler.Instance;
+            _frameSw.Restart();
+
             float frameDt = Raylib.GetFrameTime();
             if (frameDt > MaxAccumulator)
                 frameDt = MaxAccumulator;
@@ -213,14 +254,18 @@ namespace Gridlock.Core
 
             HandleGlobalInput();
 
+            prof.Begin("FixedUpdate");
             _accumulator += frameDt;
             while (_accumulator >= FixedDt)
             {
                 FixedUpdate(FixedDt);
                 _accumulator -= FixedDt;
             }
+            prof.End();
 
+            prof.Begin("Update");
             Update(frameDt);
+            prof.End();
 
             _camera.LateUpdate(frameDt);
 
@@ -247,6 +292,7 @@ namespace Gridlock.Core
 
             if (_postProcessingAvailable)
             {
+                prof.Begin("Render3D");
                 _postProcessing.OnResize(screenW, screenH);
                 _postProcessing.BeginScene();
                 Raylib.ClearBackground(Color.Black);
@@ -254,45 +300,89 @@ namespace Gridlock.Core
                 Render3D(cam);
                 Raylib.EndMode3D();
                 Raylib.EndTextureMode();
+                prof.End();
 
+                prof.Begin("PostProcess");
                 _postProcessing.EndSceneAndComposite();
+                prof.End();
 
                 Raylib.BeginDrawing();
                 Raylib.ClearBackground(Color.Black);
+                prof.Begin("FinalBlit");
                 _postProcessing.DrawFinalToScreen();
+                prof.End();
             }
             else
             {
                 Raylib.BeginDrawing();
                 Raylib.ClearBackground(Color.Black);
+                prof.Begin("Render3D");
                 Raylib.BeginMode3D(cam);
                 Render3D(cam);
                 Raylib.EndMode3D();
+                prof.End();
             }
 
+            prof.Begin("HUD");
             DrawHUD();
+            prof.End();
+
+            if (_pendingScreenshot != null)
+            {
+                Raylib.TakeScreenshot(_pendingScreenshot);
+                _pendingScreenshot = null;
+            }
+
+            prof.Begin("SwapBuffers");
             Raylib.EndDrawing();
+            prof.End();
+
+            double frameMs = _frameSw.Elapsed.TotalMilliseconds;
+            prof.EndFrame(frameMs);
         }
 
         private void FixedUpdate(float dt)
         {
-            _warpManager.Update(dt);
-            _enemySpawner.Update(dt);
+            var prof = Profiler.Instance;
 
+            prof.Begin("  WarpPhysics");
+            _warpManager.Update(dt);
+            prof.End();
+
+            prof.Begin("  EnemyUpdate");
+            _enemySpawner.Update(dt);
+            prof.End();
+
+            prof.Begin("  Projectiles");
             for (int i = 0; i < _projectiles.Count; i++)
                 _projectiles[i].Update(dt);
-
             DrainProjectileSpawnBuffer();
             CleanupDestroyedProjectiles();
+            prof.End();
         }
 
         private void Update(float dt)
         {
+            var prof = Profiler.Instance;
+
+            prof.Begin("  GridVisual");
             _gridVisual.Update(dt);
+            prof.End();
+
             _towerPlacement.Update(dt);
+
+            prof.Begin("  Particles");
             _particles.Update(dt);
+            prof.End();
+
+            prof.Begin("  Trails");
             _trails.Update(dt);
+            prof.End();
+
+            prof.Begin("  Voxels");
             _voxelPool.Update(dt);
+            prof.End();
+
             _impactFlash.Update(dt);
             _pathVisualizer.Update(dt);
             _soundManager.Update();
@@ -606,20 +696,48 @@ namespace Gridlock.Core
 
         private void Render3D(Camera3D cam)
         {
+            var prof = Profiler.Instance;
+
+            prof.Begin("  R.Grid");
             _gridVisual.Render();
             if (!_gridVisual.HasShader)
                 DrawFallbackGrid();
+            prof.End();
+
+            prof.Begin("  R.Path");
             _pathVisualizer.Render(cam);
+            prof.End();
+
+            prof.Begin("  R.Towers");
             DrawTowers();
+            prof.End();
+
+            prof.Begin("  R.Enemies");
             DrawEnemies();
+            prof.End();
+
+            prof.Begin("  R.Projectiles");
             DrawProjectiles();
+            prof.End();
+
             DrawPickups();
             DrawPlacementPreview();
 
+            prof.Begin("  R.Voxels");
             _voxelPool.Render();
+            prof.End();
+
+            prof.Begin("  R.ImpactFlash");
             _impactFlash.Render();
+            prof.End();
+
+            prof.Begin("  R.Particles");
             _particles.Render();
+            prof.End();
+
+            prof.Begin("  R.Trails");
             _trails.Render(cam);
+            prof.End();
         }
 
         private void DrawFallbackGrid()
@@ -790,13 +908,25 @@ namespace Gridlock.Core
             Raylib.SetShaderValue(_outlineShader, _locEmissionIntensity, emission, ShaderUniformDataType.Float);
             Raylib.SetShaderValue(_outlineShader, _locEdgeWidth, edgeWidth, ShaderUniformDataType.Float);
 
-            // Octahedron mesh is built with rH=0.5, rV=1.0 — scale to desired radii
             float scaleH = radiusH / 0.5f;
             float scaleV = radiusV / 1.0f;
             var transform = Matrix4x4.CreateScale(scaleH, scaleV, scaleH)
                 * Matrix4x4.CreateRotationY(angleY)
                 * Matrix4x4.CreateTranslation(position);
             Raylib.DrawMesh(WireframeMeshes.Octahedron, _outlineMaterial, transform);
+        }
+
+        private void DrawWireframePyramid(Vector3 position, float scale,
+            Color color, float emission, float edgeWidth)
+        {
+            float[] colorVec = { color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f };
+            Raylib.SetShaderValue(_outlineShader, _locLineColor, colorVec, ShaderUniformDataType.Vec4);
+            Raylib.SetShaderValue(_outlineShader, _locEmissionIntensity, emission, ShaderUniformDataType.Float);
+            Raylib.SetShaderValue(_outlineShader, _locEdgeWidth, edgeWidth, ShaderUniformDataType.Float);
+
+            var transform = Matrix4x4.CreateScale(scale)
+                * Matrix4x4.CreateTranslation(position);
+            Raylib.DrawMesh(WireframeMeshes.Cone, _outlineMaterial, transform);
         }
 
         private void DrawEnemies()
@@ -830,20 +960,10 @@ namespace Gridlock.Core
                     color = new Color(baseColor.R, baseColor.G, baseColor.B, (byte)255);
                 }
 
-                var coneBase = new Vector3(pos.X, pos.Y - scale * 0.4f, pos.Z);
-                var coneTop = new Vector3(pos.X, pos.Y + scale * 0.6f, pos.Z);
-
-                Raylib.DrawCylinderEx(coneBase, coneTop, scale * 0.5f, 0f, 3, color);
-                Raylib.DrawCylinderWiresEx(coneBase, coneTop, scale * 0.52f, 0f, 3, new Color(255, 255, 255, 80));
+                NeonWireframe.PyramidThick(pos, scale, color);
 
                 float glowPulse = 0.85f + 0.15f * MathF.Sin(time * 4f + enemy.EntityId * 1.7f);
-                float glowScale = scale * 1.15f * glowPulse;
-                var glowBase = new Vector3(pos.X, pos.Y - glowScale * 0.4f, pos.Z);
-                var glowTop = new Vector3(pos.X, pos.Y + glowScale * 0.6f, pos.Z);
-                Raylib.BeginBlendMode(BlendMode.Additive);
-                Raylib.DrawCylinderEx(glowBase, glowTop, glowScale * 0.5f, 0f, 3,
-                    new Color(baseColor.R, baseColor.G, baseColor.B, (byte)20));
-                Raylib.EndBlendMode();
+                NeonWireframe.PyramidGlow(pos, scale * 1.15f * glowPulse, baseColor, 40);
 
                 float hpPct = enemy.Health.CurrentHP / enemy.Health.MaxHP;
                 float barWidth = scale * 1.2f;
@@ -854,6 +974,7 @@ namespace Gridlock.Core
                 Raylib.DrawLine3D(barPos, barEnd, new Color(60, 0, 0, 200));
                 Raylib.DrawLine3D(barPos, barFilled, new Color(255, 50, 50, 255));
             }
+
         }
 
         private void DrawProjectiles()
@@ -880,13 +1001,36 @@ namespace Gridlock.Core
                     : 1f;
                 float r = radius * pulse;
 
-                Raylib.DrawSphere(pos, r, color);
-
-                Raylib.BeginBlendMode(BlendMode.Additive);
-                Raylib.DrawSphere(pos, r * 1.4f, new Color(color.R, color.G, color.B, (byte)25));
-                Raylib.DrawSphere(pos, r * 2.0f, new Color(color.R, color.G, color.B, (byte)10));
-                Raylib.EndBlendMode();
+                WireframeMeshes.DrawSphere(pos, r, color);
             }
+
+            Raylib.BeginBlendMode(BlendMode.Additive);
+            foreach (var proj in _projectiles)
+            {
+                if (proj.IsDestroyed) continue;
+
+                float warpY = _warpManager.Initialized
+                    ? _warpManager.GetWarpOffset(proj.Position.X, proj.Position.Z)
+                    : 0f;
+
+                var pos = new Vector3(proj.Position.X, proj.Position.Y + warpY, proj.Position.Z);
+                var color = GetProjectileColor(proj.Context.Tags);
+
+                float baseDamage = proj.Context.Damage;
+                float radius = MathF.Max(0.08f, MathF.Min(0.25f, 0.1f + baseDamage / 40f * 0.15f));
+
+                bool hasElement = proj.Context.Tags != ModTags.None;
+                float pulse = hasElement
+                    ? 0.9f + 0.1f * MathF.Sin(time * 6f + proj.GetHashCode() * 0.3f)
+                    : 1f;
+                float r = radius * pulse;
+
+                WireframeMeshes.DrawSphere(pos, r * 1.4f,
+                    new Color(color.R, color.G, color.B, (byte)25));
+                WireframeMeshes.DrawSphere(pos, r * 2.0f,
+                    new Color(color.R, color.G, color.B, (byte)10));
+            }
+            Raylib.EndBlendMode();
         }
 
         private void DrawPickups()
@@ -946,11 +1090,6 @@ namespace Gridlock.Core
 
         private void DrawHUD()
         {
-            if (!_imguiInitialized) return;
-
-            float dt = Raylib.GetFrameTime();
-            rlImGui.Begin(dt);
-
             var state = _gameManager.CurrentState;
 
             _hud.Render(state,
@@ -966,18 +1105,26 @@ namespace Gridlock.Core
                 _gameStats.SetWave(_waveManager.CurrentWave + 1);
             }
 
-            if (_modPanel.IsOpen)
-                _modPanel.Render();
+            bool needImGui = _modPanel.IsOpen || state == GameState.GameOver;
 
-            if (state == GameState.GameOver)
+            if (needImGui && _imguiInitialized)
             {
-                _gameOverScreen.Render(_waveManager.CurrentWave, _gameStats.TotalKills);
+                float dt = Raylib.GetFrameTime();
+                rlImGui.Begin(dt);
 
-                if (_gameOverScreen.RestartRequested)
-                    ResetGame();
+                if (_modPanel.IsOpen)
+                    _modPanel.Render();
+
+                if (state == GameState.GameOver)
+                {
+                    _gameOverScreen.Render(_waveManager.CurrentWave, _gameStats.TotalKills);
+
+                    if (_gameOverScreen.RestartRequested)
+                        ResetGame();
+                }
+
+                rlImGui.End();
             }
-
-            rlImGui.End();
 
             Raylib.DrawFPS(Raylib.GetScreenWidth() - 100, 10);
         }

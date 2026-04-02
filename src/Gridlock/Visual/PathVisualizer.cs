@@ -153,18 +153,31 @@ namespace Gridlock.Visual
                     float scale = DotRadius * MathF.Max(1f, 1f + (DotFlashScale - 1f) * pulse);
                     var dotColor = BlendPulse(BaseLineColor, _pulsing ? _activePulseColor : PulseColor, pulse);
 
-                    Raylib.DrawSphere(points[i], scale * 0.5f, dotColor);
+                    WireframeMeshes.DrawSphere(points[i], scale * 0.5f, dotColor);
+                }
+            }
+
+            Raylib.BeginBlendMode(BlendMode.Additive);
+            for (int r = 0; r < _warpedRoutes.Count; r++)
+            {
+                var points = _warpedRoutes[r];
+                var norms = r < _segmentNorms.Count ? _segmentNorms[r] : null;
+
+                for (int i = 0; i < points.Length; i++)
+                {
+                    float norm = norms != null ? norms[i] : (float)i / MathF.Max(1, points.Length - 1);
+                    float pulse = GetPulseIntensity(norm, t);
 
                     if (pulse > 0.1f)
                     {
+                        float glowScale = DotRadius * MathF.Max(1f, 1f + (DotFlashScale - 1f) * pulse) * 0.8f;
                         byte glowA = (byte)Math.Clamp((int)(50 * pulse), 0, 255);
-                        Raylib.BeginBlendMode(BlendMode.Additive);
-                        Raylib.DrawSphere(points[i], scale * 0.8f,
+                        WireframeMeshes.DrawSphere(points[i], glowScale,
                             new Color(PulseColor.R, PulseColor.G, PulseColor.B, glowA));
-                        Raylib.EndBlendMode();
                     }
                 }
             }
+            Raylib.EndBlendMode();
         }
 
         private static float GetPulseIntensity(float normalizedPos, float t)

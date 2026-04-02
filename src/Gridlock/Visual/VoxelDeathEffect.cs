@@ -6,7 +6,7 @@ namespace Gridlock.Visual
 {
     public sealed class VoxelDeathEffect
     {
-        private const float VoxelSize = 0.25f;
+        private const float VoxelSize = 0.125f;
         private const float BurstSpeed = 4f;
 
         private Vector3[] _precomputed = Array.Empty<Vector3>();

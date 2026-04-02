@@ -23,15 +23,23 @@ namespace Gridlock.Grid
         private Vector4[] _tintBuffer = Array.Empty<Vector4>();
         private Vector4[] _colors = Array.Empty<Vector4>();
 
+        private float _restDistH;
+        private float _restDistV;
+
         private int _resX, _resZ;
         private int _vertCountX;
         private float _width, _height;
         private bool _initialized;
 
+        private float _totalEnergy;
+        private const float IdleThreshold = 0.0001f;
+        private bool _sleeping;
+
         public int VertexCount => _positions.Length;
         public Vector3[] Positions => _positions;
         public Vector4[] Colors => _colors;
         public bool Initialized => _initialized;
+        public bool IsSleeping => _sleeping;
 
         public void Init(int resX, int resZ, float width, float height, Vector3[] restPositions)
         {
@@ -50,6 +58,11 @@ namespace Gridlock.Grid
             _tints = new Vector4[count];
             _tintBuffer = new Vector4[count];
             _colors = new Vector4[count];
+
+            _restDistH = width / resX;
+            _restDistV = height / resZ;
+
+            _sleeping = true;
             _initialized = true;
         }
 
@@ -61,7 +74,7 @@ namespace Gridlock.Grid
 
         public float GetWarpOffset(float worldX, float worldZ)
         {
-            if (!_initialized) return 0f;
+            if (!_initialized || _sleeping) return 0f;
 
             float lx = (worldX + _width * 0.5f) / _width * _resX;
             float lz = (worldZ + _height * 0.5f) / _height * _resZ;
@@ -86,6 +99,7 @@ namespace Gridlock.Grid
         {
             if (!_initialized) return;
 
+            _sleeping = false;
             var tintColor = new Vector4(color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f);
             float radiusSq = splashRadius * splashRadius;
 
@@ -108,6 +122,7 @@ namespace Gridlock.Grid
         {
             if (!_initialized) return;
 
+            _sleeping = false;
             var tintColor = new Vector4(color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f);
             float radiusSq = splashRadius * splashRadius;
 
@@ -134,44 +149,64 @@ namespace Gridlock.Grid
         {
             if (!_initialized) return;
             if (dt <= 0f || dt > 0.1f) return;
+            if (_sleeping) return;
 
             SimulateSprings(dt);
             DiffuseTints(dt);
             ComputeVertexColors();
+
+            if (_totalEnergy < IdleThreshold)
+            {
+                _sleeping = true;
+                Array.Copy(_restPositions, _positions, _positions.Length);
+                Array.Clear(_velocities);
+                Array.Clear(_tints);
+                Array.Clear(_colors);
+            }
         }
 
         private void SimulateSprings(float dt)
         {
             int count = _positions.Length;
             int vcx = _vertCountX;
+            float anchorK = _anchorStiffness;
+            float neighborK = _neighborStiffness;
+            float damp = _damping;
+            float restH = _restDistH;
+            float restV = _restDistV;
+
+            float energy = 0f;
 
             for (int i = 0; i < count; i++)
             {
-                var force = (_restPositions[i] - _positions[i]) * _anchorStiffness;
+                var force = (_restPositions[i] - _positions[i]) * anchorK;
 
                 int x = i % vcx;
                 int z = i / vcx;
 
-                if (x > 0) force += SpringForce(i, i - 1);
-                if (x < _resX) force += SpringForce(i, i + 1);
-                if (z > 0) force += SpringForce(i, i - vcx);
-                if (z < _resZ) force += SpringForce(i, i + vcx);
+                if (x > 0) force += SpringForceInline(i, i - 1, restH, neighborK);
+                if (x < _resX) force += SpringForceInline(i, i + 1, restH, neighborK);
+                if (z > 0) force += SpringForceInline(i, i - vcx, restV, neighborK);
+                if (z < _resZ) force += SpringForceInline(i, i + vcx, restV, neighborK);
 
-                force -= _velocities[i] * _damping;
+                force -= _velocities[i] * damp;
 
                 _velocities[i] += force * dt;
                 _positions[i] += _velocities[i] * dt;
+
+                energy += _velocities[i].LengthSquared();
             }
+
+            _totalEnergy = energy / count;
         }
 
-        private Vector3 SpringForce(int from, int to)
+        private Vector3 SpringForceInline(int from, int to, float restDist, float stiffness)
         {
             var delta = _positions[to] - _positions[from];
-            float dist = delta.Length();
-            if (dist < 0.001f) return Vector3.Zero;
-
-            float restDist = (_restPositions[to] - _restPositions[from]).Length();
-            return delta / dist * ((dist - restDist) * _neighborStiffness);
+            float distSq = delta.LengthSquared();
+            if (distSq < 0.000001f) return Vector3.Zero;
+            float dist = MathF.Sqrt(distSq);
+            return delta * ((dist - restDist) * stiffness / dist);
         }
 
         private void DiffuseTints(float dt)

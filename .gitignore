@@ -24,3 +24,8 @@ packages/
 
 ## ImGui
 imgui.ini
+
+## Profiling output
+profile.csv
+profile_report.txt
+screenshot.png

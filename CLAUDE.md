@@ -56,6 +56,29 @@ To publish a self-contained build:
 dotnet publish -c Release -o ../../publish
 ```
 
+## Profiling & Benchmarks
+
+```bash
+cd src/Gridlock
+
+# Benchmark: no VSync, auto-place towers, start wave, output report
+dotnet run -- --benchmark --frames 1200
+
+# Longer benchmark (30s of combat)
+dotnet run -- --benchmark --frames 3600
+
+# Profile with CSV export (with VSync, manual play)
+dotnet run -- --profile
+
+# Screenshot mode: auto-start, capture at frame 120
+dotnet run -- --screenshot
+```
+
+Output files (gitignored):
+- `profile.csv` — per-frame timing data for each profiled section
+- `profile_report.txt` — summary with avg/P50/P95/P99/max frame times
+- `screenshot.png` — in-game capture
+
 ## Code Style
 
 - **No superfluous comments.** Only comment to explain *why* something non-obvious is done. Remove comments that restate what the code does.

@@ -1,7 +1,6 @@
 using System;
 using System.Numerics;
 using Gridlock.Core;
-using ImGuiNET;
 using Raylib_cs;
 
 namespace Gridlock.UI
@@ -33,61 +32,46 @@ namespace Gridlock.UI
             float hp, float maxHP, int enemiesAlive)
         {
             int screenW = Raylib.GetScreenWidth();
-            float barH = 52;
+            int barH = 52;
 
-            ImGui.SetNextWindowPos(Vector2.Zero);
-            ImGui.SetNextWindowSize(new Vector2(screenW, barH));
-            PushBarStyle();
+            Raylib.DrawRectangle(0, 0, screenW, barH, new Color(10, 15, 20, 217));
 
-            ImGui.Begin("##HUD_Top", ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize |
-                ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoCollapse |
-                ImGuiWindowFlags.NoBringToFrontOnFocus);
+            DrawStateBadge(state, 12, barH);
 
-            var drawList = ImGui.GetWindowDrawList();
+            int hpBarX = (int)(screenW * 0.3f);
+            int hpBarW = (int)(screenW * 0.4f);
+            int hpBarY = 14;
+            int hpBarH = 24;
+            DrawHPBar(hp, maxHP, hpBarX, hpBarY, hpBarW, hpBarH);
 
-            DrawStateBadge(drawList, state, 12, barH);
-
-            float hpBarX = screenW * 0.3f;
-            float hpBarW = screenW * 0.4f;
-            float hpBarY = 14;
-            float hpBarH = 24;
-            DrawHPBar(drawList, hp, maxHP, hpBarX, hpBarY, hpBarW, hpBarH);
-
-            float rightX = screenW - 12f;
+            int rightX = screenW - 12;
+            int textY = 18;
+            int fontSize = 20;
 
             if (state == GameState.Wave && enemiesAlive > 0)
             {
                 var enemyText = $"ENEMIES: {enemiesAlive}";
-                var enemySize = ImGui.CalcTextSize(enemyText);
-                rightX -= enemySize.X;
-                drawList.AddText(new Vector2(rightX, 18),
-                    ImGui.ColorConvertFloat4ToU32(TV4(DesignTokens.Tertiary)), enemyText);
+                int tw = Raylib.MeasureText(enemyText, fontSize);
+                rightX -= tw;
+                Raylib.DrawText(enemyText, rightX, textY, fontSize, DesignTokens.Tertiary);
                 rightX -= 20;
             }
 
             var killText = $"KILLS: {kills}";
-            var killSize = ImGui.CalcTextSize(killText);
-            rightX -= killSize.X;
-            drawList.AddText(new Vector2(rightX, 18),
-                ImGui.ColorConvertFloat4ToU32(TV4(DesignTokens.OnSurfaceVariant)), killText);
+            int killW = Raylib.MeasureText(killText, fontSize);
+            rightX -= killW;
+            Raylib.DrawText(killText, rightX, textY, fontSize, DesignTokens.OnSurfaceVariant);
             rightX -= 20;
 
             var waveText = $"WAVE {wave + 1}/{totalWaves}";
-            var waveSize = ImGui.CalcTextSize(waveText);
-            rightX -= waveSize.X;
-            drawList.AddText(new Vector2(rightX, 18),
-                ImGui.ColorConvertFloat4ToU32(TV4(DesignTokens.Primary)), waveText);
+            int waveW = Raylib.MeasureText(waveText, fontSize);
+            rightX -= waveW;
+            Raylib.DrawText(waveText, rightX, textY, fontSize, DesignTokens.Primary);
 
-            drawList.AddLine(
-                new Vector2(0, barH - 1),
-                new Vector2(screenW, barH - 1),
-                ImGui.ColorConvertFloat4ToU32(TV4(DesignTokens.GlassBorderAccent)));
-
-            ImGui.End();
-            PopBarStyle();
+            Raylib.DrawLine(0, barH - 1, screenW, barH - 1, DesignTokens.GlassBorderAccent);
         }
 
-        private void DrawStateBadge(ImDrawListPtr drawList, GameState state, float x, float barH)
+        private void DrawStateBadge(GameState state, int x, int barH)
         {
             string label = state switch
             {
@@ -105,34 +89,27 @@ namespace Gridlock.UI
                 _ => DesignTokens.OnSurface
             };
 
+            int fontSize = 20;
+            int textW = Raylib.MeasureText(label, fontSize);
+            int padX = 10;
+            int padY = 4;
+            int badgeY = (barH - fontSize - padY * 2) / 2;
+            int badgeW = textW + padX * 2;
+            int badgeH = fontSize + padY * 2;
+
             float pulse = _statePulse;
-            var glowColor = TV4A(badgeColor, 0.15f * pulse);
+            byte glowA = (byte)(38 * pulse);
+            Raylib.DrawRectangle(x, badgeY, badgeW, badgeH,
+                new Color(badgeColor.R, badgeColor.G, badgeColor.B, glowA));
 
-            var textSize = ImGui.CalcTextSize(label);
-            float badgePadX = 10;
-            float badgePadY = 4;
-            float badgeX = x;
-            float badgeY = (barH - textSize.Y - badgePadY * 2) * 0.5f;
-            float badgeW = textSize.X + badgePadX * 2;
-            float badgeH = textSize.Y + badgePadY * 2;
+            byte borderA = (byte)(153 * pulse);
+            Raylib.DrawRectangleLines(x, badgeY, badgeW, badgeH,
+                new Color(badgeColor.R, badgeColor.G, badgeColor.B, borderA));
 
-            drawList.AddRectFilled(
-                new Vector2(badgeX, badgeY),
-                new Vector2(badgeX + badgeW, badgeY + badgeH),
-                ImGui.ColorConvertFloat4ToU32(glowColor), 4f);
-
-            drawList.AddRect(
-                new Vector2(badgeX, badgeY),
-                new Vector2(badgeX + badgeW, badgeY + badgeH),
-                ImGui.ColorConvertFloat4ToU32(TV4A(badgeColor, 0.6f * pulse)), 4f, ImDrawFlags.None, 1.5f);
-
-            drawList.AddText(
-                new Vector2(badgeX + badgePadX, badgeY + badgePadY),
-                ImGui.ColorConvertFloat4ToU32(TV4(badgeColor)), label);
+            Raylib.DrawText(label, x + padX, badgeY + padY, fontSize, badgeColor);
         }
 
-        private void DrawHPBar(ImDrawListPtr drawList, float hp, float maxHP,
-            float x, float y, float w, float h)
+        private void DrawHPBar(float hp, float maxHP, int x, int y, int w, int h)
         {
             float frac = maxHP > 0f ? Math.Clamp(hp / maxHP, 0f, 1f) : 0f;
 
@@ -140,99 +117,72 @@ namespace Gridlock.UI
                 : frac > 0.25f ? DesignTokens.HudHpLow
                 : DesignTokens.HudHpCritical;
 
-            drawList.AddRectFilled(
-                new Vector2(x, y), new Vector2(x + w, y + h),
-                ImGui.ColorConvertFloat4ToU32(TV4(DesignTokens.HudHpTrack)), 3f);
+            Raylib.DrawRectangle(x, y, w, h, DesignTokens.HudHpTrack);
 
             if (frac > 0f)
             {
-                drawList.AddRectFilled(
-                    new Vector2(x, y), new Vector2(x + w * frac, y + h),
-                    ImGui.ColorConvertFloat4ToU32(TV4(fillColor)), 3f);
+                int fillW = (int)(w * frac);
+                Raylib.DrawRectangle(x, y, fillW, h, fillColor);
 
-                drawList.AddRectFilled(
-                    new Vector2(x, y), new Vector2(x + w * frac, y + h * 0.35f),
-                    ImGui.ColorConvertFloat4ToU32(TV4A(fillColor, 0.3f)), 3f);
+                int highlightH = (int)(h * 0.35f);
+                byte highlightA = (byte)(fillColor.A * 0.3f);
+                Raylib.DrawRectangle(x, y, fillW, highlightH,
+                    new Color(fillColor.R, fillColor.G, fillColor.B, highlightA));
             }
 
-            drawList.AddRect(
-                new Vector2(x, y), new Vector2(x + w, y + h),
-                ImGui.ColorConvertFloat4ToU32(TV4A(fillColor, 0.5f)), 3f, ImDrawFlags.None, 1f);
+            byte borderA = (byte)(fillColor.A / 2);
+            Raylib.DrawRectangleLines(x, y, w, h,
+                new Color(fillColor.R, fillColor.G, fillColor.B, borderA));
 
             var hpText = $"HP {hp:F0} / {maxHP:F0}";
-            var textSize = ImGui.CalcTextSize(hpText);
-            drawList.AddText(
-                new Vector2(x + (w - textSize.X) * 0.5f, y + (h - textSize.Y) * 0.5f),
-                ImGui.ColorConvertFloat4ToU32(TV4(DesignTokens.OnSurface)), hpText);
+            int fontSize = 20;
+            int textW = Raylib.MeasureText(hpText, fontSize);
+            Raylib.DrawText(hpText, x + (w - textW) / 2, y + (h - fontSize) / 2,
+                fontSize, DesignTokens.OnSurface);
         }
 
         private void DrawBottomBar(int towerCount, int maxTowers)
         {
             int screenW = Raylib.GetScreenWidth();
             int screenH = Raylib.GetScreenHeight();
-            float barH = 80;
+            int barH = 80;
+            int barY = screenH - barH;
 
-            ImGui.SetNextWindowPos(new Vector2(0, screenH - barH));
-            ImGui.SetNextWindowSize(new Vector2(screenW, barH));
-            ImGui.PushStyleColor(ImGuiCol.WindowBg, new Vector4(0, 0, 0, 0));
-            ImGui.PushStyleVar(ImGuiStyleVar.WindowBorderSize, 0f);
-            ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, Vector2.Zero);
+            int btnW = 220;
+            int btnH = 50;
+            int centerX = (screenW - btnW) / 2;
+            int btnY = barY + (barH - btnH) / 2 - 8;
 
-            ImGui.Begin("##HUD_Bottom", ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize |
-                ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoCollapse |
-                ImGuiWindowFlags.NoBringToFrontOnFocus);
+            var mousePos = Raylib.GetMousePosition();
+            bool hover = mousePos.X >= centerX && mousePos.X <= centerX + btnW
+                      && mousePos.Y >= btnY && mousePos.Y <= btnY + btnH;
+            bool clicked = hover && Raylib.IsMouseButtonPressed(MouseButton.Left);
 
-            float btnW = 220;
-            float btnH = 50;
-            float centerX = (screenW - btnW) * 0.5f;
+            byte bgA = hover ? (byte)77 : (byte)38;
+            Raylib.DrawRectangle(centerX, btnY, btnW, btnH,
+                new Color(DesignTokens.PrimaryContainer.R, DesignTokens.PrimaryContainer.G,
+                    DesignTokens.PrimaryContainer.B, bgA));
 
-            ImGui.SetCursorPos(new Vector2(centerX, (barH - btnH) * 0.5f - 8));
+            byte borderA = (byte)(204 * _statePulse);
+            Raylib.DrawRectangleLinesEx(
+                new Rectangle(centerX, btnY, btnW, btnH),
+                1.5f,
+                new Color(DesignTokens.Primary.R, DesignTokens.Primary.G,
+                    DesignTokens.Primary.B, borderA));
 
-            ImGui.PushStyleColor(ImGuiCol.Button, TV4A(DesignTokens.PrimaryContainer, 0.15f));
-            ImGui.PushStyleColor(ImGuiCol.ButtonHovered, TV4A(DesignTokens.Primary, 0.3f));
-            ImGui.PushStyleColor(ImGuiCol.ButtonActive, TV4A(DesignTokens.PrimaryDim, 0.5f));
-            ImGui.PushStyleColor(ImGuiCol.Text, TV4(DesignTokens.Primary));
-            ImGui.PushStyleVar(ImGuiStyleVar.FrameRounding, 4f);
-            ImGui.PushStyleVar(ImGuiStyleVar.FrameBorderSize, 1.5f);
-            ImGui.PushStyleColor(ImGuiCol.Border, TV4A(DesignTokens.Primary, _statePulse * 0.8f));
+            int fontSize = 24;
+            var btnText = "START WAVE";
+            int textW = Raylib.MeasureText(btnText, fontSize);
+            Raylib.DrawText(btnText, centerX + (btnW - textW) / 2, btnY + (btnH - fontSize) / 2,
+                fontSize, DesignTokens.Primary);
 
-            ImGui.SetWindowFontScale(1.2f);
-            if (ImGui.Button("START WAVE", new Vector2(btnW, btnH)))
+            if (clicked)
                 WaveStartRequested = true;
-            ImGui.SetWindowFontScale(1f);
-
-            ImGui.PopStyleColor(5);
-            ImGui.PopStyleVar(2);
 
             var towerText = $"Towers: {towerCount}/{maxTowers}";
-            var towerSize = ImGui.CalcTextSize(towerText);
-            ImGui.SetCursorPos(new Vector2((screenW - towerSize.X) * 0.5f, (barH - btnH) * 0.5f + btnH - 2));
-            ImGui.TextColored(TV4(DesignTokens.OnSurfaceVariant), towerText);
-
-            ImGui.End();
-            ImGui.PopStyleVar(2);
-            ImGui.PopStyleColor();
+            int towerTextW = Raylib.MeasureText(towerText, 20);
+            Raylib.DrawText(towerText, (screenW - towerTextW) / 2, btnY + btnH + 2,
+                20, DesignTokens.OnSurfaceVariant);
         }
-
-        private static void PushBarStyle()
-        {
-            ImGui.PushStyleColor(ImGuiCol.WindowBg, new Vector4(0.04f, 0.06f, 0.08f, 0.85f));
-            ImGui.PushStyleColor(ImGuiCol.Border, new Vector4(0f, 0.8f, 1f, 0.3f));
-            ImGui.PushStyleVar(ImGuiStyleVar.WindowRounding, 0f);
-            ImGui.PushStyleVar(ImGuiStyleVar.WindowBorderSize, 1f);
-            ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, new Vector2(0, 0));
-        }
-
-        private static void PopBarStyle()
-        {
-            ImGui.PopStyleVar(3);
-            ImGui.PopStyleColor(2);
-        }
-
-        private static Vector4 TV4(Color c) =>
-            new(c.R / 255f, c.G / 255f, c.B / 255f, c.A / 255f);
-
-        private static Vector4 TV4A(Color c, float alpha) =>
-            new(c.R / 255f, c.G / 255f, c.B / 255f, alpha);
     }
 }

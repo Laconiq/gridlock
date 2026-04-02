@@ -14,24 +14,22 @@ namespace Gridlock.Rendering
         private Shader _thresholdShader;
         private Shader _kawaseDownShader;
         private Shader _kawaseUpShader;
-        private Shader _chromaticShader;
-        private Shader _vignetteShader;
-        private Shader _pixelGridShader;
+        private Shader _finalCompositeShader;
 
         private int _thresholdLoc;
         private int _texelSizeDownLoc;
         private int _texelSizeUpLoc;
-        private int _chromaticIntensityLoc;
-        private int _vignetteIntensityLoc;
-        private int _vignetteColorLoc;
-        private int _pixelGridResolutionLoc;
+        private int _finalChromaticLoc;
+        private int _finalVignetteLoc;
+        private int _finalVignetteColorLoc;
+        private int _finalResolutionLoc;
 
         private int _screenW;
         private int _screenH;
         private int _internalW;
         private int _internalH;
 
-        private bool _pixelGridShaderLoaded;
+        private bool _finalShaderLoaded;
 
         public int PixelScale { get; set; } = 1;
         public float BloomThreshold { get; set; } = 0.6f;
@@ -49,10 +47,7 @@ namespace Gridlock.Rendering
             if (!_hasBackdropBlur) return;
 
             var blur = _blurA.Texture;
-
-            // Source rect from blur texture — Y flipped for OpenGL render texture
             var src = new Rectangle(0, 0, blur.Width, -blur.Height);
-            // Draw blurred scene stretched to panel rect area
             byte tint = (byte)Math.Clamp((int)(255 * darken), 0, 255);
             Raylib.DrawTexturePro(blur, src, panelRect, Vector2.Zero, 0f,
                 new Color(tint, tint, tint, (byte)255));
@@ -71,7 +66,6 @@ namespace Gridlock.Rendering
                 _hasBackdropBlur = true;
             }
 
-            // Downsample the composited scene 3 times for strong blur
             float[] t1 = { 1f / _compositeRT.Texture.Width, 1f / _compositeRT.Texture.Height };
             Raylib.SetShaderValue(_kawaseDownShader, _texelSizeDownLoc, t1, ShaderUniformDataType.Vec2);
             BlitPass(_blurA, _compositeRT.Texture, _kawaseDownShader);
@@ -85,7 +79,7 @@ namespace Gridlock.Rendering
             BlitPass(_blurA, _blurB.Texture, _kawaseDownShader);
         }
 
-        const int BloomIterations = 4;
+        const int BloomIterations = 3;
         const string ShaderPath = "resources/shaders/glsl330/";
 
         public int InternalWidth => _internalW;
@@ -114,7 +108,9 @@ namespace Gridlock.Rendering
                 w = Math.Max(1, w);
                 h = Math.Max(1, h);
                 _bloomDown[i] = Raylib.LoadRenderTexture(w, h);
+                Raylib.SetTextureFilter(_bloomDown[i].Texture, TextureFilter.Bilinear);
                 _bloomUp[i] = Raylib.LoadRenderTexture(w, h);
+                Raylib.SetTextureFilter(_bloomUp[i].Texture, TextureFilter.Bilinear);
                 w /= 2;
                 h /= 2;
             }
@@ -122,19 +118,17 @@ namespace Gridlock.Rendering
             _thresholdShader = Raylib.LoadShader(ShaderPath + "fullscreen.vs", ShaderPath + "threshold.fs");
             _kawaseDownShader = Raylib.LoadShader(ShaderPath + "fullscreen.vs", ShaderPath + "kawase_down.fs");
             _kawaseUpShader = Raylib.LoadShader(ShaderPath + "fullscreen.vs", ShaderPath + "kawase_up.fs");
-            _chromaticShader = Raylib.LoadShader(ShaderPath + "fullscreen.vs", ShaderPath + "chromatic.fs");
-            _vignetteShader = Raylib.LoadShader(ShaderPath + "fullscreen.vs", ShaderPath + "vignette.fs");
-            _pixelGridShader = Raylib.LoadShader(ShaderPath + "fullscreen.vs", ShaderPath + "pixelgrid.fs");
+            _finalCompositeShader = Raylib.LoadShader(ShaderPath + "fullscreen.vs", ShaderPath + "final_composite.fs");
 
             _thresholdLoc = Raylib.GetShaderLocation(_thresholdShader, "threshold");
             _texelSizeDownLoc = Raylib.GetShaderLocation(_kawaseDownShader, "texelSize");
             _texelSizeUpLoc = Raylib.GetShaderLocation(_kawaseUpShader, "texelSize");
-            _chromaticIntensityLoc = Raylib.GetShaderLocation(_chromaticShader, "intensity");
-            _vignetteIntensityLoc = Raylib.GetShaderLocation(_vignetteShader, "intensity");
-            _vignetteColorLoc = Raylib.GetShaderLocation(_vignetteShader, "vignetteColor");
-            _pixelGridResolutionLoc = Raylib.GetShaderLocation(_pixelGridShader, "resolution");
+            _finalChromaticLoc = Raylib.GetShaderLocation(_finalCompositeShader, "chromaticIntensity");
+            _finalVignetteLoc = Raylib.GetShaderLocation(_finalCompositeShader, "vignetteIntensity");
+            _finalVignetteColorLoc = Raylib.GetShaderLocation(_finalCompositeShader, "vignetteColor");
+            _finalResolutionLoc = Raylib.GetShaderLocation(_finalCompositeShader, "resolution");
 
-            _pixelGridShaderLoaded = _pixelGridShader.Id > 0;
+            _finalShaderLoaded = _finalCompositeShader.Id > 0;
         }
 
         public void BeginScene()
@@ -173,36 +167,23 @@ namespace Gridlock.Rendering
                 Raylib.EndBlendMode();
             }
             Raylib.EndTextureMode();
-
-            if (ChromaticIntensity > 0.001f)
-            {
-                Raylib.SetShaderValue(_chromaticShader, _chromaticIntensityLoc, ChromaticIntensity, ShaderUniformDataType.Float);
-                BlitPass(_sceneRT, _compositeRT.Texture, _chromaticShader);
-                (_compositeRT, _sceneRT) = (_sceneRT, _compositeRT);
-            }
-
-            if (VignetteIntensity > 0.001f)
-            {
-                Raylib.SetShaderValue(_vignetteShader, _vignetteIntensityLoc, VignetteIntensity, ShaderUniformDataType.Float);
-                float[] vigColor = { 0f, 0.05f, 0.1f };
-                Raylib.SetShaderValue(_vignetteShader, _vignetteColorLoc, vigColor, ShaderUniformDataType.Vec3);
-                BlitPass(_sceneRT, _compositeRT.Texture, _vignetteShader);
-                (_compositeRT, _sceneRT) = (_sceneRT, _compositeRT);
-            }
-
         }
 
         public void DrawFinalToScreen()
         {
             Raylib.SetTextureFilter(_compositeRT.Texture, TextureFilter.Point);
-            if (_pixelGridShaderLoaded)
+            if (_finalShaderLoaded)
             {
+                Raylib.SetShaderValue(_finalCompositeShader, _finalChromaticLoc, ChromaticIntensity, ShaderUniformDataType.Float);
+                Raylib.SetShaderValue(_finalCompositeShader, _finalVignetteLoc, VignetteIntensity, ShaderUniformDataType.Float);
+                float[] vigColor = { 0f, 0.05f, 0.1f };
+                Raylib.SetShaderValue(_finalCompositeShader, _finalVignetteColorLoc, vigColor, ShaderUniformDataType.Vec3);
                 float[] res = { _internalW, _internalH };
-                Raylib.SetShaderValue(_pixelGridShader, _pixelGridResolutionLoc, res, ShaderUniformDataType.Vec2);
-                Raylib.BeginShaderMode(_pixelGridShader);
+                Raylib.SetShaderValue(_finalCompositeShader, _finalResolutionLoc, res, ShaderUniformDataType.Vec2);
+                Raylib.BeginShaderMode(_finalCompositeShader);
             }
             DrawFlipped(_compositeRT.Texture, _screenW, _screenH, Color.White);
-            if (_pixelGridShaderLoaded)
+            if (_finalShaderLoaded)
                 Raylib.EndShaderMode();
         }
 
@@ -238,10 +219,8 @@ namespace Gridlock.Rendering
             Raylib.UnloadShader(_thresholdShader);
             Raylib.UnloadShader(_kawaseDownShader);
             Raylib.UnloadShader(_kawaseUpShader);
-            Raylib.UnloadShader(_chromaticShader);
-            Raylib.UnloadShader(_vignetteShader);
-            if (_pixelGridShaderLoaded)
-                Raylib.UnloadShader(_pixelGridShader);
+            if (_finalShaderLoaded)
+                Raylib.UnloadShader(_finalCompositeShader);
         }
 
         private void UnloadRTs()

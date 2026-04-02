@@ -9,10 +9,16 @@ namespace Gridlock.Visual
     {
         private static RlMesh _cubeMesh;
         private static RlMesh _octahedronMesh;
+        private static RlMesh _coneMesh;
+        private static RlMesh _sphereMesh;
+        private static Material _defaultMat;
         private static bool _initialized;
 
         public static RlMesh Cube => _cubeMesh;
         public static RlMesh Octahedron => _octahedronMesh;
+        public static RlMesh Cone => _coneMesh;
+        public static RlMesh Sphere => _sphereMesh;
+        public static ref Material DefaultMaterial => ref _defaultMat;
 
         public static void Init()
         {
@@ -20,6 +26,9 @@ namespace Gridlock.Visual
 
             _cubeMesh = BuildCubeMesh();
             _octahedronMesh = BuildOctahedronMesh();
+            _coneMesh = BuildConeMesh();
+            _sphereMesh = Raylib.GenMeshSphere(1f, 6, 6);
+            _defaultMat = Raylib.LoadMaterialDefault();
             _initialized = true;
         }
 
@@ -28,7 +37,14 @@ namespace Gridlock.Visual
             if (!_initialized) return;
             Raylib.UnloadMesh(_cubeMesh);
             Raylib.UnloadMesh(_octahedronMesh);
+            Raylib.UnloadMesh(_coneMesh);
+            Raylib.UnloadMesh(_sphereMesh);
             _initialized = false;
+        }
+
+        public static void DrawSphere(Vector3 pos, float radius, Color color)
+        {
+            Raylib.DrawSphereEx(pos, radius, 4, 6, color);
         }
 
         private static RlMesh BuildCubeMesh()
@@ -180,6 +196,78 @@ namespace Gridlock.Visual
                 indices[vi + 2] = (ushort)(vi + 2);
                 vi += 3;
             }
+
+            Raylib.UploadMesh(ref mesh, false);
+            return mesh;
+        }
+
+        private static RlMesh BuildConeMesh()
+        {
+            // 4-sided pyramid: height ≈ base diameter for clear 3D from isometric
+            const int sides = 4;
+
+            float radius = 0.5f;
+            float height = 1.0f;
+            float baseY = -height * 0.35f;
+            float tipY = height * 0.65f;
+
+            // 4 side triangles + 2 base triangles = 6 triangles
+            int triCount = sides + 2;
+            int vertCount = triCount * 3;
+
+            var mesh = new RlMesh(vertCount, triCount);
+            mesh.AllocVertices();
+            mesh.AllocNormals();
+            mesh.AllocTexCoords();
+            mesh.AllocTexCoords2();
+            mesh.AllocIndices();
+
+            var verts = mesh.VerticesAs<Vector3>();
+            var norms = mesh.NormalsAs<Vector3>();
+            var uvs = mesh.TexCoordsAs<Vector2>();
+            var bary = mesh.TexCoords2As<Vector2>();
+            var indices = mesh.IndicesAs<ushort>();
+
+            Vector2[] triBarys = { new(1, 0), new(0, 1), new(0, 0) };
+
+            var tip = new Vector3(0, tipY, 0);
+            var baseVerts = new Vector3[sides];
+            for (int i = 0; i < sides; i++)
+            {
+                float angle = ((float)i / sides) * MathF.Tau;
+                baseVerts[i] = new Vector3(MathF.Cos(angle) * radius, baseY, MathF.Sin(angle) * radius);
+            }
+
+            int vi = 0;
+
+            for (int i = 0; i < sides; i++)
+            {
+                var a = tip;
+                var b = baseVerts[i];
+                var c = baseVerts[(i + 1) % sides];
+                var normal = Vector3.Normalize(Vector3.Cross(b - a, c - a));
+
+                verts[vi] = a; verts[vi + 1] = b; verts[vi + 2] = c;
+                norms[vi] = normal; norms[vi + 1] = normal; norms[vi + 2] = normal;
+                uvs[vi] = Vector2.Zero; uvs[vi + 1] = Vector2.UnitX; uvs[vi + 2] = Vector2.UnitY;
+                bary[vi] = triBarys[0]; bary[vi + 1] = triBarys[1]; bary[vi + 2] = triBarys[2];
+                indices[vi] = (ushort)vi; indices[vi + 1] = (ushort)(vi + 1); indices[vi + 2] = (ushort)(vi + 2);
+                vi += 3;
+            }
+
+            var dn = new Vector3(0, -1, 0);
+            verts[vi] = baseVerts[0]; verts[vi + 1] = baseVerts[2]; verts[vi + 2] = baseVerts[1];
+            norms[vi] = dn; norms[vi + 1] = dn; norms[vi + 2] = dn;
+            uvs[vi] = Vector2.Zero; uvs[vi + 1] = Vector2.UnitX; uvs[vi + 2] = Vector2.UnitY;
+            bary[vi] = triBarys[0]; bary[vi + 1] = triBarys[1]; bary[vi + 2] = triBarys[2];
+            indices[vi] = (ushort)vi; indices[vi + 1] = (ushort)(vi + 1); indices[vi + 2] = (ushort)(vi + 2);
+            vi += 3;
+
+            verts[vi] = baseVerts[0]; verts[vi + 1] = baseVerts[3]; verts[vi + 2] = baseVerts[2];
+            norms[vi] = dn; norms[vi + 1] = dn; norms[vi + 2] = dn;
+            uvs[vi] = Vector2.Zero; uvs[vi + 1] = Vector2.UnitX; uvs[vi + 2] = Vector2.UnitY;
+            bary[vi] = triBarys[0]; bary[vi + 1] = triBarys[1]; bary[vi + 2] = triBarys[2];
+            indices[vi] = (ushort)vi; indices[vi + 1] = (ushort)(vi + 1); indices[vi + 2] = (ushort)(vi + 2);
 
             Raylib.UploadMesh(ref mesh, false);
             return mesh;
