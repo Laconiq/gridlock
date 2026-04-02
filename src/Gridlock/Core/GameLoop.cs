@@ -402,6 +402,9 @@ namespace Gridlock.Core
                 _postProcessing.BloomIntensity = _bloomPulse;
             }
 
+            if (_selectedTower != null && !_modPanel.IsOpen)
+                _selectedTower = null;
+
             HandlePlacementInput();
         }
 
