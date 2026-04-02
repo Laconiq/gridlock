@@ -16,6 +16,7 @@ namespace Gridlock.Visual
 
         private const int MaxTrails = 256;
         private const int MaxPoints = 64;
+        private const int MaxPointsMask = MaxPoints - 1;
 
         private readonly TrailPoint[][] _points;
         private readonly int[] _heads;
@@ -81,14 +82,14 @@ namespace Gridlock.Visual
 
             if (_counts[trailId] > 0)
             {
-                int lastIdx = (_heads[trailId] + _counts[trailId] - 1) % MaxPoints;
+                int lastIdx = (_heads[trailId] + _counts[trailId] - 1) & MaxPointsMask;
                 float distSq = Vector3.DistanceSquared(position, _points[trailId][lastIdx].Position);
                 if (distSq < 0.006f) return;
             }
 
-            int newIdx = (_heads[trailId] + _counts[trailId]) % MaxPoints;
+            int newIdx = (_heads[trailId] + _counts[trailId]) & MaxPointsMask;
             if (_counts[trailId] >= MaxPoints)
-                _heads[trailId] = (_heads[trailId] + 1) % MaxPoints;
+                _heads[trailId] = (_heads[trailId] + 1) & MaxPointsMask;
             else
                 _counts[trailId]++;
 
@@ -119,7 +120,7 @@ namespace Gridlock.Visual
 
                 for (int i = 0; i < count; i++)
                 {
-                    int idx = (head + i) % MaxPoints;
+                    int idx = (head + i) & MaxPointsMask;
                     _points[t][idx].Time += dt;
 
                     if (_points[t][idx].Time >= duration)
@@ -130,7 +131,7 @@ namespace Gridlock.Visual
 
                 if (removed > 0)
                 {
-                    _heads[t] = (head + removed) % MaxPoints;
+                    _heads[t] = (head + removed) & MaxPointsMask;
                     _counts[t] -= removed;
                 }
             }
@@ -145,33 +146,36 @@ namespace Gridlock.Visual
                 if (!_alive[t] || _counts[t] < 2) continue;
 
                 float duration = _durations[t];
+                float invDuration = 1f / duration;
                 int head = _heads[t];
                 int count = _counts[t];
+                var startC = _startColors[t];
+                var midC = _midColors[t];
+                var endC = _endColors[t];
 
                 for (int i = 0; i < count - 1; i++)
                 {
-                    int idxA = (head + i) % MaxPoints;
-                    int idxB = (head + i + 1) % MaxPoints;
+                    int idxA = (head + i) & MaxPointsMask;
+                    int idxB = (head + i + 1) & MaxPointsMask;
 
                     ref var a = ref _points[t][idxA];
                     ref var b = ref _points[t][idxB];
 
-                    float tA = Math.Clamp(a.Time / duration, 0f, 1f);
-                    float tB = Math.Clamp(b.Time / duration, 0f, 1f);
+                    float tA = a.Time * invDuration;
+                    float tB = b.Time * invDuration;
+                    if (tA > 1f) tA = 1f;
+                    if (tB > 1f) tB = 1f;
 
-                    float fadeA = 1f - tA;
-                    float fadeB = 1f - tB;
-
-                    float midFade = (fadeA + fadeB) * 0.5f;
-
+                    float midFade = 1f - (tA + tB) * 0.5f;
                     float tMid = (tA + tB) * 0.5f;
-                    byte r = GradientByte(_startColors[t].R, _midColors[t].R, _endColors[t].R, tMid);
-                    byte g = GradientByte(_startColors[t].G, _midColors[t].G, _endColors[t].G, tMid);
-                    byte bVal = GradientByte(_startColors[t].B, _midColors[t].B, _endColors[t].B, tMid);
-                    byte alpha = (byte)Math.Clamp((int)(200f * midFade), 0, 255);
 
-                    var color = new Color(r, g, bVal, alpha);
-                    Raylib.DrawLine3D(a.Position, b.Position, color);
+                    byte r = GradientByte(startC.R, midC.R, endC.R, tMid);
+                    byte g = GradientByte(startC.G, midC.G, endC.G, tMid);
+                    byte bVal = GradientByte(startC.B, midC.B, endC.B, tMid);
+                    byte alpha = (byte)(200f * midFade);
+                    if (alpha < 2) continue;
+
+                    Raylib.DrawLine3D(a.Position, b.Position, new Color(r, g, bVal, alpha));
                 }
             }
 

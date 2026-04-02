@@ -17,7 +17,7 @@ namespace Gridlock.Enemies
         private int _nextSpawnIndex;
 
         private readonly List<Enemy> _activeEnemies = new();
-        private readonly List<Enemy> _removalBuffer = new();
+
 
         private WaveDefinition? _currentWave;
         private int _entryIndex;
@@ -157,17 +157,16 @@ namespace Gridlock.Enemies
 
         private void ProcessRemovals()
         {
-            _removalBuffer.Clear();
-            for (int i = 0; i < _activeEnemies.Count; i++)
+            for (int i = _activeEnemies.Count - 1; i >= 0; i--)
             {
                 var enemy = _activeEnemies[i];
-                if (enemy.Health.PendingRemoval)
-                    _removalBuffer.Add(enemy);
-            }
+                if (!enemy.Health.PendingRemoval) continue;
 
-            foreach (var enemy in _removalBuffer)
-            {
-                _activeEnemies.Remove(enemy);
+                int last = _activeEnemies.Count - 1;
+                if (i < last)
+                    _activeEnemies[i] = _activeEnemies[last];
+                _activeEnemies.RemoveAt(last);
+
                 EnemyRegistry.Unregister(enemy);
                 _pool.Return(enemy);
             }

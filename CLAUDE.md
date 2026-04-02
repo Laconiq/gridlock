@@ -112,12 +112,17 @@ When porting new mod stages from Unity, keep the same phase and execution order.
 
 The rendering and combat systems use several low-level patterns for performance:
 
-- **LineBatch** (`Rendering/LineBatch.cs`) — Batched line renderer using `Rlgl` directly. Accumulates line segments (position + color) and flushes them in a single `Rlgl.Begin(GL_LINES)` / `Rlgl.End()` call. Used by `DrawTowers()` and `DrawEnemies()` instead of individual `Raylib.DrawLine3D` / `DrawCubeWires` calls. Includes geometry helpers: `CubeWires`, `OctahedronWires`, `PyramidWires`, `PyramidThick`.
+- **LineBatch** (`Rendering/LineBatch.cs`) — Batched line renderer using `Rlgl` directly. Accumulates line segments (position + color) and flushes them in a single `Rlgl.Begin(GL_LINES)` / `Rlgl.End()` call. Used by `DrawTowers()` and `DrawEnemies()` instead of individual `Raylib.DrawLine3D` / `DrawCubeWires` calls. Includes geometry helpers: `CubeWires`, `OctahedronWires`, `PyramidWires`, `PyramidThick`. Note: for low-count line rendering (trails), `DrawLine3D` outperforms `LineBatch` due to less per-line overhead.
 - **SpatialHash** (`Combat/SpatialHash.cs`) — Grid-based spatial hashing for projectile-enemy collision. Rebuilt each `FixedUpdate` via `EnemyRegistry.RebuildSpatial()`. Cell lists are pooled to avoid per-frame allocations. `ModProjectile.SweepCollision()` queries the hash instead of iterating all enemies.
 - **EnemyPool** (`Enemies/EnemyPool.cs`) — Object pool for `Enemy` instances. `Enemy.Reset()` recycles an enemy with a new `EntityId`, fresh health, and cleared events/status effects. Eliminates GC pressure from spawn/death cycles.
 - **Projectile draw cache** — `DrawProjectiles()` iterates once, caching position/color/radius in a `ProjectileDrawData[]` array, then replays the cache for the additive glow pass.
+- **Swap-and-pop removal** — `EnemyRegistry.Unregister()` and `EnemySpawner.ProcessRemovals()` use swap-with-last + `RemoveAt(last)` instead of `List.Remove()` to avoid O(n) shifts.
+- **Cached enum arrays** — `Enum.GetValues<T>()` allocates a new array per call. UI code (`ModSlotPanel`) caches these as `static readonly` arrays to avoid per-frame allocations.
+- **Bitwise circular buffer** — `TrailSystem` uses `& (MaxPoints - 1)` instead of `% MaxPoints` for power-of-2 buffer wrapping. Trail rendering also uses `invDuration` (multiply) instead of per-segment division and skips invisible segments (`alpha < 2`).
+- **Pre-computed loot tables** — `LootTable` builds a `Dictionary<Rarity, ModType[]>` at init instead of allocating a `List` + calling `Enum.GetValues` per loot roll.
+- **Early-exit dead enemies** — `Enemy.Update()` checks `Health.PendingRemoval` before ticking `Health`/`StatusEffects`, skipping work on dying enemies.
 
-When adding new rendered entities, prefer `LineBatch` over individual `Raylib.DrawLine3D` calls. When adding new collision participants, integrate with `SpatialHash`.
+When adding new rendered entities, prefer `LineBatch` over individual `Raylib.DrawLine3D` calls for 100+ lines. When adding new collision participants, integrate with `SpatialHash`.
 
 ## Porting Reference
 

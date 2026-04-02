@@ -12,6 +12,11 @@ namespace Gridlock.UI
 {
     public sealed class ModSlotPanel
     {
+        private static readonly TargetingMode[] CachedTargetingModes = Enum.GetValues<TargetingMode>();
+        private static readonly string[] CachedTargetingNames = Enum.GetNames<TargetingMode>();
+        private static readonly ModType[] CachedModTypes = Enum.GetValues<ModType>();
+        private static readonly ModTags[] CachedModTags = Enum.GetValues<ModTags>();
+
         private Tower? _tower;
         private PlayerInventory? _inventory;
         private readonly List<ModSlotData> _workingSlots = new();
@@ -194,12 +199,11 @@ namespace Gridlock.UI
             ImGui.TextColored(TV4(DesignTokens.OnSurfaceVariant), "TARGETING");
             ImGui.SameLine();
             ImGui.SetNextItemWidth(120);
-            var modes = Enum.GetValues<TargetingMode>();
             int current = (int)_workingTargetingMode;
             ImGui.PushStyleColor(ImGuiCol.FrameBg, TV4(DesignTokens.SurfaceContainerHigh));
             ImGui.PushStyleColor(ImGuiCol.FrameBgHovered, TV4(DesignTokens.GlassInnerBgHover));
             ImGui.PushStyleColor(ImGuiCol.PopupBg, TV4(DesignTokens.SurfaceContainerHigh));
-            if (ImGui.Combo("##targeting", ref current, Enum.GetNames<TargetingMode>(), modes.Length))
+            if (ImGui.Combo("##targeting", ref current, CachedTargetingNames, CachedTargetingModes.Length))
             {
                 _workingTargetingMode = (TargetingMode)current;
             }
@@ -240,7 +244,7 @@ namespace Gridlock.UI
             int cols = Math.Max(1, (int)((availW + spacing) / (cardW + spacing)));
 
             int col = 0;
-            foreach (var modType in Enum.GetValues<ModType>())
+            foreach (var modType in CachedModTypes)
             {
                 if (!MatchesFilter(modType, filter)) continue;
 
@@ -573,7 +577,7 @@ namespace Gridlock.UI
                 var tags = pipeline.AccumulatedTags;
                 var activeFlags = new List<string>();
 
-                foreach (ModTags flag in Enum.GetValues<ModTags>())
+                foreach (var flag in CachedModTags)
                 {
                     if (flag == ModTags.None) continue;
                     if (tags.HasFlag(flag))

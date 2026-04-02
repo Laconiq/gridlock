@@ -59,11 +59,11 @@ namespace Gridlock.Enemies
 
         public void Update(float dt)
         {
-            Health.Update(dt);
-            StatusEffects.Update(dt);
-
             if (Health.PendingRemoval)
                 return;
+
+            Health.Update(dt);
+            StatusEffects.Update(dt);
 
             if (!IsAlive) return;
 

@@ -63,10 +63,11 @@ namespace Gridlock.Core
             if (_warpManager.Initialized)
                 _warpManager.DropStone(projectile.Position, 3f, 3f, projColor);
 
-            if (_projectileTrails.TryGetValue(projectile.GetHashCode(), out int trailId))
+            int hash = projectile.GetHashCode();
+            if (_projectileTrails.TryGetValue(hash, out int trailId))
             {
                 _trails.DestroyTrail(trailId);
-                _projectileTrails.Remove(projectile.GetHashCode());
+                _projectileTrails.Remove(hash);
             }
 
             _soundManager.Play(SoundType.ProjectileImpact, worldPos: projectile.Position);

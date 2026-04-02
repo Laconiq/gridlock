@@ -17,11 +17,30 @@ namespace Gridlock.Loot
         };
 
         private static readonly Random _rng = new();
+        private static readonly Dictionary<Rarity, ModType[]> _candidatesByRarity = BuildCandidateCache();
+
+        private static Dictionary<Rarity, ModType[]> BuildCandidateCache()
+        {
+            var cache = new Dictionary<Rarity, ModType[]>();
+            var allTypes = Enum.GetValues<ModType>();
+            foreach (Rarity rarity in Enum.GetValues<Rarity>())
+            {
+                var list = new List<ModType>();
+                foreach (var type in allTypes)
+                {
+                    if (ModRarity.GetRarity(type) == rarity)
+                        list.Add(type);
+                }
+                cache[rarity] = list.ToArray();
+            }
+            return cache;
+        }
 
         public ModType Roll()
         {
             var rarity = RollRarity();
-            return PickModOfRarity(rarity);
+            var candidates = _candidatesByRarity[rarity];
+            return candidates.Length > 0 ? candidates[_rng.Next(candidates.Length)] : ModType.Heavy;
         }
 
         private Rarity RollRarity()
@@ -37,19 +56,6 @@ namespace Gridlock.Loot
                 if (roll <= cumulative) return rw.Rarity;
             }
             return Rarity.Common;
-        }
-
-        private static ModType PickModOfRarity(Rarity rarity)
-        {
-            var candidates = new List<ModType>();
-            foreach (ModType type in Enum.GetValues(typeof(ModType)))
-            {
-                if (ModRarity.GetRarity(type) == rarity)
-                    candidates.Add(type);
-            }
-
-            if (candidates.Count == 0) return ModType.Heavy;
-            return candidates[_rng.Next(candidates.Count)];
         }
     }
 
