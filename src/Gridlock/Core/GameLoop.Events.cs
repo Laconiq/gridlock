@@ -63,6 +63,9 @@ namespace Gridlock.Core
                 _warpManager.Shockwave(_gridManager.ObjectivePosition, 5f, 10f, new Color(0, 255, 200, 255));
 
             _soundManager.Play(SoundType.WaveComplete);
+            _soundManager.Play(SoundType.UIAnnounce);
+
+            _hud.ShowAnnouncement($"WAVE_{waveNumber:D2}_CLEARED");
 
             Console.WriteLine($"[GameLoop] Wave {waveNumber} cleared!");
         }
@@ -108,6 +111,7 @@ namespace Gridlock.Core
             _particles.Clear();
             _voxelPool.Clear();
             _impactFlash.Clear();
+            _damageText.Clear();
             _towerSpinAngles.Clear();
             _towerBobPhases.Clear();
             _bloomPulse = BaseBloomIntensity;

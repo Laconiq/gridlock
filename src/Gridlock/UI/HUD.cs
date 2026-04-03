@@ -10,6 +10,10 @@ namespace Gridlock.UI
         private float _statePulse;
         private float _pulseDir = 1f;
 
+        private string? _announcement;
+        private float _announcementTimer;
+        private const float AnnouncementDuration = 2.5f;
+
         public bool WaveStartRequested { get; private set; }
 
         private static float Scale => Raylib.GetScreenHeight() / 1080f;
@@ -28,8 +32,17 @@ namespace Gridlock.UI
 
             DrawTopBar(state, wave, totalWaves, kills, hp, maxHP, enemiesAlive);
 
+            if (_announcementTimer > 0f)
+                DrawAnnouncement(dt);
+
             if (state == GameState.Preparing)
                 DrawBottomBar(towerCount, maxTowers);
+        }
+
+        public void ShowAnnouncement(string text)
+        {
+            _announcement = text;
+            _announcementTimer = AnnouncementDuration;
         }
 
         private void DrawTopBar(GameState state, int wave, int totalWaves, int kills,
@@ -178,6 +191,39 @@ namespace Gridlock.UI
             int opW = Raylib.MeasureText(opText, smallFont);
             rx -= opW;
             Raylib.DrawText(opText, rx, cy - S(6), smallFont, DesignTokens.OnSurfaceVariant);
+        }
+
+        private void DrawAnnouncement(float dt)
+        {
+            _announcementTimer -= dt;
+            if (_announcement == null) return;
+            if (_announcementTimer <= 0f) { _announcement = null; return; }
+
+            int screenW = Raylib.GetScreenWidth();
+            int screenH = Raylib.GetScreenHeight();
+
+            float fadeIn = Math.Min((AnnouncementDuration - _announcementTimer) / 0.3f, 1f);
+            float fadeOut = Math.Min(_announcementTimer / 0.4f, 1f);
+            float alpha = Math.Min(fadeIn, fadeOut);
+
+            int fontSize = S(32);
+            int textW = Raylib.MeasureText(_announcement, fontSize);
+            int cx = (screenW - textW) / 2;
+            int cy = screenH / 3;
+
+            byte a = (byte)Math.Clamp((int)(255 * alpha), 0, 255);
+            byte bgA = (byte)Math.Clamp((int)(180 * alpha), 0, 255);
+
+            int padX = S(32);
+            int padY = S(12);
+            Raylib.DrawRectangle(cx - padX, cy - padY, textW + padX * 2, fontSize + padY * 2,
+                new Color((byte)4, (byte)8, (byte)12, bgA));
+            Raylib.DrawRectangleLinesEx(
+                new Rectangle(cx - padX, cy - padY, textW + padX * 2, fontSize + padY * 2),
+                1f, new Color(DesignTokens.Primary.R, DesignTokens.Primary.G, DesignTokens.Primary.B, a));
+
+            Raylib.DrawText(_announcement, cx, cy, fontSize,
+                new Color(DesignTokens.Primary.R, DesignTokens.Primary.G, DesignTokens.Primary.B, a));
         }
 
         private void DrawBottomBar(int towerCount, int maxTowers)

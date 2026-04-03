@@ -494,6 +494,8 @@ namespace Gridlock.Core
                 rlImGui.End();
             }
 
+            _damageText.Render(_lastCamera);
+
             Raylib.DrawFPS(Raylib.GetScreenWidth() - 100, 10);
         }
 
@@ -528,16 +530,7 @@ namespace Gridlock.Core
             LineBatch.ThickLine3D(back, right, color);
         }
 
-        private static Color GetProjectileColor(ModTags tags)
-        {
-            if (tags.HasFlag(ModTags.Burn)) return new Color(255, 77, 13, 255);
-            if (tags.HasFlag(ModTags.Frost)) return new Color(51, 153, 255, 255);
-            if (tags.HasFlag(ModTags.Shock)) return new Color(255, 242, 51, 255);
-            if (tags.HasFlag(ModTags.Void)) return new Color(153, 26, 255, 255);
-            if (tags.HasFlag(ModTags.Heavy)) return new Color(255, 80, 80, 255);
-            if (tags.HasFlag(ModTags.Swift)) return new Color(100, 255, 180, 255);
-            return new Color(0, 255, 255, 255);
-        }
+        private static Color GetProjectileColor(ModTags tags) => ModTagsUtil.GetColor(tags);
 
         private static Color GetRarityColor(Rarity rarity) => rarity switch
         {

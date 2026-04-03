@@ -34,6 +34,31 @@ namespace Gridlock.Visual
             _shedIndex = 0;
         }
 
+        public static void ShedOnHit(Vector3 pos, Color color, float damage, float maxHP)
+        {
+            var pool = VoxelPool.Instance;
+            if (pool == null) return;
+
+            float percent = maxHP > 0f ? damage / maxHP : 0.05f;
+            int toShed = Math.Clamp((int)MathF.Round(percent * 20f * 0.08f), 1, 3);
+
+            for (int i = 0; i < toShed; i++)
+            {
+                var offset = new Vector3(
+                    (Random.Shared.NextSingle() * 2f - 1f) * 0.15f,
+                    Random.Shared.NextSingle() * 0.3f,
+                    (Random.Shared.NextSingle() * 2f - 1f) * 0.15f);
+
+                float u = Random.Shared.NextSingle() * 2f - 1f;
+                float theta = Random.Shared.NextSingle() * MathF.Tau;
+                float r = MathF.Sqrt(1f - u * u);
+                var dir = new Vector3(r * MathF.Cos(theta), MathF.Abs(u), r * MathF.Sin(theta));
+
+                var velocity = dir * (1.5f * (0.5f + Random.Shared.NextSingle()));
+                pool.Spawn(pos + offset, velocity, VoxelSize, color, 0f);
+            }
+        }
+
         public void OnDeath(Vector3 pos, Color color)
         {
             var pool = VoxelPool.Instance;

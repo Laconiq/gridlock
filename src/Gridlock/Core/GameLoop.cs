@@ -51,6 +51,7 @@ namespace Gridlock.Core
 
         private VoxelPool _voxelPool = null!;
         private ImpactFlash _impactFlash = null!;
+        private DamageTextSystem _damageText = null!;
         private readonly LineBatch _lineBatch = new();
 
         private readonly Dictionary<int, float> _towerSpinAngles = new();
@@ -77,6 +78,7 @@ namespace Gridlock.Core
         private float _shakeTimer;
         private float _shakeDuration;
         private float _shakeIntensity;
+        private Camera3D _lastCamera;
 
         private readonly Stopwatch _frameSw = Stopwatch.StartNew();
         private string? _pendingScreenshot;
@@ -188,6 +190,9 @@ namespace Gridlock.Core
             _impactFlash = new ImpactFlash();
             _impactFlash.Init();
 
+            _damageText = new DamageTextSystem();
+            _damageText.Init();
+
             _soundManager = new SoundManager();
             _soundManager.Init(BuildSoundConfigs());
             _soundManager.LoadFromJson("resources/data/audio_config.json");
@@ -263,6 +268,7 @@ namespace Gridlock.Core
             }
 
             var cam = _camera.Apply();
+            _lastCamera = cam;
 
             int screenW = Raylib.GetScreenWidth();
             int screenH = Raylib.GetScreenHeight();
@@ -364,6 +370,7 @@ namespace Gridlock.Core
             prof.End();
 
             _impactFlash.Update(dt);
+            _damageText.Update(dt);
             _pathVisualizer.Update(dt);
             _soundManager.Update();
 
@@ -592,6 +599,7 @@ namespace Gridlock.Core
             _soundManager.Shutdown();
             _voxelPool.Shutdown();
             _impactFlash.Shutdown();
+            _damageText.Shutdown();
 
             if (_postProcessingAvailable)
                 _postProcessing.Shutdown();

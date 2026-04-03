@@ -41,5 +41,17 @@ namespace Gridlock.Mods.Pipeline
                 _ => ModTags.None,
             };
         }
+
+        public static Raylib_cs.Color GetColor(ModTags tags)
+        {
+            if (tags.HasFlag(ModTags.Burn))  return new Raylib_cs.Color(255, 77, 13, 255);
+            if (tags.HasFlag(ModTags.Frost)) return new Raylib_cs.Color(51, 153, 255, 255);
+            if (tags.HasFlag(ModTags.Shock)) return new Raylib_cs.Color(255, 242, 51, 255);
+            if (tags.HasFlag(ModTags.Void))  return new Raylib_cs.Color(153, 26, 255, 255);
+            if (tags.HasFlag(ModTags.Leech)) return new Raylib_cs.Color(26, 255, 102, 255);
+            if (tags.HasFlag(ModTags.Heavy)) return new Raylib_cs.Color(255, 80, 80, 255);
+            if (tags.HasFlag(ModTags.Swift)) return new Raylib_cs.Color(100, 255, 180, 255);
+            return new Raylib_cs.Color(0, 255, 255, 255);
+        }
     }
 }
