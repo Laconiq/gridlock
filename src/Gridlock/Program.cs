@@ -4,11 +4,16 @@ using Raylib_cs;
 bool benchmark = args.Contains("--benchmark");
 bool profile = args.Contains("--profile");
 bool screenshot = args.Contains("--screenshot");
-int benchFrames = 600;
+int benchFrames = 0;
+double benchSeconds = 30;
 
 for (int i = 0; i < args.Length - 1; i++)
+{
     if (args[i] == "--frames")
         int.TryParse(args[i + 1], out benchFrames);
+    if (args[i] == "--seconds")
+        double.TryParse(args[i + 1], out benchSeconds);
+}
 
 var flags = ConfigFlags.ResizableWindow;
 if (!benchmark)
@@ -32,6 +37,7 @@ if (benchmark || screenshot)
     game.StartBenchmark();
 
 int frame = 0;
+var benchSw = System.Diagnostics.Stopwatch.StartNew();
 while (!Raylib.WindowShouldClose())
 {
     if (screenshot && frame == 120)
@@ -40,8 +46,11 @@ while (!Raylib.WindowShouldClose())
     game.RunFrame();
     frame++;
 
-    if (benchmark && frame >= benchFrames)
-        break;
+    if (benchmark)
+    {
+        if (benchFrames > 0 && frame >= benchFrames) break;
+        if (benchFrames == 0 && benchSw.Elapsed.TotalSeconds >= benchSeconds) break;
+    }
     if (screenshot && frame >= 130)
         break;
 }
