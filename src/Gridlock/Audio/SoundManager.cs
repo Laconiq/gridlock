@@ -157,7 +157,7 @@ namespace Gridlock.Audio
             float offset = worldX - _cameraWorldX;
             float halfWidth = _cameraViewWidth * 0.5f;
             float normalized = offset / halfWidth;
-            return Math.Clamp(normalized * 0.5f + 0.5f, 0f, 1f);
+            return Math.Clamp(normalized * 0.25f + 0.5f, 0f, 1f);
         }
 
         private InstanceTracker GetTracker(SoundType type)

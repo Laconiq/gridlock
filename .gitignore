@@ -25,6 +25,10 @@ packages/
 ## ImGui
 imgui.ini
 
+## Windows directory junctions (resolve symlinks for dotnet run)
+src/Gridlock/resources/audio/
+src/Gridlock/resources/shaders/
+
 ## Profiling output
 profile.csv
 profile_report.txt

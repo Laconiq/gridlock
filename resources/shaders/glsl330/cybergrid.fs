@@ -27,7 +27,7 @@ void main()
     float glow = clamp(dot(fragVertColor.rgb, vec3(0.33, 0.33, 0.33)) * 3.0, 0.0, 1.0);
 
     vec3 lineColor = mix(gridColor.rgb, fragVertColor.rgb, glow * 0.85);
-    float lineBrightness = 0.12 + glow * 0.5;
+    float lineBrightness = 0.30 + glow * 0.5;
 
     vec3 fill = vec3(0.0);
     float fillAlpha = 0.0;
