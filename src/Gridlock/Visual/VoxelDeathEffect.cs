@@ -15,7 +15,8 @@ namespace Gridlock.Visual
         public void Precompute(float scale)
         {
             int count = Math.Clamp((int)(20 * scale), 8, 30);
-            _precomputed = new Vector3[count];
+            if (_precomputed.Length != count)
+                _precomputed = new Vector3[count];
 
             float half = scale * 0.3f;
             for (int i = 0; i < count; i++)

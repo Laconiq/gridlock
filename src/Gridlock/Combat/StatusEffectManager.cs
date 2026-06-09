@@ -35,6 +35,22 @@ namespace Gridlock.Combat
 
         public void ApplyEffect(StatusEffectData data)
         {
+            // Refresh an existing effect with identical type+value instead of stacking, so repeated
+            // applications (e.g. a Frost slow) don't compound multiplicatively toward zero speed or
+            // grow the list without bound. Genuinely different effects (e.g. a Blizzard stun with
+            // Value 0) stay separate entries and keep their own durations.
+            for (int i = 0; i < _activeEffects.Count; i++)
+            {
+                var existing = _activeEffects[i];
+                if (existing.Data.Type == data.Type && existing.Data.Value == data.Value)
+                {
+                    if (data.Duration > existing.RemainingDuration)
+                        existing.RemainingDuration = data.Duration;
+                    RecalculateModifiers();
+                    return;
+                }
+            }
+
             _activeEffects.Add(new ActiveStatusEffect
             {
                 Data = data,

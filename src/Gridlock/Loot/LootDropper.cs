@@ -11,7 +11,6 @@ namespace Gridlock.Loot
 
         private readonly LootTable _lootTable;
         private readonly List<ModulePickup> _activePickups = new();
-        private readonly List<ModulePickup> _removalBuffer = new();
 
         private static readonly Random _rng = new();
 
@@ -37,15 +36,14 @@ namespace Gridlock.Loot
             for (int i = 0; i < _activePickups.Count; i++)
                 _activePickups[i].Update(dt, collectTarget);
 
-            _removalBuffer.Clear();
-            for (int i = 0; i < _activePickups.Count; i++)
+            for (int i = _activePickups.Count - 1; i >= 0; i--)
             {
-                if (_activePickups[i].Collected || _activePickups[i].Expired)
-                    _removalBuffer.Add(_activePickups[i]);
-            }
+                if (!_activePickups[i].Collected && !_activePickups[i].Expired) continue;
 
-            foreach (var pickup in _removalBuffer)
-                _activePickups.Remove(pickup);
+                int last = _activePickups.Count - 1;
+                _activePickups[i] = _activePickups[last];
+                _activePickups.RemoveAt(last);
+            }
         }
 
         public void Clear()

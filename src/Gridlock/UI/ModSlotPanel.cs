@@ -23,6 +23,8 @@ namespace Gridlock.UI
         private readonly List<SynergyEffect> _activeSynergies = new();
         private TargetingMode _workingTargetingMode;
         private ModType? _hoveredMod;
+        private string _pipelinePreview = "";
+        private bool _pipelinePreviewError;
         private ModType _draggedMod;
         private bool _dragActive;
         private float _dragPulse;
@@ -58,6 +60,10 @@ namespace Gridlock.UI
         public void Render()
         {
             if (_tower == null || _inventory == null) return;
+
+            // Cleared each frame so the info panel reflects only what's hovered this frame; the
+            // hover setters in DrawInventoryPane/DrawSlotChain re-assign it before DrawInfoArea reads it.
+            _hoveredMod = null;
 
             int screenW = Raylib.GetScreenWidth();
             int screenH = Raylib.GetScreenHeight();
@@ -570,29 +576,14 @@ namespace Gridlock.UI
 
             ImGui.TextColored(TV4(DesignTokens.OnSurfaceVariant), "PIPELINE");
 
-            var synergies = new List<SynergyEffect>(_activeSynergies);
-            try
-            {
-                var (pipeline, ctx) = PipelineCompiler.Compile(_workingSlots, _tower!.Data.BaseDamage, synergies);
-                var tags = pipeline.AccumulatedTags;
-                var activeFlags = new List<string>();
-
-                foreach (var flag in CachedModTags)
-                {
-                    if (flag == ModTags.None) continue;
-                    if (tags.HasFlag(flag))
-                        activeFlags.Add(flag.ToString());
-                }
-
-                if (activeFlags.Count > 0)
-                {
-                    ImGui.SameLine();
-                    ImGui.TextColored(TV4(DesignTokens.OnSurface), string.Join(" > ", activeFlags));
-                }
-            }
-            catch
+            if (_pipelinePreviewError)
             {
                 ImGui.TextColored(TV4(DesignTokens.Error), "Compile error");
+            }
+            else if (_pipelinePreview.Length > 0)
+            {
+                ImGui.SameLine();
+                ImGui.TextColored(TV4(DesignTokens.OnSurface), _pipelinePreview);
             }
         }
 
@@ -604,6 +595,36 @@ namespace Gridlock.UI
                 var syn = SynergyTable.Check(_workingSlots[i].modType, _workingSlots[i + 1].modType);
                 if (syn.HasValue && !_activeSynergies.Contains(syn.Value.effect))
                     _activeSynergies.Add(syn.Value.effect);
+            }
+
+            RebuildPipelinePreview();
+        }
+
+        // Recompiles the pipeline-preview string only when the slot chain changes, instead of every
+        // frame the panel is open (DrawPipelinePreview just renders this cached result).
+        private void RebuildPipelinePreview()
+        {
+            _pipelinePreviewError = false;
+            _pipelinePreview = "";
+            if (_workingSlots.Count == 0 || _tower == null) return;
+
+            try
+            {
+                var (pipeline, _) = PipelineCompiler.Compile(
+                    _workingSlots, _tower.Data.BaseDamage, new List<SynergyEffect>());
+                var tags = pipeline.AccumulatedTags;
+                var activeFlags = new List<string>();
+                foreach (var flag in CachedModTags)
+                {
+                    if (flag == ModTags.None) continue;
+                    if (tags.HasFlag(flag))
+                        activeFlags.Add(flag.ToString());
+                }
+                _pipelinePreview = string.Join(" > ", activeFlags);
+            }
+            catch
+            {
+                _pipelinePreviewError = true;
             }
         }
 

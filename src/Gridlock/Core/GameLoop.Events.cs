@@ -35,9 +35,8 @@ namespace Gridlock.Core
             _particles.BurstSphere(position, 20, 5f, 5f, 0.6f, new Color(255, 38, 38, 255));
 
             var deathColor = new Color((byte)255, (byte)80, (byte)80, (byte)255);
-            var voxelDeath = new VoxelDeathEffect();
-            voxelDeath.Precompute(0.8f);
-            voxelDeath.OnDeath(position, deathColor);
+            _voxelDeath.Precompute(0.8f);
+            _voxelDeath.OnDeath(position, deathColor);
 
             _impactFlash.Spawn(position, new Color((byte)255, (byte)100, (byte)50, (byte)255), 0.6f, 0.2f);
 

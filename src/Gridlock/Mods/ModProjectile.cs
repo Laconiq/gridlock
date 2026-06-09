@@ -12,6 +12,9 @@ namespace Gridlock.Mods
         private const float FlyHeight = 0.5f;
         private const float BaseHitRadius = 0.5f;
 
+        private static int _nextId;
+        public int EntityId { get; } = _nextId++;
+
         private ModPipeline _pipeline = null!;
         private ModContext _ctx;
         private bool _initialized;
@@ -84,11 +87,12 @@ namespace Gridlock.Mods
                 return;
             }
 
+            Vector3 prevPos = _ctx.Position;
             _ctx.Position += _ctx.Direction * (_ctx.Speed * dt);
-            CheckCollision();
+            CheckCollision(prevPos);
         }
 
-        private void CheckCollision()
+        private void CheckCollision(Vector3 prevPos)
         {
             bool homing = _ctx.Tags.HasFlag(ModTags.Homing);
 
@@ -113,16 +117,18 @@ namespace Gridlock.Mods
                 }
             }
 
-            SweepCollision();
+            SweepCollision(prevPos);
         }
 
         [ThreadStatic] private static List<Enemy>? _sweepBuffer;
 
-        private void SweepCollision()
+        private void SweepCollision(Vector3 prevPos)
         {
             float r = HitRadius;
-            Vector3 pos = _ctx.Position;
-            Vector3 nextPos = pos + _ctx.Direction * (_ctx.Speed * _ctx.DeltaTime);
+            // Sweep the segment actually travelled this frame [prevPos -> current position],
+            // not one full step ahead of it.
+            Vector3 pos = prevPos;
+            Vector3 nextPos = _ctx.Position;
 
             _sweepBuffer ??= new List<Enemy>(32);
             _sweepBuffer.Clear();
@@ -185,7 +191,8 @@ namespace Gridlock.Mods
                 var subPipeline = req.Pipeline ?? new ModPipeline();
                 var subCtx = _ctx.CloneForSub(req.DamageScale);
                 subCtx.Tags = subPipeline.AccumulatedTags;
-                if (subCtx.Tags.HasFlag(ModTags.Pierce)) subCtx.PierceRemaining = 3;
+                if (subCtx.Tags.HasFlag(ModTags.Pierce))
+                    subCtx.PierceRemaining = 3 + (subCtx.Synergies.Contains(SynergyEffect.Railgun) ? 2 : 0);
                 if (subCtx.Tags.HasFlag(ModTags.Bounce)) subCtx.BounceRemaining = 3;
 
                 var sub = new ModProjectile();

@@ -13,6 +13,7 @@ namespace Gridlock.Visual
         public float Size;
         public float Rotation;
         public float AngularVelocity;
+        public float Gravity;
         public byte R, G, B, A;
     }
 
@@ -60,6 +61,7 @@ namespace Gridlock.Visual
                 p.Size = sz;
                 p.Rotation = Random.Shared.NextSingle() * MathF.Tau;
                 p.AngularVelocity = (Random.Shared.NextSingle() - 0.5f) * 6f;
+                p.Gravity = gravity;
                 p.R = color.R;
                 p.G = color.G;
                 p.B = color.B;
@@ -92,6 +94,7 @@ namespace Gridlock.Visual
                 p.Size = sz;
                 p.Rotation = Random.Shared.NextSingle() * MathF.Tau;
                 p.AngularVelocity = (Random.Shared.NextSingle() - 0.5f) * 6f;
+                p.Gravity = gravity;
                 p.R = color.R;
                 p.G = color.G;
                 p.B = color.B;
@@ -112,7 +115,7 @@ namespace Gridlock.Visual
                     continue;
                 }
 
-                p.Velocity.Y -= 9.81f * dt;
+                p.Velocity.Y -= p.Gravity * dt;
                 p.Position += p.Velocity * dt;
                 p.Rotation += p.AngularVelocity * dt;
             }

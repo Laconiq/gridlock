@@ -41,14 +41,5 @@ namespace Gridlock.Loot
 
             _ => Rarity.Common
         };
-
-        public static float GetDropWeight(Rarity rarity) => rarity switch
-        {
-            Rarity.Common   => 50f,
-            Rarity.Uncommon => 30f,
-            Rarity.Rare     => 15f,
-            Rarity.Epic     => 5f,
-            _               => 50f
-        };
     }
 }

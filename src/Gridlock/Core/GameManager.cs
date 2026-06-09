@@ -20,6 +20,11 @@ namespace Gridlock.Core
 
         public void SetState(GameState newState)
         {
+            // Idempotent: a redundant transition to the current state (e.g. the objective being
+            // destroyed fires GameOver via both OnDestroyed and TakeDamage) does nothing, avoiding
+            // duplicate OnStateChanged side effects (double VFX, double screen reset).
+            if (newState == _currentState) return;
+
             var previous = _currentState;
             _currentState = newState;
             Console.WriteLine($"[GameManager] State changed: {previous} -> {newState}");

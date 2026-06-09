@@ -49,6 +49,10 @@ namespace Gridlock.Grid
         private int _locCellMap;
         private int _locGridColor;
 
+        private float[] _gridOriginUniform = new float[2];
+        private float[] _gridExtentUniform = new float[2];
+        private static readonly float[] GridColorUniform = { 0f, 1f, 1f, 1f };
+
         public void Init(GridManager gridManager, GridWarpManager warpManager)
         {
             _gridManager = gridManager;
@@ -57,6 +61,9 @@ namespace Gridlock.Grid
             var def = _gridManager.Definition;
             _gridWidth = def.Width * def.CellSize;
             _gridHeight = def.Height * def.CellSize;
+
+            _gridOriginUniform = new float[] { -_gridWidth * 0.5f, -_gridHeight * 0.5f };
+            _gridExtentUniform = new float[] { _gridWidth, _gridHeight };
 
             _resX = (int)MathF.Ceiling(_gridWidth * VERTICES_PER_UNIT);
             _resZ = (int)MathF.Ceiling(_gridHeight * VERTICES_PER_UNIT);
@@ -287,13 +294,9 @@ namespace Gridlock.Grid
                 Raylib.SetShaderValue(_gridShader, _locGridSize, def.CellSize, ShaderUniformDataType.Float);
                 Raylib.SetShaderValue(_gridShader, _locCellFill, CELL_FILL, ShaderUniformDataType.Float);
 
-                var origin = new float[] { -_gridWidth * 0.5f, -_gridHeight * 0.5f };
-                var extent = new float[] { _gridWidth, _gridHeight };
-                Raylib.SetShaderValue(_gridShader, _locGridOrigin, origin, ShaderUniformDataType.Vec2);
-                Raylib.SetShaderValue(_gridShader, _locGridExtent, extent, ShaderUniformDataType.Vec2);
-
-                var gridColor = new float[] { 0f, 1f, 1f, 1f };
-                Raylib.SetShaderValue(_gridShader, _locGridColor, gridColor, ShaderUniformDataType.Vec4);
+                Raylib.SetShaderValue(_gridShader, _locGridOrigin, _gridOriginUniform, ShaderUniformDataType.Vec2);
+                Raylib.SetShaderValue(_gridShader, _locGridExtent, _gridExtentUniform, ShaderUniformDataType.Vec2);
+                Raylib.SetShaderValue(_gridShader, _locGridColor, GridColorUniform, ShaderUniformDataType.Vec4);
 
                 // Bind cellMap sampler to texture unit 0 -- the material's albedo
                 // map is already set to _cellMap so DrawMesh will bind the correct

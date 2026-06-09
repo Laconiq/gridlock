@@ -45,11 +45,11 @@ namespace Gridlock.Core
         private SoundManager _soundManager = null!;
 
         private readonly List<ModProjectile> _projectiles = new();
-        private readonly List<ModProjectile> _projectileRemovalBuffer = new();
 
         private readonly Dictionary<int, int> _projectileTrails = new();
 
         private VoxelPool _voxelPool = null!;
+        private readonly VoxelDeathEffect _voxelDeath = new();
         private ImpactFlash _impactFlash = null!;
         private DamageTextSystem _damageText = null!;
         private readonly LineBatch _lineBatch = new();
@@ -128,7 +128,6 @@ namespace Gridlock.Core
                 Console.WriteLine("[GameLoop] WARNING: CyberGrid shader failed to load, using fallback grid.");
             }
 
-            WireframeMeshes.Init();
             _outlineShader = Raylib.LoadShader(
                 "resources/shaders/glsl330/vectoroutline.vs",
                 "resources/shaders/glsl330/vectoroutline.fs");
@@ -379,6 +378,7 @@ namespace Gridlock.Core
             _damageText.Update(dt);
             _pathVisualizer.Update(dt);
             _soundManager.Update();
+            _soundManager.SetCameraInfo(_camera.FocusPoint.X, _camera.OrthoSize * 3.4f);
 
             UpdateProjectileTrails();
 
@@ -612,7 +612,6 @@ namespace Gridlock.Core
 
             if (_outlineShaderLoaded)
                 Raylib.UnloadShader(_outlineShader);
-            WireframeMeshes.Shutdown();
 
             _gameManager.Shutdown();
             _gameStats.Shutdown();

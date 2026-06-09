@@ -60,8 +60,10 @@ namespace Gridlock.Visual
                 }
             }
 
+            // All trail slots are in use: skip rather than overwrite a live trail (which would
+            // alias two projectiles onto the same slot). Callers tolerate -1 via range guards.
             if (slot == -1)
-                slot = _nextId % MaxTrails;
+                return -1;
 
             _alive[slot] = true;
             _heads[slot] = 0;

@@ -15,8 +15,8 @@ namespace Gridlock.Core
         private readonly List<string> _sectionOrder = new();
         private readonly Stopwatch _sw = new();
 
-        private string? _activeSection;
-        private long _activeTick;
+        private readonly Frame[] _stack = new Frame[32];
+        private int _depth;
 
         private int _frameCount;
         private readonly List<FrameSnapshot> _history = new();
@@ -30,6 +30,8 @@ namespace Gridlock.Core
 
         public Profiler()
         {
+            for (int i = 0; i < _stack.Length; i++)
+                _stack[i] = new Frame();
             _sw.Start();
         }
 
@@ -37,8 +39,15 @@ namespace Gridlock.Core
         {
             if (!Enabled) return;
 
-            if (_activeSection != null)
-                End();
+            long now = _sw.ElapsedTicks;
+
+            // Pause the parent so its measured time excludes this nested child's duration
+            // (sections report exclusive self-time, so the report's totals don't double count).
+            if (_depth > 0)
+            {
+                var parent = _stack[_depth - 1];
+                parent.SelfMs += TicksToMs(now - parent.ResumeTick);
+            }
 
             if (!_sections.ContainsKey(name))
             {
@@ -46,31 +55,38 @@ namespace Gridlock.Core
                 _sectionOrder.Add(name);
             }
 
-            _activeSection = name;
-            _activeTick = _sw.ElapsedTicks;
+            if (_depth >= _stack.Length) return;
+            var frame = _stack[_depth++];
+            frame.Name = name;
+            frame.SelfMs = 0.0;
+            frame.ResumeTick = now;
         }
 
         public void End()
         {
-            if (!Enabled || _activeSection == null) return;
+            if (!Enabled || _depth == 0) return;
 
-            long elapsed = _sw.ElapsedTicks - _activeTick;
-            double ms = elapsed * 1000.0 / Stopwatch.Frequency;
+            long now = _sw.ElapsedTicks;
+            var frame = _stack[--_depth];
+            frame.SelfMs += TicksToMs(now - frame.ResumeTick);
 
-            var data = _sections[_activeSection];
-            data.TotalMs += ms;
+            var data = _sections[frame.Name];
+            data.TotalMs += frame.SelfMs;
             data.Count++;
-            if (ms > data.MaxMs) data.MaxMs = ms;
+            if (frame.SelfMs > data.MaxMs) data.MaxMs = frame.SelfMs;
 
-            _currentFrame[_activeSection] = _currentFrame.GetValueOrDefault(_activeSection) + ms;
-            _activeSection = null;
+            _currentFrame[frame.Name] = _currentFrame.GetValueOrDefault(frame.Name) + frame.SelfMs;
+
+            // Resume the parent now that this child has finished.
+            if (_depth > 0)
+                _stack[_depth - 1].ResumeTick = now;
         }
 
         public void EndFrame(double totalFrameMs)
         {
             if (!Enabled) return;
 
-            if (_activeSection != null)
+            while (_depth > 0)
                 End();
 
             _frameCount++;
@@ -184,6 +200,15 @@ namespace Gridlock.Core
             int hi = Math.Min(lo + 1, sorted.Count - 1);
             double frac = idx - lo;
             return sorted[lo] * (1 - frac) + sorted[hi] * frac;
+        }
+
+        private static double TicksToMs(long ticks) => ticks * 1000.0 / Stopwatch.Frequency;
+
+        private sealed class Frame
+        {
+            public string Name = "";
+            public long ResumeTick;
+            public double SelfMs;
         }
 
         private class SectionData

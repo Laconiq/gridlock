@@ -90,6 +90,9 @@ namespace Gridlock.Towers
             _placedTowers.Add(tower);
 
             _gridManager.SetRuntimeCell(gridPos.X, gridPos.Y, CellType.Blocked);
+            // Invalidate the cached preview cell so the ghost re-evaluates this now-blocked
+            // cell on the next UpdatePreview instead of keeping its stale "valid" state.
+            _lastPreviewGridPos = new Vector2Int(-1, -1);
 
             if (_defaultPreset != null)
                 tower.Executor.ApplyPreset(_defaultPreset);

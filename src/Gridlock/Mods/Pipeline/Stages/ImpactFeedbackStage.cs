@@ -23,8 +23,6 @@ namespace Gridlock.Mods.Pipeline.Stages
 
             ServiceLocator.Get<SoundManager>()?.Play(SoundType.EnemyHit, worldPos: ctx.Position);
 
-            GameJuice.Instance?.OnEnemyHit(ctx.Position);
-
             VoxelDeathEffect.ShedOnHit(ctx.Position, color, ctx.Damage, ctx.HitTarget?.MaxHP ?? 100f);
 
             DamageTextSystem.Instance?.Spawn(ctx.Position, ctx.Damage, color);

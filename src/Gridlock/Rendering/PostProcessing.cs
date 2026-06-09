@@ -37,47 +37,8 @@ namespace Gridlock.Rendering
         public float ChromaticIntensity { get; set; }
         public float VignetteIntensity { get; set; } = 0.3f;
 
-        private RenderTexture2D _blurA, _blurB;
-        private bool _hasBackdropBlur;
         public int ScreenWidth => _screenW;
         public int ScreenHeight => _screenH;
-
-        public void DrawBackdropBlur(Rectangle panelRect, float darken = 0.5f)
-        {
-            if (!_hasBackdropBlur) return;
-
-            var blur = _blurA.Texture;
-            var src = new Rectangle(0, 0, blur.Width, -blur.Height);
-            byte tint = (byte)Math.Clamp((int)(255 * darken), 0, 255);
-            Raylib.DrawTexturePro(blur, src, panelRect, Vector2.Zero, 0f,
-                new Color(tint, tint, tint, (byte)255));
-        }
-
-        public void BuildBackdropBlur()
-        {
-            if (_kawaseDownShader.Id == 0) return;
-
-            int bw = _internalW / 2;
-            int bh = _internalH / 2;
-            if (!_hasBackdropBlur)
-            {
-                _blurA = Raylib.LoadRenderTexture(bw, bh);
-                _blurB = Raylib.LoadRenderTexture(bw / 2, bh / 2);
-                _hasBackdropBlur = true;
-            }
-
-            float[] t1 = { 1f / _compositeRT.Texture.Width, 1f / _compositeRT.Texture.Height };
-            Raylib.SetShaderValue(_kawaseDownShader, _texelSizeDownLoc, t1, ShaderUniformDataType.Vec2);
-            BlitPass(_blurA, _compositeRT.Texture, _kawaseDownShader);
-
-            float[] t2 = { 1f / _blurA.Texture.Width, 1f / _blurA.Texture.Height };
-            Raylib.SetShaderValue(_kawaseDownShader, _texelSizeDownLoc, t2, ShaderUniformDataType.Vec2);
-            BlitPass(_blurB, _blurA.Texture, _kawaseDownShader);
-
-            float[] t3 = { 1f / _blurB.Texture.Width, 1f / _blurB.Texture.Height };
-            Raylib.SetShaderValue(_kawaseDownShader, _texelSizeDownLoc, t3, ShaderUniformDataType.Vec2);
-            BlitPass(_blurA, _blurB.Texture, _kawaseDownShader);
-        }
 
         const int BloomIterations = 3;
         const string ShaderPath = "resources/shaders/glsl330/";
@@ -240,12 +201,6 @@ namespace Gridlock.Rendering
                 Raylib.UnloadRenderTexture(_bloomDown[i]);
             for (int i = 0; i < _bloomUp.Length; i++)
                 Raylib.UnloadRenderTexture(_bloomUp[i]);
-            if (_hasBackdropBlur)
-            {
-                Raylib.UnloadRenderTexture(_blurA);
-                Raylib.UnloadRenderTexture(_blurB);
-                _hasBackdropBlur = false;
-            }
         }
     }
 }

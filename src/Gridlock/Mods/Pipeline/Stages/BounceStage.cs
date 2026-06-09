@@ -34,7 +34,10 @@ namespace Gridlock.Mods.Pipeline.Stages
             ctx.Target = best;
             var dir = best.Position - ctx.Position;
             dir = new Vector3(dir.X, 0f, dir.Z);
-            ctx.Direction = Vector3.Normalize(dir);
+            // Guard against a coincident next target (zero vector) which would make
+            // Vector3.Normalize return NaN and corrupt the projectile's motion.
+            if (dir.LengthSquared() > 0.0001f)
+                ctx.Direction = Vector3.Normalize(dir);
             ctx.Consumed = false;
         }
 

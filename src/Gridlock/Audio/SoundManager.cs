@@ -91,7 +91,14 @@ namespace Gridlock.Audio
                                 loaded.Add(Raylib.LoadSound(path));
                         }
                         if (loaded.Count > 0)
+                        {
+                            // Unload any sounds a prior Init() loaded for this type before replacing
+                            // the array, otherwise those audio buffers leak for the process lifetime.
+                            if (_sounds.TryGetValue(soundType, out var previous))
+                                foreach (var s in previous)
+                                    Raylib.UnloadSound(s);
                             _sounds[soundType] = loaded.ToArray();
+                        }
                     }
                 }
                 Console.WriteLine($"[SoundManager] Loaded {_sounds.Count} sound types from {jsonPath}");
@@ -134,7 +141,10 @@ namespace Gridlock.Audio
             }
 
             Raylib.PlaySound(sound);
-            tracker.Register();
+            float lengthSeconds = sound.FrameCount > 0 && sound.Stream.SampleRate > 0
+                ? (float)sound.FrameCount / sound.Stream.SampleRate
+                : 0.25f;
+            tracker.Register(Raylib.GetTime() + lengthSeconds);
         }
 
         public void Update()
@@ -185,24 +195,36 @@ namespace Gridlock.Audio
 
         private sealed class InstanceTracker
         {
-            public int ActiveCount { get; private set; }
+            private readonly List<double> _endTimes = new();
             private double _lastPlayTime = -1000.0;
+
+            // Instances still audibly playing (their end time is in the future). Decays as sounds
+            // finish rather than being blanket-reset each frame, so MaxInstances limits real polyphony.
+            public int ActiveCount => _endTimes.Count;
 
             public bool IsOnCooldown(float cooldown)
             {
                 return Raylib.GetTime() - _lastPlayTime < cooldown;
             }
 
-            public void Register()
+            public void Register(double endTime)
             {
-                ActiveCount++;
+                _endTimes.Add(endTime);
                 _lastPlayTime = Raylib.GetTime();
             }
 
             public void Tick()
             {
-                if (ActiveCount > 0)
-                    ActiveCount = 0;
+                double now = Raylib.GetTime();
+                for (int i = _endTimes.Count - 1; i >= 0; i--)
+                {
+                    if (_endTimes[i] <= now)
+                    {
+                        int last = _endTimes.Count - 1;
+                        _endTimes[i] = _endTimes[last];
+                        _endTimes.RemoveAt(last);
+                    }
+                }
             }
         }
     }

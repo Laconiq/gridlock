@@ -42,7 +42,7 @@ namespace Gridlock.Core
                 (byte)230);
             var endColor = new Color((byte)(color.R / 4), (byte)(color.G / 4), (byte)(color.B / 4), (byte)0);
             int trailId = _trails.CreateTrail(0.2f, trailWidth, startColor, endColor, color);
-            _projectileTrails[projectile.GetHashCode()] = trailId;
+            _projectileTrails[projectile.EntityId] = trailId;
         }
 
         private void OnProjectileDestroyed(ModProjectile projectile)
@@ -63,11 +63,11 @@ namespace Gridlock.Core
             if (_warpManager.Initialized)
                 _warpManager.DropStone(projectile.Position, 3f, 3f, projColor);
 
-            int hash = projectile.GetHashCode();
-            if (_projectileTrails.TryGetValue(hash, out int trailId))
+            int id = projectile.EntityId;
+            if (_projectileTrails.TryGetValue(id, out int trailId))
             {
                 _trails.DestroyTrail(trailId);
-                _projectileTrails.Remove(hash);
+                _projectileTrails.Remove(id);
             }
 
             _soundManager.Play(SoundType.ProjectileImpact, worldPos: projectile.Position);
@@ -80,16 +80,16 @@ namespace Gridlock.Core
 
         private void CleanupDestroyedProjectiles()
         {
-            _projectileRemovalBuffer.Clear();
-            for (int i = 0; i < _projectiles.Count; i++)
+            for (int i = _projectiles.Count - 1; i >= 0; i--)
             {
-                if (_projectiles[i].IsDestroyed)
-                    _projectileRemovalBuffer.Add(_projectiles[i]);
-            }
-            foreach (var proj in _projectileRemovalBuffer)
-            {
-                _projectiles.Remove(proj);
+                var proj = _projectiles[i];
+                if (!proj.IsDestroyed) continue;
+
                 proj.OnDestroyed -= OnProjectileDestroyed;
+                int last = _projectiles.Count - 1;
+                if (i < last)
+                    _projectiles[i] = _projectiles[last];
+                _projectiles.RemoveAt(last);
             }
         }
 
@@ -98,7 +98,7 @@ namespace Gridlock.Core
             foreach (var proj in _projectiles)
             {
                 if (proj.IsDestroyed) continue;
-                if (_projectileTrails.TryGetValue(proj.GetHashCode(), out int trailId))
+                if (_projectileTrails.TryGetValue(proj.EntityId, out int trailId))
                 {
                     float warpY = _warpManager.Initialized
                         ? _warpManager.GetWarpOffset(proj.Position.X, proj.Position.Z) : 0f;
