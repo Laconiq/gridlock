@@ -99,7 +99,10 @@ namespace Gridlock.Rendering
             Raylib.SetTextureFilter(_compositeRT.Texture, TextureFilter.Point);
 
             _bloomDown = new RenderTexture2D[BloomIterations];
-            _bloomUp = new RenderTexture2D[BloomIterations];
+            // The top of the up-sample chain reads directly from _bloomDown[last], so _bloomUp
+            // needs one fewer slot. Aliasing _bloomUp[last] = _bloomDown[last] previously leaked
+            // and double-unloaded a texture.
+            _bloomUp = new RenderTexture2D[BloomIterations - 1];
 
             int w = _internalW / 2;
             int h = _internalH / 2;
@@ -109,8 +112,11 @@ namespace Gridlock.Rendering
                 h = Math.Max(1, h);
                 _bloomDown[i] = Raylib.LoadRenderTexture(w, h);
                 Raylib.SetTextureFilter(_bloomDown[i].Texture, TextureFilter.Bilinear);
-                _bloomUp[i] = Raylib.LoadRenderTexture(w, h);
-                Raylib.SetTextureFilter(_bloomUp[i].Texture, TextureFilter.Bilinear);
+                if (i < BloomIterations - 1)
+                {
+                    _bloomUp[i] = Raylib.LoadRenderTexture(w, h);
+                    Raylib.SetTextureFilter(_bloomUp[i].Texture, TextureFilter.Bilinear);
+                }
                 w /= 2;
                 h /= 2;
             }
@@ -148,12 +154,15 @@ namespace Gridlock.Rendering
                 BlitPass(_bloomDown[i], _bloomDown[i - 1].Texture, _kawaseDownShader);
             }
 
-            _bloomUp[BloomIterations - 1] = _bloomDown[BloomIterations - 1];
             for (int i = BloomIterations - 2; i >= 0; i--)
             {
-                float[] texel = { 1f / _bloomUp[i + 1].Texture.Width, 1f / _bloomUp[i + 1].Texture.Height };
+                // First up-sample step reads the smallest down mip; the rest chain through _bloomUp.
+                RenderTexture2D source = (i == BloomIterations - 2)
+                    ? _bloomDown[BloomIterations - 1]
+                    : _bloomUp[i + 1];
+                float[] texel = { 1f / source.Texture.Width, 1f / source.Texture.Height };
                 Raylib.SetShaderValue(_kawaseUpShader, _texelSizeUpLoc, texel, ShaderUniformDataType.Vec2);
-                BlitPass(_bloomUp[i], _bloomUp[i + 1].Texture, _kawaseUpShader);
+                BlitPass(_bloomUp[i], source.Texture, _kawaseUpShader);
             }
 
             Raylib.BeginTextureMode(_compositeRT);

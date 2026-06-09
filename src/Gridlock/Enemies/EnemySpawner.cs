@@ -140,9 +140,12 @@ namespace Gridlock.Enemies
                 enemy.OnReachedObjective += NotifyDespawn;
                 enemy.Health.OnDeath += () =>
                 {
-                    OnEnemyKilled?.Invoke(enemy.Position);
+                    // Only credit a kill (+ death VFX + loot) for enemies actually destroyed by
+                    // the player. Enemies that reached the objective already set despawned via
+                    // NotifyDespawn, so this is suppressed for them.
                     if (despawned) return;
                     despawned = true;
+                    OnEnemyKilled?.Invoke(enemy.Position);
                     OnEnemyDespawned?.Invoke();
                     LootDropper.Instance?.OnEnemyDied(enemy.Position);
                 };

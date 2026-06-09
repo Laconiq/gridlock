@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 using Gridlock.Combat;
+using Gridlock.Core;
 using Gridlock.Enemies;
 using Gridlock.Mods.Pipeline;
 using Gridlock.Towers;
@@ -126,6 +127,7 @@ namespace Gridlock.Mods
             var pipeline = _cachedPipeline.Clone();
             var ctx = _cachedBaseCtx.Clone();
             ctx.DeltaTime = dt;
+            ctx.ObjectiveHealer = ObjectiveController.Instance;
 
             var projectile = new ModProjectile();
             projectile.Initialize(pipeline, ctx, target, spawnPos);

@@ -332,6 +332,11 @@ namespace Gridlock.Core
             _warpManager.Update(dt);
             prof.End();
 
+            // Freeze gameplay simulation on game over; visual systems (warp above,
+            // particles/trails/voxels in Update) keep animating the death VFX.
+            if (_gameManager.CurrentState == GameState.GameOver)
+                return;
+
             prof.Begin("  EnemyUpdate");
             _enemySpawner.Update(dt);
             prof.End();
@@ -355,7 +360,8 @@ namespace Gridlock.Core
             _gridVisual.Update(dt);
             prof.End();
 
-            _towerPlacement.Update(dt);
+            if (_gameManager.CurrentState != GameState.GameOver)
+                _towerPlacement.Update(dt);
 
             prof.Begin("  Particles");
             _particles.Update(dt);
