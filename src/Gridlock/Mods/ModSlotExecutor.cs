@@ -76,20 +76,28 @@ namespace Gridlock.Mods
             SpawnProjectile(target, dt);
         }
 
+        [ThreadStatic] private static List<Enemy>? _targetBuffer;
+
         private ITargetable? SelectTarget()
         {
-            var entries = EnemyRegistry.All;
-            if (entries.Count == 0) return null;
-
-            float rangeSq = _tower.Data.BaseRange * _tower.Data.BaseRange;
+            float range = _tower.Data.BaseRange;
+            float rangeSq = range * range;
             Vector3 towerPos = _tower.Position;
+
+            // Query the spatial hash by range instead of scanning every enemy. The box query is
+            // narrowed back to the exact range circle by the distSq check below, so the selected
+            // target is identical to the old full-registry scan.
+            var buf = _targetBuffer ??= new List<Enemy>(32);
+            buf.Clear();
+            EnemyRegistry.Spatial.QuerySegment(towerPos, towerPos, range, buf);
+            if (buf.Count == 0) return null;
 
             Enemy? best = null;
             float bestScore = float.MaxValue;
 
-            for (int i = 0; i < entries.Count; i++)
+            for (int i = 0; i < buf.Count; i++)
             {
-                var enemy = entries[i];
+                var enemy = buf[i];
                 if (!enemy.IsAlive) continue;
 
                 float distSq = Vector3.DistanceSquared(enemy.Position, towerPos);
@@ -110,8 +118,8 @@ namespace Gridlock.Mods
         {
             return TargetingMode switch
             {
-                TargetingMode.First => -enemy.RouteIndex,
-                TargetingMode.Last => enemy.RouteIndex,
+                TargetingMode.First => -enemy.RouteProgress,
+                TargetingMode.Last => enemy.RouteProgress,
                 TargetingMode.Nearest => distSqToTower,
                 TargetingMode.Strongest => -enemy.Health.CurrentHP,
                 TargetingMode.Weakest => enemy.Health.CurrentHP,
@@ -124,7 +132,10 @@ namespace Gridlock.Mods
             if (_cachedPipeline == null) return;
 
             Vector3 spawnPos = _tower.FirePoint;
-            var pipeline = _cachedPipeline.Clone();
+            // The compiled pipeline is immutable during flight (no stage mutates pipeline/stage
+            // state), so share it across shots instead of cloning per shot. Only the context holds
+            // per-projectile mutable state and still needs a per-shot copy.
+            var pipeline = _cachedPipeline;
             var ctx = _cachedBaseCtx.Clone();
             ctx.DeltaTime = dt;
             ctx.ObjectiveHealer = ObjectiveController.Instance;

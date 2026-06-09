@@ -17,6 +17,10 @@ namespace Gridlock.Enemies
         private bool _followingRoute;
         private bool _reachedObjective;
 
+        // Per-life guard shared by the spawner's reach-objective and death handlers (replaces a
+        // per-spawn closure). Reset on pool recycle.
+        public bool Despawned;
+
         public int EntityId { get; private set; }
         public Vector3 Position { get; set; }
         public bool IsAlive => Health.IsAlive;
@@ -48,6 +52,7 @@ namespace Gridlock.Enemies
             Health = new EnemyHealth(data.MaxHP);
             StatusEffects = new StatusEffectManager(Health);
             Health.SetStatusEffects(StatusEffects);
+            Health.SetOwner(this);
         }
 
         public void AssignRoute(Vector3[] route, int startIndex)
@@ -161,6 +166,7 @@ namespace Gridlock.Enemies
             _routeIndex = 0;
             _followingRoute = false;
             _reachedObjective = false;
+            Despawned = false;
             NormalizedSpeed = 0f;
 
             Health.Reset(data.MaxHP);

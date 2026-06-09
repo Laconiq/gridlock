@@ -59,7 +59,6 @@ namespace Gridlock.Core
 
         private Shader _outlineShader;
         private Material _outlineMaterial;
-        private bool _outlineShaderLoaded;
         private int _locLineColor;
         private int _locEmissionIntensity;
         private int _locEdgeWidth;
@@ -133,7 +132,7 @@ namespace Gridlock.Core
                 "resources/shaders/glsl330/vectoroutline.fs");
             if (_outlineShader.Id > 0)
             {
-                _outlineShaderLoaded = false; // Disabled — wireframe shader renders incorrectly at isometric angles
+                // Outline wireframe rendering is disabled — the shader renders incorrectly at iso angles.
                 _locLineColor = Raylib.GetShaderLocation(_outlineShader, "lineColor");
                 _locEmissionIntensity = Raylib.GetShaderLocation(_outlineShader, "emissionIntensity");
                 _locEdgeWidth = Raylib.GetShaderLocation(_outlineShader, "edgeWidth");
@@ -610,7 +609,9 @@ namespace Gridlock.Core
             if (_postProcessingAvailable)
                 _postProcessing.Shutdown();
 
-            if (_outlineShaderLoaded)
+            // Unload the outline shader whenever it was actually created (it is loaded but the
+            // outline render feature is disabled), so the GPU shader program isn't leaked.
+            if (_outlineShader.Id > 0)
                 Raylib.UnloadShader(_outlineShader);
 
             _gameManager.Shutdown();

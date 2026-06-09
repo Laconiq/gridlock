@@ -10,6 +10,7 @@ namespace Gridlock.Enemies
         private float _deathTimer;
         private bool _dying;
         private StatusEffectManager? _statusEffects;
+        private Enemy? _owner;
 
         public float CurrentHP => _currentHP;
         public float MaxHP { get; private set; }
@@ -17,7 +18,7 @@ namespace Gridlock.Enemies
         public bool PendingRemoval => _dying && _deathTimer <= 0f;
         public float LastHitTime { get; private set; } = -1f;
 
-        public event Action? OnDeath;
+        public event Action<Enemy>? OnDeath;
 
         public EnemyHealth(float maxHP, float deathAnimDuration = 2f)
         {
@@ -29,6 +30,11 @@ namespace Gridlock.Enemies
         public void SetStatusEffects(StatusEffectManager statusEffects)
         {
             _statusEffects = statusEffects;
+        }
+
+        public void SetOwner(Enemy owner)
+        {
+            _owner = owner;
         }
 
         public void TakeDamage(DamageInfo damage)
@@ -53,7 +59,7 @@ namespace Gridlock.Enemies
         {
             _dying = true;
             _deathTimer = _deathAnimDuration;
-            OnDeath?.Invoke();
+            OnDeath?.Invoke(_owner!);
         }
 
         public void ForceKill()

@@ -14,6 +14,8 @@ namespace Gridlock.Enemies
 
         private readonly GridManager _gridManager;
         private readonly EnemyPool _pool = new();
+        private readonly Action<Enemy> _onReachedObjective;
+        private readonly Action<Enemy> _onEnemyDeath;
         private int _nextSpawnIndex;
 
         private readonly List<Enemy> _activeEnemies = new();
@@ -31,6 +33,8 @@ namespace Gridlock.Enemies
         public EnemySpawner(GridManager gridManager)
         {
             _gridManager = gridManager;
+            _onReachedObjective = HandleReachedObjective;
+            _onEnemyDeath = HandleEnemyDeath;
         }
 
         private Vector3 GetSpawnPosition()
@@ -130,26 +134,29 @@ namespace Gridlock.Enemies
 
             if (tracked)
             {
-                bool despawned = false;
-                void NotifyDespawn(Enemy _)
-                {
-                    if (despawned) return;
-                    despawned = true;
-                    OnEnemyDespawned?.Invoke();
-                }
-                enemy.OnReachedObjective += NotifyDespawn;
-                enemy.Health.OnDeath += () =>
-                {
-                    // Only credit a kill (+ death VFX + loot) for enemies actually destroyed by
-                    // the player. Enemies that reached the objective already set despawned via
-                    // NotifyDespawn, so this is suppressed for them.
-                    if (despawned) return;
-                    despawned = true;
-                    OnEnemyKilled?.Invoke(enemy.Position);
-                    OnEnemyDespawned?.Invoke();
-                    LootDropper.Instance?.OnEnemyDied(enemy.Position);
-                };
+                // Subscribe cached delegates (no per-spawn closure allocation). The despawn/kill
+                // guard lives on the pooled Enemy (Enemy.Despawned), reset on recycle.
+                enemy.OnReachedObjective += _onReachedObjective;
+                enemy.Health.OnDeath += _onEnemyDeath;
             }
+        }
+
+        private void HandleReachedObjective(Enemy enemy)
+        {
+            if (enemy.Despawned) return;
+            enemy.Despawned = true;
+            OnEnemyDespawned?.Invoke();
+        }
+
+        // Only credit a kill (+ death VFX + loot) for enemies actually destroyed by the player.
+        // Enemies that reached the objective already set Despawned via HandleReachedObjective.
+        private void HandleEnemyDeath(Enemy enemy)
+        {
+            if (enemy.Despawned) return;
+            enemy.Despawned = true;
+            OnEnemyKilled?.Invoke(enemy.Position);
+            OnEnemyDespawned?.Invoke();
+            LootDropper.Instance?.OnEnemyDied(enemy.Position);
         }
 
         private void UpdateEnemies(float dt)
