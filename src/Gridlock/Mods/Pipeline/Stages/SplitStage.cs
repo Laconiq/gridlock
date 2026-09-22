@@ -11,6 +11,10 @@ namespace Gridlock.Mods.Pipeline.Stages
 
         public StagePhase Phase => StagePhase.Configure;
 
+        // Stages hold no per-projectile state, so the child pipeline can be built once per owner.
+        private ModPipeline? _cachedOwner;
+        private ModPipeline? _cachedChild;
+
         public void Execute(ref ModContext ctx)
         {
             int extras = ExtraCount + BarrageBonus;
@@ -25,6 +29,14 @@ namespace Gridlock.Mods.Pipeline.Stages
 
             ctx.Direction = RotateAroundY(baseDir, startAngle);
 
+            var owner = ctx.OwnerPipeline;
+            if (owner != null && owner != _cachedOwner)
+            {
+                _cachedOwner = owner;
+                _cachedChild = owner.CloneExcludingPhase(StagePhase.Configure);
+            }
+            var child = owner != null ? _cachedChild : null;
+
             for (int i = 1; i < total; i++)
             {
                 float angle = startAngle + step * i;
@@ -33,9 +45,9 @@ namespace Gridlock.Mods.Pipeline.Stages
                 {
                     Origin = ctx.Position,
                     Direction = dir,
-                    Pipeline = ctx.OwnerPipeline?.CloneExcludingPhase(StagePhase.Configure),
+                    Pipeline = child,
                     DamageScale = 1f,
-                    Target = ctx.Target,
+                    Target = ctx.ValidTarget,
                 });
             }
         }

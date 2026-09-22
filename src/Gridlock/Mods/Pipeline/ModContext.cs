@@ -16,6 +16,7 @@ namespace Gridlock.Mods.Pipeline
         public float WideRadius;
         public float DeltaTime;
         public ITargetable? Target;
+        public int TargetId;
         public ITargetable? HitTarget;
         public ModTags Tags;
         public List<SpawnRequest> SpawnRequests;
@@ -30,6 +31,17 @@ namespace Gridlock.Mods.Pipeline
         public bool DelayFired;
         public ModPipeline? OwnerPipeline;
         public IObjectiveHealer? ObjectiveHealer;
+
+        // Enemies are pooled: a dead target can be recycled into a new live enemy at the spawn
+        // point. The EntityId captured at assignment tells the two apart.
+        public readonly ITargetable? ValidTarget =>
+            Target != null && Target.IsAlive && Target.EntityId == TargetId ? Target : null;
+
+        public void SetTarget(ITargetable? target)
+        {
+            Target = target;
+            TargetId = target?.EntityId ?? -1;
+        }
 
         public static ModContext Create(float damage, float speed, float size, float lifetime)
         {

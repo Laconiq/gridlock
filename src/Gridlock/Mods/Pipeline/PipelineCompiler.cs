@@ -17,7 +17,7 @@ namespace Gridlock.Mods.Pipeline
             ctx.Synergies = new List<SynergyEffect>(activeSynergies);
             ctx.Tags = pipeline.AccumulatedTags;
 
-            ApplyContextSynergies(ref ctx, pipeline, activeSynergies);
+            ApplyContextSynergies(ref ctx, pipeline.AccumulatedTags, activeSynergies);
 
             return (pipeline, ctx);
         }
@@ -199,13 +199,17 @@ namespace Gridlock.Mods.Pipeline
             };
         }
 
-        private static void ApplyContextSynergies(ref ModContext ctx, ModPipeline pipeline, List<SynergyEffect> synergies)
-        {
-            int pierceCount = pipeline.AccumulatedTags.HasFlag(ModTags.Pierce) ? 3 : 0;
-            int bounceCount = pipeline.AccumulatedTags.HasFlag(ModTags.Bounce) ? 3 : 0;
+        public const int PierceCharges = 3;
+        public const int RailgunBonusPierce = 2;
+        public const int BounceCharges = 3;
 
-            if (synergies.Contains(SynergyEffect.Railgun))
-                pierceCount += 2;
+        public static void ApplyContextSynergies(ref ModContext ctx, ModTags tags, List<SynergyEffect> synergies)
+        {
+            int pierceCount = tags.HasFlag(ModTags.Pierce) ? PierceCharges : 0;
+            int bounceCount = tags.HasFlag(ModTags.Bounce) ? BounceCharges : 0;
+
+            if (pierceCount > 0 && synergies.Contains(SynergyEffect.Railgun))
+                pierceCount += RailgunBonusPierce;
 
             ctx.PierceRemaining = pierceCount;
             ctx.BounceRemaining = bounceCount;

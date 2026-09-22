@@ -31,7 +31,7 @@ namespace Gridlock.Mods.Pipeline.Stages
             if (best == null) return;
 
             ctx.BounceRemaining--;
-            ctx.Target = best;
+            ctx.SetTarget(best);
             var dir = best.Position - ctx.Position;
             dir = new Vector3(dir.X, 0f, dir.Z);
             // Guard against a coincident next target (zero vector) which would make

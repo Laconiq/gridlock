@@ -72,7 +72,9 @@ namespace Gridlock.Mods
             var target = SelectTarget();
             if (target == null) return;
 
-            _fireTimer = 0f;
+            // Carry the remainder so the real fire rate matches the configured one; the cap stops
+            // time banked while idle from producing a burst when a target appears.
+            _fireTimer = MathF.Min(_fireTimer - interval, interval);
             SpawnProjectile(target, dt);
         }
 
@@ -142,7 +144,8 @@ namespace Gridlock.Mods
 
             var projectile = new ModProjectile();
             projectile.Initialize(pipeline, ctx, target, spawnPos);
-            OnProjectileSpawned?.Invoke(projectile);
+            if (!projectile.IsDestroyed)
+                OnProjectileSpawned?.Invoke(projectile);
         }
     }
 }

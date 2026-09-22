@@ -13,13 +13,15 @@ namespace Gridlock.Mods.Pipeline.Stages
 
         public void Execute(ref ModContext ctx)
         {
-            if (ctx.Target == null || !ctx.Target.IsAlive)
+            var target = ctx.ValidTarget;
+            if (target == null)
             {
-                ctx.Target = FindNearest(ref ctx);
-                if (ctx.Target == null) return;
+                target = FindNearest(ref ctx);
+                ctx.SetTarget(target);
+                if (target == null) return;
             }
 
-            var toTarget = ctx.Target.Position - ctx.Position;
+            var toTarget = target.Position - ctx.Position;
             toTarget = new Vector3(toTarget.X, 0f, toTarget.Z);
             if (toTarget.LengthSquared() < 0.001f) return;
 

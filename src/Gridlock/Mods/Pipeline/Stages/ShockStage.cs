@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Numerics;
 using Gridlock.Combat;
 using Gridlock.Enemies;
@@ -12,19 +13,24 @@ namespace Gridlock.Mods.Pipeline.Stages
 
         public StagePhase Phase => StagePhase.OnHit;
 
+        [ThreadStatic] private static List<Enemy>? _buffer;
+
         public void Execute(ref ModContext ctx)
         {
             var origin = ctx.Position;
             int maxChains = ChainCount;
-            if (ctx.Synergies != null && ctx.Synergies.Contains(SynergyEffect.Tesla))
+            if (ctx.Synergies.Contains(SynergyEffect.Tesla))
                 maxChains = 3;
 
-            var entries = EnemyRegistry.All;
+            var entries = _buffer ??= new List<Enemy>(32);
 
-            for (int c = 0; c < maxChains && c < EnemyRegistry.Count; c++)
+            for (int c = 0; c < maxChains; c++)
             {
                 float bestDist = float.MaxValue;
                 ITargetable? best = null;
+
+                entries.Clear();
+                EnemyRegistry.Spatial.QuerySegment(origin, origin, ChainRadius, entries);
 
                 for (int i = 0; i < entries.Count; i++)
                 {

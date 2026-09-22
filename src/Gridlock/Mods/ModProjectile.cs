@@ -30,7 +30,7 @@ namespace Gridlock.Mods
         public static Action<ModProjectile>? OnProjectileCreated;
         public event Action<ModProjectile>? OnDestroyed;
 
-        public void Initialize(ModPipeline pipeline, ModContext ctx, ITargetable target, Vector3 origin)
+        public void Initialize(ModPipeline pipeline, ModContext ctx, ITargetable? target, Vector3 origin)
         {
             _pipeline = pipeline;
             _ctx = ctx;
@@ -38,7 +38,7 @@ namespace Gridlock.Mods
 
             origin.Y = FlyHeight;
             _ctx.Position = origin;
-            _ctx.Target = target;
+            _ctx.SetTarget(target);
             _ctx.Direction = (target != null && target.IsAlive)
                 ? FlatDirection(target.Position, origin)
                 : new Vector3(0f, 0f, 1f);
@@ -94,25 +94,23 @@ namespace Gridlock.Mods
 
         private void CheckCollision(Vector3 prevPos)
         {
-            bool homing = _ctx.Tags.HasFlag(ModTags.Homing);
+            var target = _ctx.Tags.HasFlag(ModTags.Homing) ? _ctx.ValidTarget : null;
 
-            if (homing && _ctx.Target != null && _ctx.Target.IsAlive)
+            if (target != null)
             {
-                int id = _ctx.Target.EntityId;
+                int id = target.EntityId;
                 if (_ctx.HitInstances.Contains(id))
                 {
-                    _ctx.Target = null;
+                    _ctx.SetTarget(null);
                 }
-                else
+                else if (DistanceToSegmentXZ(target.Position, prevPos, _ctx.Position, out _) <= HitRadius)
                 {
-                    float distSq = FlatDistanceSq(_ctx.Position, _ctx.Target.Position);
-                    float r = HitRadius;
-                    if (distSq > r * r) return;
-
+                    // Test the swept segment, not the end point: fast homing projectiles
+                    // overshoot their target by more than the hit radius each tick.
                     _ctx.HitInstances.Add(id);
-                    var dmg = _ctx.Target.Damageable;
+                    var dmg = target.Damageable;
                     if (dmg != null)
-                        ProcessHit(dmg, _ctx.Target, _ctx.Target.Position);
+                        ProcessHit(dmg, target, target.Position);
                     return;
                 }
             }
@@ -134,8 +132,10 @@ namespace Gridlock.Mods
             _sweepBuffer.Clear();
             EnemyRegistry.Spatial.QuerySegment(pos, nextPos, r, _sweepBuffer);
 
+            // Hit the first enemy along the travelled segment, not the one closest to its centre
+            // line, so a piercing projectile doesn't skip an enemy it passed through first.
             Enemy? bestEnemy = null;
-            float bestDist = float.MaxValue;
+            float bestT = float.MaxValue;
 
             for (int i = 0; i < _sweepBuffer.Count; i++)
             {
@@ -143,10 +143,10 @@ namespace Gridlock.Mods
                 if (!enemy.IsAlive) continue;
                 if (_ctx.HitInstances.Contains(enemy.EntityId)) continue;
 
-                float dist = DistanceToSegmentXZ(enemy.Position, pos, nextPos);
-                if (dist <= r && dist < bestDist)
+                float dist = DistanceToSegmentXZ(enemy.Position, pos, nextPos, out float t);
+                if (dist <= r && t < bestT)
                 {
-                    bestDist = dist;
+                    bestT = t;
                     bestEnemy = enemy;
                 }
             }
@@ -191,12 +191,10 @@ namespace Gridlock.Mods
                 var subPipeline = req.Pipeline ?? new ModPipeline();
                 var subCtx = _ctx.CloneForSub(req.DamageScale);
                 subCtx.Tags = subPipeline.AccumulatedTags;
-                if (subCtx.Tags.HasFlag(ModTags.Pierce))
-                    subCtx.PierceRemaining = 3 + (subCtx.Synergies.Contains(SynergyEffect.Railgun) ? 2 : 0);
-                if (subCtx.Tags.HasFlag(ModTags.Bounce)) subCtx.BounceRemaining = 3;
+                PipelineCompiler.ApplyContextSynergies(ref subCtx, subCtx.Tags, subCtx.Synergies);
 
                 var sub = new ModProjectile();
-                sub.Initialize(subPipeline, subCtx, req.Target ?? _ctx.Target, req.Origin);
+                sub.Initialize(subPipeline, subCtx, req.Target ?? _ctx.ValidTarget, req.Origin);
                 if (!sub.IsDestroyed)
                 {
                     if (req.Direction.LengthSquared() > 0.001f)
@@ -227,14 +225,7 @@ namespace Gridlock.Mods
             return v.LengthSquared() > 0.001f ? Vector3.Normalize(v) : new Vector3(0f, 0f, 1f);
         }
 
-        private static float FlatDistanceSq(Vector3 a, Vector3 b)
-        {
-            float dx = a.X - b.X;
-            float dz = a.Z - b.Z;
-            return dx * dx + dz * dz;
-        }
-
-        private static float DistanceToSegmentXZ(Vector3 point, Vector3 a, Vector3 b)
+        private static float DistanceToSegmentXZ(Vector3 point, Vector3 a, Vector3 b, out float t)
         {
             var p2 = new Vector2(point.X, point.Z);
             var a2 = new Vector2(a.X, a.Z);
@@ -242,8 +233,9 @@ namespace Gridlock.Mods
             var ab = b2 - a2;
             var ap = p2 - a2;
             float denom = Vector2.Dot(ab, ab);
+            t = 0f;
             if (denom < 0.0001f) return Vector2.Distance(p2, a2);
-            float t = Math.Clamp(Vector2.Dot(ap, ab) / denom, 0f, 1f);
+            t = Math.Clamp(Vector2.Dot(ap, ab) / denom, 0f, 1f);
             return Vector2.Distance(p2, a2 + ab * t);
         }
     }
