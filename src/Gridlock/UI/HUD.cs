@@ -39,6 +39,24 @@ namespace Gridlock.UI
                 DrawBottomBar(towerCount, maxTowers);
         }
 
+        // The bottom bar is drawn with raylib, not ImGui, so world input must test it explicitly.
+        public static bool BottomBarContains(Vector2 point)
+        {
+            var r = BottomBarRect();
+            return point.X >= r.X && point.X <= r.X + r.Width
+                && point.Y >= r.Y && point.Y <= r.Y + r.Height;
+        }
+
+        private static Rectangle BottomBarRect()
+        {
+            int btnW = S(240);
+            int btnH = S(48);
+            int pad = S(16);
+            int centerX = (Raylib.GetScreenWidth() - btnW) / 2;
+            int btnY = Raylib.GetScreenHeight() - S(100);
+            return new Rectangle(centerX - pad, btnY - pad, btnW + pad * 2, btnH + pad * 2 + S(24));
+        }
+
         public void ShowAnnouncement(string text)
         {
             _announcement = text;
@@ -236,15 +254,9 @@ namespace Gridlock.UI
             int centerX = (screenW - btnW) / 2;
             int btnY = screenH - S(100);
 
-            // Glass panel
-            int pad = S(16);
-            Raylib.DrawRectangle(centerX - pad, btnY - pad,
-                btnW + pad * 2, btnH + pad * 2 + S(24),
-                new Color(4, 8, 12, 180));
-            Raylib.DrawRectangleLinesEx(
-                new Rectangle(centerX - pad, btnY - pad,
-                    btnW + pad * 2, btnH + pad * 2 + S(24)),
-                1f, DesignTokens.GlassBorder);
+            var panel = BottomBarRect();
+            Raylib.DrawRectangleRec(panel, new Color(4, 8, 12, 180));
+            Raylib.DrawRectangleLinesEx(panel, 1f, DesignTokens.GlassBorder);
 
             var mousePos = Raylib.GetMousePosition();
             bool hover = mousePos.X >= centerX && mousePos.X <= centerX + btnW

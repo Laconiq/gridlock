@@ -93,6 +93,8 @@ namespace Gridlock.Core
             if (current == GameState.GameOver)
             {
                 _gameOverScreen.Reset();
+                if (_modPanel.IsOpen) _modPanel.Close();
+                _selectedTower = null;
 
                 if (_warpManager.Initialized)
                     _warpManager.Shockwave(_gridManager.ObjectivePosition, 8f, 15f, new Color(255, 0, 0, 255));
@@ -116,11 +118,12 @@ namespace Gridlock.Core
             _bloomPulse = BaseBloomIntensity;
             _chromaticDecay = 0f;
             _enemySpawner.Clear();
-            EnemyRegistry.Clear();
             _lootDropper.Clear();
             _waveManager.ResetWaves();
             _selectedTower = null;
-            if (_modPanel != null && _modPanel.IsOpen) _modPanel.Close();
+            if (_modPanel.IsOpen) _modPanel.Close();
+            _inventory.Clear();
+            AddStarterMods();
             _objective.ResetHP();
             _gridManager.ResetCells();
             _gameManager.ResetGame();

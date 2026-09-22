@@ -43,6 +43,8 @@ namespace Gridlock.Loot
             OnModChanged?.Invoke(type, newCount);
         }
 
+        public void Clear() => _owned.Clear();
+
         public int GetOwned(ModType type)
         {
             return _owned.TryGetValue(type, out int count) ? count : 0;

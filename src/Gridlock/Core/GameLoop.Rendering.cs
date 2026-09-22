@@ -467,13 +467,13 @@ namespace Gridlock.Core
                 _gameStats.TotalKills,
                 _objective.CurrentHP, _objective.MaxHP,
                 _waveManager.EnemiesRemaining,
-                _towerPlacement.PlacedTowers.Count, 5);
+                _towerPlacement.PlacedTowers.Count, _towerPlacement.MaxTowers);
 
             if (_hud.WaveStartRequested && state == GameState.Preparing)
-            {
-                _gameManager.SetState(GameState.Wave);
-                _gameStats.SetWave(_waveManager.CurrentWave + 1);
-            }
+                StartWave();
+
+            // Drawn before ImGui so damage numbers stay under the panels and game-over overlay.
+            _damageText.Render(_lastCamera);
 
             if (_imguiInitialized)
             {
@@ -494,40 +494,7 @@ namespace Gridlock.Core
                 rlImGui.End();
             }
 
-            _damageText.Render(_lastCamera);
-
             Raylib.DrawFPS(Raylib.GetScreenWidth() - 100, 10);
-        }
-
-        private static void DrawOctahedronWires(Vector3 center, float radiusH, float radiusV, Color color)
-        {
-            DrawOctahedronWiresRotated(center, radiusH, radiusV, 0f, color);
-        }
-
-        private static void DrawOctahedronWiresRotated(Vector3 center, float radiusH, float radiusV, float angleY, Color color)
-        {
-            float cos = MathF.Cos(angleY);
-            float sin = MathF.Sin(angleY);
-
-            var top = center + new Vector3(0, radiusV, 0);
-            var bottom = center - new Vector3(0, radiusV, 0);
-            var right = center + new Vector3(radiusH * cos, 0, radiusH * sin);
-            var left = center - new Vector3(radiusH * cos, 0, radiusH * sin);
-            var front = center + new Vector3(-radiusH * sin, 0, radiusH * cos);
-            var back = center - new Vector3(-radiusH * sin, 0, radiusH * cos);
-
-            LineBatch.ThickLine3D(top, right, color);
-            LineBatch.ThickLine3D(top, left, color);
-            LineBatch.ThickLine3D(top, front, color);
-            LineBatch.ThickLine3D(top, back, color);
-            LineBatch.ThickLine3D(bottom, right, color);
-            LineBatch.ThickLine3D(bottom, left, color);
-            LineBatch.ThickLine3D(bottom, front, color);
-            LineBatch.ThickLine3D(bottom, back, color);
-            LineBatch.ThickLine3D(right, front, color);
-            LineBatch.ThickLine3D(front, left, color);
-            LineBatch.ThickLine3D(left, back, color);
-            LineBatch.ThickLine3D(back, right, color);
         }
 
         private static Color GetProjectileColor(ModTags tags) => ModTagsUtil.GetColor(tags);

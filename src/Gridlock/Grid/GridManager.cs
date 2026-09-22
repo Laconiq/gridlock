@@ -35,7 +35,14 @@ namespace Gridlock.Grid
 
         public void ResetCells()
         {
+            var previous = _runtimeCells;
             _runtimeCells = _definition.CloneCells();
+            if (previous == null) return;
+
+            int w = _definition.Width;
+            for (int i = 0; i < _runtimeCells.Length; i++)
+                if (previous[i] != _runtimeCells[i])
+                    OnCellChanged?.Invoke(i % w, i / w, _runtimeCells[i]);
         }
 
         public void Shutdown()

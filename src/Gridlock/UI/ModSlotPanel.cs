@@ -25,14 +25,22 @@ namespace Gridlock.UI
         private ModType? _hoveredMod;
         private string _pipelinePreview = "";
         private bool _pipelinePreviewError;
+        private float _previewDamage;
         private ModType _draggedMod;
         private bool _dragActive;
+        // Removing the dragged slot shifts the next mod into the same ImGui ID, which ImGui still
+        // treats as the active drag source; this latch keeps one drag from removing the whole chain.
+        private bool _slotDragRemoved;
         private float _dragPulse;
 
         public bool IsOpen => _tower != null;
 
         public void Open(Tower tower, PlayerInventory inventory)
         {
+            // Switching towers commits the edits made to the previous one.
+            if (_tower != null && _tower != tower)
+                Close();
+
             _tower = tower;
             _inventory = inventory;
             _workingSlots.Clear();
@@ -64,6 +72,8 @@ namespace Gridlock.UI
             // Cleared each frame so the info panel reflects only what's hovered this frame; the
             // hover setters in DrawInventoryPane/DrawSlotChain re-assign it before DrawInfoArea reads it.
             _hoveredMod = null;
+            if (!ImGui.IsMouseDown(ImGuiMouseButton.Left))
+                _slotDragRemoved = false;
 
             int screenW = Raylib.GetScreenWidth();
             int screenH = Raylib.GetScreenHeight();
@@ -415,15 +425,23 @@ namespace Gridlock.UI
 
             if (ImGui.BeginDragDropSource(ImGuiDragDropFlags.SourceNoPreviewTooltip))
             {
-                int payload = (int)slot.modType;
-                unsafe { ImGui.SetDragDropPayload("MOD_SLOT_REMOVE", (IntPtr)(&payload), sizeof(int)); }
-                _draggedMod = slot.modType;
-                _dragActive = true;
+                bool firstFrame = !_slotDragRemoved;
+                if (firstFrame)
+                {
+                    int payload = (int)slot.modType;
+                    unsafe { ImGui.SetDragDropPayload("MOD_SLOT_REMOVE", (IntPtr)(&payload), sizeof(int)); }
+                    _draggedMod = slot.modType;
+                    _dragActive = true;
+                }
                 ImGui.EndDragDropSource();
-                _workingSlots.RemoveAt(index);
-                RefreshSynergies();
-                ImGui.PopStyleColor(3);
-                return;
+                if (firstFrame)
+                {
+                    _slotDragRemoved = true;
+                    _workingSlots.RemoveAt(index);
+                    RefreshSynergies();
+                    ImGui.PopStyleColor(3);
+                    return;
+                }
             }
 
             if (ImGui.BeginDragDropTarget())
@@ -590,13 +608,6 @@ namespace Gridlock.UI
         private void RefreshSynergies()
         {
             _activeSynergies.Clear();
-            for (int i = 0; i < _workingSlots.Count - 1; i++)
-            {
-                var syn = SynergyTable.Check(_workingSlots[i].modType, _workingSlots[i + 1].modType);
-                if (syn.HasValue && !_activeSynergies.Contains(syn.Value.effect))
-                    _activeSynergies.Add(syn.Value.effect);
-            }
-
             RebuildPipelinePreview();
         }
 
@@ -606,12 +617,18 @@ namespace Gridlock.UI
         {
             _pipelinePreviewError = false;
             _pipelinePreview = "";
+            _previewDamage = _tower?.Data.BaseDamage ?? 0f;
             if (_workingSlots.Count == 0 || _tower == null) return;
 
             try
             {
-                var (pipeline, _) = PipelineCompiler.Compile(
-                    _workingSlots, _tower.Data.BaseDamage, new List<SynergyEffect>());
+                // Same compiler as the tower, so the displayed synergies and damage match what fires.
+                var (pipeline, baseCtx) = PipelineCompiler.Compile(
+                    _workingSlots, _tower.Data.BaseDamage, _activeSynergies);
+                var configured = baseCtx.Clone();
+                pipeline.RunPhase(StagePhase.Configure, ref configured);
+                _previewDamage = configured.Damage;
+
                 var tags = pipeline.AccumulatedTags;
                 var activeFlags = new List<string>();
                 foreach (var flag in CachedModTags)
@@ -628,16 +645,7 @@ namespace Gridlock.UI
             }
         }
 
-        private float ComputeEffectiveDamage()
-        {
-            float dmg = _tower!.Data.BaseDamage;
-            foreach (var s in _workingSlots)
-            {
-                if (s.modType == ModType.Heavy) dmg *= 1.6f;
-                if (s.modType == ModType.Swift) dmg *= 0.7f;
-            }
-            return dmg;
-        }
+        private float ComputeEffectiveDamage() => _previewDamage;
 
         private float ComputeEffectiveFireRate()
         {

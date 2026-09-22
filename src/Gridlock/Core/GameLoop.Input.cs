@@ -9,10 +9,7 @@ namespace Gridlock.Core
             if (_input.SpacePressed)
             {
                 if (_gameManager.CurrentState == GameState.Preparing)
-                {
-                    _gameManager.SetState(GameState.Wave);
-                    _gameStats.SetWave(_waveManager.CurrentWave + 1);
-                }
+                    StartWave();
                 else if (_gameManager.CurrentState == GameState.GameOver)
                 {
                     ResetGame();
@@ -27,14 +24,22 @@ namespace Gridlock.Core
                     ResetGame();
             }
 
-            if (_input.RightClicked && _modPanel.IsOpen)
+            // Right-click inside the panel removes a slot; only a right-click outside closes it.
+            if (_input.RightClicked && _modPanel.IsOpen && !ImGuiNET.ImGui.GetIO().WantCaptureMouse)
                 _modPanel.Close();
+        }
+
+        private void StartWave()
+        {
+            _gameManager.SetState(GameState.Wave);
+            _gameStats.SetWave(_waveManager.CurrentWave + 1);
         }
 
         private void HandlePlacementInput()
         {
-            bool panelOpen = _modPanel != null && _modPanel.IsOpen;
-            bool imguiWantsMouse = ImGuiNET.ImGui.GetIO().WantCaptureMouse;
+            bool panelOpen = _modPanel.IsOpen;
+            bool imguiWantsMouse = ImGuiNET.ImGui.GetIO().WantCaptureMouse
+                || (_gameManager.CurrentState == GameState.Preparing && UI.HUD.BottomBarContains(_input.MouseScreenPos));
 
             if (_camera.ScreenToGroundPoint(_input.MouseScreenPos, out var groundPoint))
             {
@@ -75,7 +80,7 @@ namespace Gridlock.Core
                         }
                         else if (state == GameState.Preparing)
                         {
-                            _towerPlacement.TryPlace(groundPoint, isOverUI: false);
+                            _towerPlacement.TryPlace(groundPoint, isOverUI: imguiWantsMouse);
                         }
                     }
                 }

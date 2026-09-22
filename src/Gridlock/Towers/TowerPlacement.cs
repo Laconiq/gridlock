@@ -12,7 +12,6 @@ namespace Gridlock.Towers
         private readonly GridManager _gridManager;
         private readonly TowerData _defaultTowerData;
         private readonly ModSlotPreset? _defaultPreset;
-        private readonly int _maxTowers;
         private readonly List<Tower> _placedTowers = new();
         private bool _isActive;
 
@@ -21,7 +20,8 @@ namespace Gridlock.Towers
         private Vector3 _previewWorldPos;
         private bool _previewVisible;
 
-        public int RemainingTowers => _maxTowers - _placedTowers.Count;
+        public int MaxTowers { get; set; }
+        public int RemainingTowers => MaxTowers - _placedTowers.Count;
         public IReadOnlyList<Tower> PlacedTowers => _placedTowers;
         public bool IsPreviewVisible => _previewVisible && _isActive && RemainingTowers > 0;
         public bool IsPreviewValid => _previewValid;
@@ -35,7 +35,7 @@ namespace Gridlock.Towers
             _gridManager = gridManager;
             _defaultTowerData = defaultTowerData;
             _defaultPreset = defaultPreset;
-            _maxTowers = maxTowers;
+            MaxTowers = maxTowers;
 
             var gm = GameManager.Instance;
             if (gm != null)
@@ -48,7 +48,10 @@ namespace Gridlock.Towers
         private void OnGameStateChanged(GameState prev, GameState current)
         {
             if (prev == GameState.GameOver && current == GameState.Preparing)
+            {
                 _placedTowers.Clear();
+                _lastPreviewGridPos = new Vector2Int(-1, -1);
+            }
 
             _isActive = current == GameState.Preparing;
         }
