@@ -1,0 +1,11 @@
+{
+    "entries": [
+        {
+            "enemyKey": "scout",
+            "count": 10,
+            "spawnInterval": 0.5,
+            "delayBefore": 0.0,
+            "routeId": 0
+        }
+    ]
+}

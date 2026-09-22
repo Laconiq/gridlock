@@ -1,0 +1,32 @@
+## .NET
+bin/
+obj/
+publish/
+*.user
+*.suo
+*.userprefs
+*.cache
+
+## IDE
+.vs/
+.vscode/
+.idea/
+*.swp
+*~
+
+## OS
+.DS_Store
+Thumbs.db
+
+## NuGet
+*.nupkg
+packages/
+
+## ImGui
+imgui.ini
+
+## Profiling output
+profile.csv
+profile_report.txt
+screenshot.png
+!docs/screenshot.png

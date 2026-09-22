@@ -1,0 +1,204 @@
+{
+  "masterVolume": 1.0,
+  "sfxVolume": 0.8,
+  "uiVolume": 0.7,
+
+  "sounds": {
+    "TowerFire": {
+      "files": ["audio/sfx/game/tower_fire_00.wav", "audio/sfx/game/tower_fire_01.wav", "audio/sfx/game/tower_fire_02.wav", "audio/sfx/game/tower_fire_03.wav"],
+      "volume": 0.5,
+      "pitchVariance": 0.15,
+      "cooldown": 0.04,
+      "maxInstances": 6
+    },
+    "EnemyHit": {
+      "files": ["audio/sfx/game/enemy_hit_00.wav", "audio/sfx/game/enemy_hit_01.wav", "audio/sfx/game/enemy_hit_02.wav", "audio/sfx/game/enemy_hit_03.wav"],
+      "volume": 0.4,
+      "pitchVariance": 0.2,
+      "cooldown": 0.03,
+      "maxInstances": 8
+    },
+    "EnemyDeath": {
+      "files": ["audio/sfx/game/enemy_death_00.wav", "audio/sfx/game/enemy_death_01.wav", "audio/sfx/game/enemy_death_02.wav", "audio/sfx/game/enemy_death_03.wav"],
+      "volume": 0.6,
+      "pitchVariance": 0.15,
+      "cooldown": 0.05,
+      "maxInstances": 4
+    },
+    "ProjectileImpact": {
+      "files": ["audio/sfx/game/projectile_impact_00.wav", "audio/sfx/game/projectile_impact_01.wav", "audio/sfx/game/projectile_impact_02.wav", "audio/sfx/game/projectile_impact_03.wav"],
+      "volume": 0.35,
+      "pitchVariance": 0.2,
+      "cooldown": 0.03,
+      "maxInstances": 8
+    },
+    "TowerPlace": {
+      "files": ["audio/sfx/game/tower_place_01.wav", "audio/sfx/game/tower_place_02.wav", "audio/sfx/game/tower_place_03.wav"],
+      "volume": 0.7,
+      "pitchVariance": 0.1,
+      "cooldown": 0.2,
+      "maxInstances": 2
+    },
+    "TowerPlaceInvalid": {
+      "files": ["audio/sfx/game/tower_place_invalid_00.wav", "audio/sfx/game/tower_place_invalid_01.wav"],
+      "volume": 0.5,
+      "pitchVariance": 0.05,
+      "cooldown": 0.2,
+      "maxInstances": 1
+    },
+    "TowerHover": {
+      "files": ["audio/sfx/game/tower_hover_00.wav"],
+      "volume": 0.3,
+      "pitchVariance": 0.05,
+      "cooldown": 0.1,
+      "maxInstances": 1
+    },
+    "ObjectiveHit": {
+      "files": ["audio/sfx/game/objective_hit_00.wav", "audio/sfx/game/objective_hit_01.wav"],
+      "volume": 0.7,
+      "pitchVariance": 0.1,
+      "cooldown": 0.1,
+      "maxInstances": 2
+    },
+    "GameOver": {
+      "files": ["audio/sfx/game/game_over_00.wav"],
+      "volume": 0.8,
+      "pitchVariance": 0.0,
+      "cooldown": 1.0,
+      "maxInstances": 1
+    },
+    "LootCollect": {
+      "files": ["audio/sfx/game/loot_collect_00.wav", "audio/sfx/game/loot_collect_01.wav"],
+      "volume": 0.5,
+      "pitchVariance": 0.2,
+      "cooldown": 0.05,
+      "maxInstances": 4
+    },
+    "LootDrop": {
+      "files": ["audio/sfx/game/loot_drop_00.wav", "audio/sfx/game/loot_drop_01.wav"],
+      "volume": 0.4,
+      "pitchVariance": 0.15,
+      "cooldown": 0.05,
+      "maxInstances": 4
+    },
+    "WaveStart": {
+      "files": ["audio/sfx/ui/wave_start_00.wav", "audio/sfx/ui/wave_start_01.wav"],
+      "volume": 0.7,
+      "pitchVariance": 0.0,
+      "cooldown": 1.0,
+      "maxInstances": 1
+    },
+    "WaveComplete": {
+      "files": ["audio/sfx/ui/wave_complete_00.wav", "audio/sfx/ui/wave_complete_01.wav"],
+      "volume": 0.7,
+      "pitchVariance": 0.0,
+      "cooldown": 1.0,
+      "maxInstances": 1
+    },
+    "UIClick": {
+      "files": ["audio/sfx/ui/ui_click_01.wav", "audio/sfx/ui/ui_click_02.wav", "audio/sfx/ui/ui_click_03.wav"],
+      "volume": 0.5,
+      "pitchVariance": 0.1,
+      "cooldown": 0.05,
+      "maxInstances": 3
+    },
+    "UIHover": {
+      "files": ["audio/sfx/ui/ui_hover_00.wav", "audio/sfx/ui/ui_hover_01.wav"],
+      "volume": 0.25,
+      "pitchVariance": 0.05,
+      "cooldown": 0.08,
+      "maxInstances": 2
+    },
+    "UIAnnounce": {
+      "files": ["audio/sfx/ui/ui_announce_00.wav"],
+      "volume": 0.6,
+      "pitchVariance": 0.0,
+      "cooldown": 0.5,
+      "maxInstances": 1
+    },
+    "EditorOpen": {
+      "files": ["audio/sfx/ui/editor_open_00.wav", "audio/sfx/ui/editor_open_01.wav"],
+      "volume": 0.5,
+      "pitchVariance": 0.05,
+      "cooldown": 0.2,
+      "maxInstances": 1
+    },
+    "EditorClose": {
+      "files": ["audio/sfx/ui/editor_close_00.wav", "audio/sfx/ui/editor_close_01.wav"],
+      "volume": 0.5,
+      "pitchVariance": 0.05,
+      "cooldown": 0.2,
+      "maxInstances": 1
+    },
+    "NodeGrab": {
+      "files": ["audio/sfx/ui/node_grab_00.wav", "audio/sfx/ui/node_grab_01.wav"],
+      "volume": 0.4,
+      "pitchVariance": 0.1,
+      "cooldown": 0.05,
+      "maxInstances": 2
+    },
+    "NodeDrop": {
+      "files": ["audio/sfx/ui/node_drop_00.wav", "audio/sfx/ui/node_drop_01.wav"],
+      "volume": 0.4,
+      "pitchVariance": 0.1,
+      "cooldown": 0.05,
+      "maxInstances": 2
+    },
+    "NodeRemove": {
+      "files": ["audio/sfx/ui/node_remove_00.wav", "audio/sfx/ui/node_remove_01.wav"],
+      "volume": 0.4,
+      "pitchVariance": 0.05,
+      "cooldown": 0.1,
+      "maxInstances": 2
+    },
+    "PortConnect": {
+      "files": ["audio/sfx/ui/port_connect_00.wav", "audio/sfx/ui/port_connect_01.wav"],
+      "volume": 0.45,
+      "pitchVariance": 0.05,
+      "cooldown": 0.1,
+      "maxInstances": 2
+    },
+    "PortDisconnect": {
+      "files": ["audio/sfx/ui/port_disconnect_00.wav", "audio/sfx/ui/port_disconnect_01.wav"],
+      "volume": 0.4,
+      "pitchVariance": 0.05,
+      "cooldown": 0.1,
+      "maxInstances": 2
+    },
+    "UIDragStart": {
+      "files": ["audio/sfx/ui/ui_drag_start_00.wav", "audio/sfx/ui/ui_drag_start_01.wav"],
+      "volume": 0.35,
+      "pitchVariance": 0.05,
+      "cooldown": 0.05,
+      "maxInstances": 2
+    },
+    "UIDragHover": {
+      "files": ["audio/sfx/ui/ui_drag_hover_00.wav"],
+      "volume": 0.25,
+      "pitchVariance": 0.05,
+      "cooldown": 0.08,
+      "maxInstances": 1
+    },
+    "UIDropFail": {
+      "files": ["audio/sfx/ui/ui_drop_fail_00.wav", "audio/sfx/ui/ui_drop_fail_01.wav"],
+      "volume": 0.4,
+      "pitchVariance": 0.05,
+      "cooldown": 0.1,
+      "maxInstances": 2
+    },
+    "UIDropdownOpen": {
+      "files": ["audio/sfx/ui/ui_dropdown_open_00.wav"],
+      "volume": 0.4,
+      "pitchVariance": 0.05,
+      "cooldown": 0.1,
+      "maxInstances": 1
+    },
+    "UIDropdownSelect": {
+      "files": ["audio/sfx/ui/ui_dropdown_select_00.wav"],
+      "volume": 0.4,
+      "pitchVariance": 0.05,
+      "cooldown": 0.05,
+      "maxInstances": 2
+    }
+  }
+}

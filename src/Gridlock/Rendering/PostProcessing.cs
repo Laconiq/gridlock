@@ -1,0 +1,206 @@
+using System;
+using System.Numerics;
+using Raylib_cs;
+
+namespace Gridlock.Rendering
+{
+    public sealed class PostProcessing
+    {
+        private RenderTexture2D _sceneRT;
+        private RenderTexture2D _compositeRT;
+        private RenderTexture2D[] _bloomDown = Array.Empty<RenderTexture2D>();
+        private RenderTexture2D[] _bloomUp = Array.Empty<RenderTexture2D>();
+
+        private Shader _thresholdShader;
+        private Shader _kawaseDownShader;
+        private Shader _kawaseUpShader;
+        private Shader _finalCompositeShader;
+
+        private int _thresholdLoc;
+        private int _texelSizeDownLoc;
+        private int _texelSizeUpLoc;
+        private int _finalChromaticLoc;
+        private int _finalVignetteLoc;
+        private int _finalVignetteColorLoc;
+        private int _finalResolutionLoc;
+
+        private int _screenW;
+        private int _screenH;
+        private int _internalW;
+        private int _internalH;
+
+        private bool _finalShaderLoaded;
+
+        public int PixelScale { get; set; } = 1;
+        public float BloomThreshold { get; set; } = 0.6f;
+        public float BloomIntensity { get; set; } = 1.5f;
+        public float ChromaticIntensity { get; set; }
+        public float VignetteIntensity { get; set; } = 0.3f;
+
+        public int ScreenWidth => _screenW;
+        public int ScreenHeight => _screenH;
+
+        const int BloomIterations = 3;
+        const string ShaderPath = "resources/shaders/glsl330/";
+
+        public int InternalWidth => _internalW;
+        public int InternalHeight => _internalH;
+
+        public void Init(int screenW, int screenH)
+        {
+            _screenW = screenW;
+            _screenH = screenH;
+            _internalW = screenW / PixelScale;
+            _internalH = screenH / PixelScale;
+
+            _sceneRT = Raylib.LoadRenderTexture(_internalW, _internalH);
+            Raylib.SetTextureFilter(_sceneRT.Texture, TextureFilter.Point);
+
+            _compositeRT = Raylib.LoadRenderTexture(_internalW, _internalH);
+            Raylib.SetTextureFilter(_compositeRT.Texture, TextureFilter.Point);
+
+            _bloomDown = new RenderTexture2D[BloomIterations];
+            // The top of the up-sample chain reads directly from _bloomDown[last], so _bloomUp
+            // needs one fewer slot. Aliasing _bloomUp[last] = _bloomDown[last] previously leaked
+            // and double-unloaded a texture.
+            _bloomUp = new RenderTexture2D[BloomIterations - 1];
+
+            int w = _internalW / 2;
+            int h = _internalH / 2;
+            for (int i = 0; i < BloomIterations; i++)
+            {
+                w = Math.Max(1, w);
+                h = Math.Max(1, h);
+                _bloomDown[i] = Raylib.LoadRenderTexture(w, h);
+                Raylib.SetTextureFilter(_bloomDown[i].Texture, TextureFilter.Bilinear);
+                if (i < BloomIterations - 1)
+                {
+                    _bloomUp[i] = Raylib.LoadRenderTexture(w, h);
+                    Raylib.SetTextureFilter(_bloomUp[i].Texture, TextureFilter.Bilinear);
+                }
+                w /= 2;
+                h /= 2;
+            }
+
+            _thresholdShader = Raylib.LoadShader(ShaderPath + "fullscreen.vs", ShaderPath + "threshold.fs");
+            _kawaseDownShader = Raylib.LoadShader(ShaderPath + "fullscreen.vs", ShaderPath + "kawase_down.fs");
+            _kawaseUpShader = Raylib.LoadShader(ShaderPath + "fullscreen.vs", ShaderPath + "kawase_up.fs");
+            _finalCompositeShader = Raylib.LoadShader(ShaderPath + "fullscreen.vs", ShaderPath + "final_composite.fs");
+
+            _thresholdLoc = Raylib.GetShaderLocation(_thresholdShader, "threshold");
+            _texelSizeDownLoc = Raylib.GetShaderLocation(_kawaseDownShader, "texelSize");
+            _texelSizeUpLoc = Raylib.GetShaderLocation(_kawaseUpShader, "texelSize");
+            _finalChromaticLoc = Raylib.GetShaderLocation(_finalCompositeShader, "chromaticIntensity");
+            _finalVignetteLoc = Raylib.GetShaderLocation(_finalCompositeShader, "vignetteIntensity");
+            _finalVignetteColorLoc = Raylib.GetShaderLocation(_finalCompositeShader, "vignetteColor");
+            _finalResolutionLoc = Raylib.GetShaderLocation(_finalCompositeShader, "resolution");
+
+            _finalShaderLoaded = _finalCompositeShader.Id > 0;
+        }
+
+        public void BeginScene()
+        {
+            Raylib.BeginTextureMode(_sceneRT);
+        }
+
+        public void EndSceneAndComposite()
+        {
+            Raylib.SetShaderValue(_thresholdShader, _thresholdLoc, BloomThreshold, ShaderUniformDataType.Float);
+            BlitPass(_bloomDown[0], _sceneRT.Texture, _thresholdShader);
+
+            for (int i = 1; i < BloomIterations; i++)
+            {
+                float[] texel = { 1f / _bloomDown[i - 1].Texture.Width, 1f / _bloomDown[i - 1].Texture.Height };
+                Raylib.SetShaderValue(_kawaseDownShader, _texelSizeDownLoc, texel, ShaderUniformDataType.Vec2);
+                BlitPass(_bloomDown[i], _bloomDown[i - 1].Texture, _kawaseDownShader);
+            }
+
+            for (int i = BloomIterations - 2; i >= 0; i--)
+            {
+                // First up-sample step reads the smallest down mip; the rest chain through _bloomUp.
+                RenderTexture2D source = (i == BloomIterations - 2)
+                    ? _bloomDown[BloomIterations - 1]
+                    : _bloomUp[i + 1];
+                float[] texel = { 1f / source.Texture.Width, 1f / source.Texture.Height };
+                Raylib.SetShaderValue(_kawaseUpShader, _texelSizeUpLoc, texel, ShaderUniformDataType.Vec2);
+                BlitPass(_bloomUp[i], source.Texture, _kawaseUpShader);
+            }
+
+            Raylib.BeginTextureMode(_compositeRT);
+            Raylib.ClearBackground(Color.Black);
+            DrawFlipped(_sceneRT.Texture, _internalW, _internalH, Color.White);
+            if (BloomIntensity > 0f)
+            {
+                Raylib.BeginBlendMode(BlendMode.Additive);
+                byte a = (byte)Math.Clamp((int)(BloomIntensity / 2.5f * 255f), 0, 255);
+                DrawFlipped(_bloomUp[0].Texture, _internalW, _internalH, new Color((byte)255, (byte)255, (byte)255, a));
+                Raylib.EndBlendMode();
+            }
+            Raylib.EndTextureMode();
+        }
+
+        public void DrawFinalToScreen()
+        {
+            Raylib.SetTextureFilter(_compositeRT.Texture, TextureFilter.Point);
+            if (_finalShaderLoaded)
+            {
+                Raylib.SetShaderValue(_finalCompositeShader, _finalChromaticLoc, ChromaticIntensity, ShaderUniformDataType.Float);
+                Raylib.SetShaderValue(_finalCompositeShader, _finalVignetteLoc, VignetteIntensity, ShaderUniformDataType.Float);
+                float[] vigColor = { 0f, 0.05f, 0.1f };
+                Raylib.SetShaderValue(_finalCompositeShader, _finalVignetteColorLoc, vigColor, ShaderUniformDataType.Vec3);
+                float[] res = { _internalW, _internalH };
+                Raylib.SetShaderValue(_finalCompositeShader, _finalResolutionLoc, res, ShaderUniformDataType.Vec2);
+                Raylib.BeginShaderMode(_finalCompositeShader);
+            }
+            DrawFlipped(_compositeRT.Texture, _screenW, _screenH, Color.White);
+            if (_finalShaderLoaded)
+                Raylib.EndShaderMode();
+        }
+
+        private static void BlitPass(RenderTexture2D target, Texture2D source, Shader shader)
+        {
+            Raylib.BeginTextureMode(target);
+            Raylib.ClearBackground(Color.Black);
+            Raylib.BeginShaderMode(shader);
+            var src = new Rectangle(0, 0, source.Width, -source.Height);
+            var dst = new Rectangle(0, 0, target.Texture.Width, target.Texture.Height);
+            Raylib.DrawTexturePro(source, src, dst, System.Numerics.Vector2.Zero, 0f, Color.White);
+            Raylib.EndShaderMode();
+            Raylib.EndTextureMode();
+        }
+
+        private static void DrawFlipped(Texture2D texture, int destW, int destH, Color tint)
+        {
+            var src = new Rectangle(0, 0, texture.Width, -texture.Height);
+            var dst = new Rectangle(0, 0, destW, destH);
+            Raylib.DrawTexturePro(texture, src, dst, System.Numerics.Vector2.Zero, 0f, tint);
+        }
+
+        public void OnResize(int w, int h)
+        {
+            if (w == _screenW && h == _screenH) return;
+            UnloadRTs();
+            Init(w, h);
+        }
+
+        public void Shutdown()
+        {
+            UnloadRTs();
+            Raylib.UnloadShader(_thresholdShader);
+            Raylib.UnloadShader(_kawaseDownShader);
+            Raylib.UnloadShader(_kawaseUpShader);
+            if (_finalShaderLoaded)
+                Raylib.UnloadShader(_finalCompositeShader);
+        }
+
+        private void UnloadRTs()
+        {
+            Raylib.UnloadRenderTexture(_sceneRT);
+            Raylib.UnloadRenderTexture(_compositeRT);
+            for (int i = 0; i < _bloomDown.Length; i++)
+                Raylib.UnloadRenderTexture(_bloomDown[i]);
+            for (int i = 0; i < _bloomUp.Length; i++)
+                Raylib.UnloadRenderTexture(_bloomUp[i]);
+        }
+    }
+}
