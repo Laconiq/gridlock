@@ -25,6 +25,8 @@ if (!benchmark)
 
 Raylib.SetConfigFlags(flags);
 Raylib.InitWindow(1920, 1080, "Gridlock");
+// Escape is a gameplay key (close panel, restart), not a quit shortcut.
+Raylib.SetExitKey(KeyboardKey.Null);
 Raylib.InitAudioDevice();
 
 var profiler = Profiler.Instance;

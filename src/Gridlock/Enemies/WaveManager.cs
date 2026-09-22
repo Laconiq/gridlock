@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Gridlock.Core;
 
 namespace Gridlock.Enemies
@@ -45,6 +44,11 @@ namespace Gridlock.Enemies
         {
             if (current == GameState.Wave)
                 StartWave();
+            else if (current == GameState.GameOver)
+            {
+                _spawner.OnEnemyDespawned -= HandleEnemyDespawned;
+                _spawner.OnSpawningComplete -= HandleSpawningComplete;
+            }
         }
 
         private void StartWave()
@@ -60,7 +64,9 @@ namespace Gridlock.Enemies
                 return;
             }
 
-            int total = wave.Entries.Sum(e => e.Count);
+            int total = 0;
+            foreach (var e in wave.Entries)
+                total += Math.Max(0, e.Count);
             _aliveCount = total;
             _spawningComplete = false;
             _enemiesRemaining = total;
@@ -91,6 +97,9 @@ namespace Gridlock.Enemies
         private void CheckWaveComplete()
         {
             if (!_spawningComplete || _aliveCount > 0) return;
+            // The last enemy can destroy the objective as it despawns; a game over must not be
+            // overwritten by a wave-cleared transition back to Preparing.
+            if (GameManager.Instance?.CurrentState != GameState.Wave) return;
 
             _spawner.OnEnemyDespawned -= HandleEnemyDespawned;
             _spawner.OnSpawningComplete -= HandleSpawningComplete;

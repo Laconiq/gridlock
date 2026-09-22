@@ -52,6 +52,7 @@ namespace Gridlock.Enemies
             _currentWave = wave;
             _entryIndex = 0;
             _spawnedInGroup = 0;
+            _spawnTimer = 0f;
             _spawning = true;
 
             if (wave.Entries.Count > 0)
@@ -78,6 +79,11 @@ namespace Gridlock.Enemies
             }
 
             var entry = _currentWave.Entries[_entryIndex];
+            if (entry.Count <= 0)
+            {
+                AdvanceGroup();
+                return;
+            }
 
             if (_groupDelayTimer > 0f)
             {
@@ -93,14 +99,17 @@ namespace Gridlock.Enemies
             _spawnTimer = entry.SpawnInterval;
 
             if (_spawnedInGroup >= entry.Count)
-            {
-                _entryIndex++;
-                _spawnedInGroup = 0;
-                _spawnTimer = 0f;
+                AdvanceGroup();
+        }
 
-                if (_entryIndex < _currentWave.Entries.Count)
-                    _groupDelayTimer = _currentWave.Entries[_entryIndex].DelayBeforeGroup;
-            }
+        private void AdvanceGroup()
+        {
+            _entryIndex++;
+            _spawnedInGroup = 0;
+            _spawnTimer = 0f;
+
+            if (_entryIndex < _currentWave!.Entries.Count)
+                _groupDelayTimer = _currentWave.Entries[_entryIndex].DelayBeforeGroup;
         }
 
         private void FinishSpawning()
@@ -193,6 +202,8 @@ namespace Gridlock.Enemies
             _activeEnemies.Clear();
             _spawning = false;
             _currentWave = null;
+            _spawnTimer = 0f;
+            _nextSpawnIndex = 0;
         }
     }
 }
