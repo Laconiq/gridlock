@@ -46,12 +46,22 @@ namespace Gridlock.Rendering
         public int InternalWidth => _internalW;
         public int InternalHeight => _internalH;
 
+        private readonly float[] _texel = new float[2];
+        private readonly float[] _vignetteColor = { 0f, 0.05f, 0.1f };
+        private readonly float[] _resolution = new float[2];
+
         public void Init(int screenW, int screenH)
+        {
+            CreateTargets(screenW, screenH);
+            LoadShaders();
+        }
+
+        private void CreateTargets(int screenW, int screenH)
         {
             _screenW = screenW;
             _screenH = screenH;
-            _internalW = screenW / PixelScale;
-            _internalH = screenH / PixelScale;
+            _internalW = Math.Max(1, screenW / PixelScale);
+            _internalH = Math.Max(1, screenH / PixelScale);
 
             _sceneRT = Raylib.LoadRenderTexture(_internalW, _internalH);
             Raylib.SetTextureFilter(_sceneRT.Texture, TextureFilter.Point);
@@ -81,7 +91,10 @@ namespace Gridlock.Rendering
                 w /= 2;
                 h /= 2;
             }
+        }
 
+        private void LoadShaders()
+        {
             _thresholdShader = Raylib.LoadShader(ShaderPath + "fullscreen.vs", ShaderPath + "threshold.fs");
             _kawaseDownShader = Raylib.LoadShader(ShaderPath + "fullscreen.vs", ShaderPath + "kawase_down.fs");
             _kawaseUpShader = Raylib.LoadShader(ShaderPath + "fullscreen.vs", ShaderPath + "kawase_up.fs");
@@ -110,8 +123,9 @@ namespace Gridlock.Rendering
 
             for (int i = 1; i < BloomIterations; i++)
             {
-                float[] texel = { 1f / _bloomDown[i - 1].Texture.Width, 1f / _bloomDown[i - 1].Texture.Height };
-                Raylib.SetShaderValue(_kawaseDownShader, _texelSizeDownLoc, texel, ShaderUniformDataType.Vec2);
+                _texel[0] = 1f / _bloomDown[i - 1].Texture.Width;
+                _texel[1] = 1f / _bloomDown[i - 1].Texture.Height;
+                Raylib.SetShaderValue(_kawaseDownShader, _texelSizeDownLoc, _texel, ShaderUniformDataType.Vec2);
                 BlitPass(_bloomDown[i], _bloomDown[i - 1].Texture, _kawaseDownShader);
             }
 
@@ -121,8 +135,9 @@ namespace Gridlock.Rendering
                 RenderTexture2D source = (i == BloomIterations - 2)
                     ? _bloomDown[BloomIterations - 1]
                     : _bloomUp[i + 1];
-                float[] texel = { 1f / source.Texture.Width, 1f / source.Texture.Height };
-                Raylib.SetShaderValue(_kawaseUpShader, _texelSizeUpLoc, texel, ShaderUniformDataType.Vec2);
+                _texel[0] = 1f / source.Texture.Width;
+                _texel[1] = 1f / source.Texture.Height;
+                Raylib.SetShaderValue(_kawaseUpShader, _texelSizeUpLoc, _texel, ShaderUniformDataType.Vec2);
                 BlitPass(_bloomUp[i], source.Texture, _kawaseUpShader);
             }
 
@@ -146,10 +161,10 @@ namespace Gridlock.Rendering
             {
                 Raylib.SetShaderValue(_finalCompositeShader, _finalChromaticLoc, ChromaticIntensity, ShaderUniformDataType.Float);
                 Raylib.SetShaderValue(_finalCompositeShader, _finalVignetteLoc, VignetteIntensity, ShaderUniformDataType.Float);
-                float[] vigColor = { 0f, 0.05f, 0.1f };
-                Raylib.SetShaderValue(_finalCompositeShader, _finalVignetteColorLoc, vigColor, ShaderUniformDataType.Vec3);
-                float[] res = { _internalW, _internalH };
-                Raylib.SetShaderValue(_finalCompositeShader, _finalResolutionLoc, res, ShaderUniformDataType.Vec2);
+                Raylib.SetShaderValue(_finalCompositeShader, _finalVignetteColorLoc, _vignetteColor, ShaderUniformDataType.Vec3);
+                _resolution[0] = _internalW;
+                _resolution[1] = _internalH;
+                Raylib.SetShaderValue(_finalCompositeShader, _finalResolutionLoc, _resolution, ShaderUniformDataType.Vec2);
                 Raylib.BeginShaderMode(_finalCompositeShader);
             }
             DrawFlipped(_compositeRT.Texture, _screenW, _screenH, Color.White);
@@ -179,8 +194,10 @@ namespace Gridlock.Rendering
         public void OnResize(int w, int h)
         {
             if (w == _screenW && h == _screenH) return;
+            // A minimized window reports 0x0; keep the current targets until it is restored.
+            if (w <= 0 || h <= 0 || Raylib.IsWindowMinimized()) return;
             UnloadRTs();
-            Init(w, h);
+            CreateTargets(w, h);
         }
 
         public void Shutdown()

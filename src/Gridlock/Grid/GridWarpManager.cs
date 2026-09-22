@@ -82,8 +82,8 @@ namespace Gridlock.Grid
             int x0 = Math.Clamp((int)MathF.Floor(lx), 0, _resX - 1);
             int z0 = Math.Clamp((int)MathF.Floor(lz), 0, _resZ - 1);
 
-            float tx = lx - x0;
-            float tz = lz - z0;
+            float tx = Math.Clamp(lx - x0, 0f, 1f);
+            float tz = Math.Clamp(lz - z0, 0f, 1f);
 
             float y00 = _positions[z0 * _vertCountX + x0].Y;
             float y10 = _positions[z0 * _vertCountX + x0 + 1].Y;

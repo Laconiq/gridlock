@@ -10,7 +10,9 @@ namespace Gridlock.Camera
         private const float YAW_DEG = 45f;
         private const float CAMERA_DISTANCE = 50f;
 
-        public float DragSpeed { get; set; } = 0.04f;
+        // World units per mouse pixel per unit of ortho size. The mouse delta is already per-frame,
+        // so it must not be scaled by dt (that made panning framerate-dependent).
+        public float DragSpeed { get; set; } = 0.00067f;
         public float ZoomSpeed { get; set; } = 2f;
         public float MinSize { get; set; } = 8f;
         public float MaxSize { get; set; } = 22f;
@@ -58,14 +60,14 @@ namespace Gridlock.Camera
 
         public void LateUpdate(float dt)
         {
-            HandlePan(dt);
-            HandleZoom(dt);
+            HandlePan();
+            HandleZoom();
             ClampPosition(dt);
         }
 
-        private void HandlePan(float dt)
+        private void HandlePan()
         {
-            if (Raylib.IsMouseButtonPressed(MouseButton.Middle))
+            if (Raylib.IsMouseButtonPressed(MouseButton.Middle) && InputEnabled)
                 _isPanning = true;
             if (Raylib.IsMouseButtonReleased(MouseButton.Middle))
                 _isPanning = false;
@@ -75,15 +77,16 @@ namespace Gridlock.Camera
             var delta = Raylib.GetMouseDelta();
             if (delta.X * delta.X + delta.Y * delta.Y < 0.01f) return;
 
-            var move = (-delta.X * _right - delta.Y * _up) * (DragSpeed * _orthoSize * dt);
+            var move = (-delta.X * _right - delta.Y * _up) * (DragSpeed * _orthoSize);
             _focusPoint += move;
         }
 
         public bool ZoomEnabled { get; set; } = true;
+        public bool InputEnabled { get; set; } = true;
 
-        private void HandleZoom(float dt)
+        private void HandleZoom()
         {
-            if (!ZoomEnabled) return;
+            if (!ZoomEnabled || !InputEnabled) return;
             float scroll = Raylib.GetMouseWheelMove();
             if (MathF.Abs(scroll) < 0.01f) return;
 
