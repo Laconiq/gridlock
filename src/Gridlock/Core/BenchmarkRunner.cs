@@ -8,6 +8,8 @@ namespace Gridlock.Core
 {
     public static class BenchmarkRunner
     {
+        public const int TowerCount = 8;
+
         public static void Setup(
             GridManager gridManager,
             TowerPlacement towerPlacement,
@@ -37,10 +39,13 @@ namespace Gridlock.Core
                 Slots = new List<ModType> { ModType.Heavy, ModType.Split, ModType.Swift, ModType.Pierce }
             };
 
+            // The gameplay cap is lower than the benchmark's tower count.
+            towerPlacement.MaxTowers = System.Math.Max(towerPlacement.MaxTowers, TowerCount);
+
             int placed = 0;
             foreach (var (cx, cy, _) in candidates)
             {
-                if (placed >= 8) break;
+                if (placed >= TowerCount) break;
                 var worldPos = gridManager.GridToWorld(new Vector2Int(cx, cy));
                 var tower = towerPlacement.TryPlace(worldPos, isOverUI: false);
                 if (tower != null)

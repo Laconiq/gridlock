@@ -57,12 +57,6 @@ namespace Gridlock.Core
         private readonly Dictionary<int, float> _towerSpinAngles = new();
         private readonly Dictionary<int, float> _towerBobPhases = new();
 
-        private Shader _outlineShader;
-        private Material _outlineMaterial;
-        private int _locLineColor;
-        private int _locEmissionIntensity;
-        private int _locEdgeWidth;
-
         private HUD _hud = null!;
         private ModSlotPanel _modPanel = null!;
         private GameOverScreen _gameOverScreen = null!;
@@ -127,37 +121,6 @@ namespace Gridlock.Core
                 Console.WriteLine("[GameLoop] WARNING: CyberGrid shader failed to load, using fallback grid.");
             }
 
-            _outlineShader = Raylib.LoadShader(
-                "resources/shaders/glsl330/vectoroutline.vs",
-                "resources/shaders/glsl330/vectoroutline.fs");
-            if (_outlineShader.Id > 0)
-            {
-                // Outline wireframe rendering is disabled — the shader renders incorrectly at iso angles.
-                _locLineColor = Raylib.GetShaderLocation(_outlineShader, "lineColor");
-                _locEmissionIntensity = Raylib.GetShaderLocation(_outlineShader, "emissionIntensity");
-                _locEdgeWidth = Raylib.GetShaderLocation(_outlineShader, "edgeWidth");
-
-                unsafe
-                {
-                    int mvpLoc = Raylib.GetShaderLocation(_outlineShader, "mvp");
-                    if (mvpLoc >= 0)
-                        _outlineShader.Locs[(int)ShaderLocationIndex.MatrixMvp] = mvpLoc;
-
-                    int matModelLoc = Raylib.GetShaderLocation(_outlineShader, "matModel");
-                    if (matModelLoc >= 0)
-                        _outlineShader.Locs[(int)ShaderLocationIndex.MatrixModel] = matModelLoc;
-                }
-
-                _outlineMaterial = Raylib.LoadMaterialDefault();
-                unsafe { _outlineMaterial.Shader = _outlineShader; }
-
-                Console.WriteLine("[GameLoop] VectorOutline shader loaded.");
-            }
-            else
-            {
-                Console.WriteLine("[GameLoop] WARNING: VectorOutline shader failed to load, using fallback wireframes.");
-            }
-
             _inventory = new PlayerInventory();
             _inventory.Init();
             AddStarterMods();
@@ -192,7 +155,7 @@ namespace Gridlock.Core
             _damageText.Init();
 
             _soundManager = new SoundManager();
-            _soundManager.Init(BuildSoundConfigs());
+            _soundManager.Init(new Dictionary<SoundType, SoundConfig>());
             _soundManager.LoadFromJson("resources/data/audio_config.json");
 
             int screenW = Raylib.GetScreenWidth();
@@ -247,6 +210,7 @@ namespace Gridlock.Core
             prof.End();
 
             _camera.ZoomEnabled = !_modPanel.IsOpen;
+            _camera.InputEnabled = !ImGuiNET.ImGui.GetIO().WantCaptureMouse;
             _camera.LateUpdate(frameDt);
 
             if (_shakeTimer > 0f)
@@ -343,6 +307,12 @@ namespace Gridlock.Core
             EnemyRegistry.RebuildSpatial();
             prof.End();
 
+            // Towers tick at the fixed rate so fire rate doesn't depend on the render framerate,
+            // and after the spatial rebuild so target selection sees this step's positions.
+            prof.Begin("  Towers");
+            _towerPlacement.Update(dt);
+            prof.End();
+
             prof.Begin("  Projectiles");
             for (int i = 0; i < _projectiles.Count; i++)
                 _projectiles[i].Update(dt);
@@ -357,9 +327,6 @@ namespace Gridlock.Core
             prof.Begin("  GridVisual");
             _gridVisual.Update(dt);
             prof.End();
-
-            if (_gameManager.CurrentState != GameState.GameOver)
-                _towerPlacement.Update(dt);
 
             prof.Begin("  Particles");
             _particles.Update(dt);
@@ -447,43 +414,6 @@ namespace Gridlock.Core
             TargetingMode = TargetingMode.First,
             Slots = new List<ModType> { ModType.Heavy, ModType.Swift }
         };
-
-        private static Dictionary<SoundType, SoundConfig> BuildSoundConfigs()
-        {
-            const string G = "resources/audio/sfx/game/";
-            const string U = "resources/audio/sfx/ui/";
-            return new Dictionary<SoundType, SoundConfig>
-            {
-                [SoundType.TowerFire] = new() { FilePaths = new[] { G+"tower_fire_00.wav", G+"tower_fire_01.wav", G+"tower_fire_02.wav", G+"tower_fire_03.wav" }, Volume = 0.5f, PitchVariance = 0.15f, Cooldown = 0.04f, MaxInstances = 6 },
-                [SoundType.EnemyHit] = new() { FilePaths = new[] { G+"enemy_hit_00.wav", G+"enemy_hit_01.wav", G+"enemy_hit_02.wav", G+"enemy_hit_03.wav" }, Volume = 0.4f, PitchVariance = 0.2f, Cooldown = 0.03f, MaxInstances = 8 },
-                [SoundType.EnemyDeath] = new() { FilePaths = new[] { G+"enemy_death_00.wav", G+"enemy_death_01.wav", G+"enemy_death_02.wav", G+"enemy_death_03.wav" }, Volume = 0.6f, PitchVariance = 0.15f, Cooldown = 0.05f, MaxInstances = 4 },
-                [SoundType.ProjectileImpact] = new() { FilePaths = new[] { G+"projectile_impact_00.wav", G+"projectile_impact_01.wav", G+"projectile_impact_02.wav", G+"projectile_impact_03.wav" }, Volume = 0.35f, PitchVariance = 0.2f, Cooldown = 0.03f, MaxInstances = 8 },
-                [SoundType.TowerPlace] = new() { FilePaths = new[] { G+"tower_place_01.wav", G+"tower_place_02.wav", G+"tower_place_03.wav" }, Volume = 0.7f, PitchVariance = 0.1f, Cooldown = 0.2f },
-                [SoundType.TowerPlaceInvalid] = new() { FilePaths = new[] { G+"tower_place_invalid_00.wav", G+"tower_place_invalid_01.wav" }, Volume = 0.5f, Cooldown = 0.2f },
-                [SoundType.TowerHover] = new() { FilePaths = new[] { G+"tower_hover_00.wav" }, Volume = 0.3f, Cooldown = 0.1f },
-                [SoundType.ObjectiveHit] = new() { FilePaths = new[] { G+"objective_hit_00.wav", G+"objective_hit_01.wav" }, Volume = 0.7f, Cooldown = 0.1f },
-                [SoundType.GameOver] = new() { FilePaths = new[] { G+"game_over_00.wav" }, Volume = 0.8f, Cooldown = 1f },
-                [SoundType.LootCollect] = new() { FilePaths = new[] { G+"loot_collect_00.wav", G+"loot_collect_01.wav" }, Volume = 0.5f, PitchVariance = 0.2f, Cooldown = 0.05f, MaxInstances = 4 },
-                [SoundType.LootDrop] = new() { FilePaths = new[] { G+"loot_drop_00.wav", G+"loot_drop_01.wav" }, Volume = 0.4f, PitchVariance = 0.15f, Cooldown = 0.05f, MaxInstances = 4 },
-                [SoundType.WaveStart] = new() { FilePaths = new[] { U+"wave_start_00.wav", U+"wave_start_01.wav" }, Volume = 0.7f, Cooldown = 1f },
-                [SoundType.WaveComplete] = new() { FilePaths = new[] { U+"wave_complete_00.wav", U+"wave_complete_01.wav" }, Volume = 0.7f, Cooldown = 1f },
-                [SoundType.UIClick] = new() { FilePaths = new[] { U+"ui_click_01.wav", U+"ui_click_02.wav", U+"ui_click_03.wav" }, Volume = 0.5f, PitchVariance = 0.1f, Cooldown = 0.05f },
-                [SoundType.UIHover] = new() { FilePaths = new[] { U+"ui_hover_00.wav", U+"ui_hover_01.wav" }, Volume = 0.25f, Cooldown = 0.08f },
-                [SoundType.UIAnnounce] = new() { FilePaths = new[] { U+"ui_announce_00.wav" }, Volume = 0.6f, Cooldown = 0.5f },
-                [SoundType.EditorOpen] = new() { FilePaths = new[] { U+"editor_open_00.wav", U+"editor_open_01.wav" }, Volume = 0.5f, Cooldown = 0.2f },
-                [SoundType.EditorClose] = new() { FilePaths = new[] { U+"editor_close_00.wav", U+"editor_close_01.wav" }, Volume = 0.5f, Cooldown = 0.2f },
-                [SoundType.NodeGrab] = new() { FilePaths = new[] { U+"node_grab_00.wav", U+"node_grab_01.wav" }, Volume = 0.4f, PitchVariance = 0.1f, Cooldown = 0.05f },
-                [SoundType.NodeDrop] = new() { FilePaths = new[] { U+"node_drop_00.wav", U+"node_drop_01.wav" }, Volume = 0.4f, PitchVariance = 0.1f, Cooldown = 0.05f },
-                [SoundType.NodeRemove] = new() { FilePaths = new[] { U+"node_remove_00.wav", U+"node_remove_01.wav" }, Volume = 0.4f, Cooldown = 0.1f },
-                [SoundType.PortConnect] = new() { FilePaths = new[] { U+"port_connect_00.wav", U+"port_connect_01.wav" }, Volume = 0.45f, Cooldown = 0.1f },
-                [SoundType.PortDisconnect] = new() { FilePaths = new[] { U+"port_disconnect_00.wav", U+"port_disconnect_01.wav" }, Volume = 0.4f, Cooldown = 0.1f },
-                [SoundType.UIDragStart] = new() { FilePaths = new[] { U+"ui_drag_start_00.wav", U+"ui_drag_start_01.wav" }, Volume = 0.35f, Cooldown = 0.05f },
-                [SoundType.UIDragHover] = new() { FilePaths = new[] { U+"ui_drag_hover_00.wav" }, Volume = 0.25f, Cooldown = 0.08f },
-                [SoundType.UIDropFail] = new() { FilePaths = new[] { U+"ui_drop_fail_00.wav", U+"ui_drop_fail_01.wav" }, Volume = 0.4f, Cooldown = 0.1f },
-                [SoundType.UIDropdownOpen] = new() { FilePaths = new[] { U+"ui_dropdown_open_00.wav" }, Volume = 0.4f, Cooldown = 0.1f },
-                [SoundType.UIDropdownSelect] = new() { FilePaths = new[] { U+"ui_dropdown_select_00.wav" }, Volume = 0.4f, Cooldown = 0.05f },
-            };
-        }
 
         private static List<WaveDefinition> CreateTestWaves()
         {
@@ -608,11 +538,6 @@ namespace Gridlock.Core
 
             if (_postProcessingAvailable)
                 _postProcessing.Shutdown();
-
-            // Unload the outline shader whenever it was actually created (it is loaded but the
-            // outline render feature is disabled), so the GPU shader program isn't leaked.
-            if (_outlineShader.Id > 0)
-                Raylib.UnloadShader(_outlineShader);
 
             _gameManager.Shutdown();
             _gameStats.Shutdown();
